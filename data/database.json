@@ -1,12 +1,21 @@
 {
+  "admin": {
+    "username": "demirmedya",
+    "password": "123",
+    "name": "Demir Medya Sistem Yöneticisi"
+  },
   "stations": [
     {
       "id": "durak_merkez",
-      "name": "Merkez Taksi Durağı",
+      "name": "Merkez Moda Taksi Durağı",
+      "username": "merkez",
+      "password": "123",
+      "officerName": "Ahmet Yılmaz (Başkan)",
       "city": "İstanbul",
       "district": "Kadıköy",
       "address": "Moda Caddesi No:45 Kadıköy/İstanbul",
-      "phone": "0216 345 67 89",
+      "phone": "0532 999 88 77",
+      "status": "active",
       "location": {
         "lat": 40.9876,
         "lng": 29.0267
@@ -18,7 +27,55 @@
         "allowOperatorManualReorder": true,
         "themeColor": "amber"
       },
-      "createdAt": "2026-10-12T12:06:07.608Z"
+      "createdAt": "2026-02-15T09:30:00.000Z"
+    },
+    {
+      "id": "durak_alsancak",
+      "name": "Alsancak Kordon Taksi Durağı",
+      "username": "alsancak",
+      "password": "123",
+      "officerName": "Mustafa Çetin (Başkan)",
+      "city": "İzmir",
+      "district": "Konak",
+      "address": "Atatürk Caddesi Kordonboyu No:112 Alsancak/İzmir",
+      "phone": "0533 444 55 66",
+      "status": "active",
+      "location": {
+        "lat": 38.4382,
+        "lng": 27.1428
+      },
+      "geofenceRadiusMeters": 120,
+      "settings": {
+        "driverTimeoutSeconds": 30,
+        "autoQueueOnEnter": true,
+        "allowOperatorManualReorder": true,
+        "themeColor": "purple"
+      },
+      "createdAt": "2026-04-10T11:00:00.000Z"
+    },
+    {
+      "id": "durak_karsiyaka",
+      "name": "Karşıyaka İskele Taksi Durağı",
+      "username": "karsiyaka",
+      "password": "123",
+      "officerName": "Kemal Demir (Başkan)",
+      "city": "İzmir",
+      "district": "Karşıyaka",
+      "address": "Cemal Gürsel Caddesi Vapur İskelesi Karşısı No:18 Karşıyaka/İzmir",
+      "phone": "0542 333 77 88",
+      "status": "trial",
+      "location": {
+        "lat": 38.4565,
+        "lng": 27.1124
+      },
+      "geofenceRadiusMeters": 100,
+      "settings": {
+        "driverTimeoutSeconds": 30,
+        "autoQueueOnEnter": true,
+        "allowOperatorManualReorder": true,
+        "themeColor": "emerald"
+      },
+      "createdAt": "2026-10-02T14:15:00.000Z"
     }
   ],
   "vehicles": [

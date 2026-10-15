@@ -1,0 +1,48 @@
+# TaksideÖde Apache Configuration
+RewriteEngine On
+
+# HTTPS Redirect
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# MIME Types
+AddType application/vnd.android.package-archive .apk
+AddType image/svg+xml .svg
+AddType application/manifest+json .json
+
+# API Routing to PHP
+RewriteRule ^api/(.*)$ api/index.php?endpoint=$1 [QSA,L]
+RewriteRule ^api/?$ api/index.php [QSA,L]
+
+# Friendly URLs
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^login/?$ login.html [L,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^admin/?$ admin.html [L,QSA]
+
+# On taksideode.com.tr, /panel is the Master Station Management Panel (admin.html)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^panel/?$ admin.html [L,QSA]
+
+# Durak Taxi Panel
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^durak-panel/?$ panel.html [L,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^cagri/([a-zA-Z0-9_-]+)/?$ cagri.html [L,QSA]
+
+RewriteRule ^apk/?$ TaksideOde_POS_v1.0.apk [L]
+RewriteRule ^pos/?$ TaksideOde_POS_v1.0.apk [L]
+
+# Security Headers
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set X-XSS-Protection "1; mode=block"
+</IfModule>

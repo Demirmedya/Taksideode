@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş Yap • TaksideÖde Yönetim Portalı</title>
+  <link rel="icon" type="image/png" href="/images/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: #ffffff;
+      min-height: 100vh;
+      color: #0f172a;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    .login-container {
+      display: flex;
+      width: 100vw;
+      min-height: 100vh;
+    }
+
+    /* SOL TARAF: FORM */
+    .login-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 64px;
+      max-width: 620px;
+      background: #ffffff;
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+
+    .brand-logo-text {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #d97706;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .brand-logo-text span {
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    .form-wrapper {
+      width: 100%;
+      max-width: 420px;
+      margin: auto 0;
+      padding: 24px 0;
+    }
+
+    .form-wrapper h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.7px;
+      margin-bottom: 8px;
+    }
+
+    .form-wrapper p.subtitle {
+      color: #64748b;
+      font-size: 14.5px;
+      font-weight: 500;
+      margin-bottom: 32px;
+    }
+
+    .alert-error {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      height: 48px;
+      padding: 0 44px 0 16px;
+      font-size: 14.5px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      outline: none;
+      transition: all 0.2s ease;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .input-wrapper input:focus {
+      background: #ffffff;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    }
+
+    .input-wrapper input::placeholder {
+      color: #94a3b8;
+    }
+
+    .input-icon-btn {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      padding: 4px;
+      transition: color 0.15s;
+    }
+
+    .input-icon-btn:hover {
+      color: #475569;
+    }
+
+    .form-row-between {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: -8px;
+      margin-bottom: 24px;
+    }
+
+    .forgot-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: #d97706;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .forgot-link:hover {
+      color: #b45309;
+      text-decoration: underline;
+    }
+
+    .btn-submit {
+      width: 100%;
+      height: 48px;
+      background: #f59e0b;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .btn-submit:hover {
+      background: #d97706;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(217, 119, 6, 0.4);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* DEMO HIZLI DOLDURMA */
+    .demo-selector {
+      margin-top: 26px;
+      padding-top: 20px;
+      border-top: 1px dashed #e2e8f0;
+    }
+
+    .demo-selector-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .demo-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .demo-pill {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .demo-pill:hover {
+      background: #fef3c7;
+      border-color: #fcd34d;
+      color: #92400e;
+    }
+
+    .demo-pill.admin-pill:hover {
+      background: #ede9fe;
+      border-color: #ddd6fe;
+      color: #5b21b6;
+    }
+
+    .login-footer {
+      font-size: 12.5px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .login-footer a {
+      color: #64748b;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* SAĞ TARAF: VİTRİN / HERO */
+    .login-right {
+      flex: 1.3;
+      background: linear-gradient(135deg, #c28810 0%, #a16207 45%, #78350f 100%);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 64px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Arka plan dekoratif daireler */
+    .ambient-circle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .ambient-circle-1 {
+      width: 520px;
+      height: 520px;
+      top: -120px;
+      right: -120px;
+    }
+
+    .ambient-circle-2 {
+      width: 440px;
+      height: 440px;
+      bottom: -100px;
+      left: -80px;
+    }
+
+    .ambient-circle-3 {
+      width: 240px;
+      height: 240px;
+      top: 35%;
+      right: 15%;
+      background: rgba(251, 191, 36, 0.12);
+      filter: blur(40px);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 520px;
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      color: #ffffff;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 400;
+      line-height: 1.6;
+      margin-bottom: 48px;
+    }
+
+    /* 4 İSTATİSTİK KUTUSU */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      width: 100%;
+    }
+
+    .stat-card {
+      background: rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      padding: 24px 20px;
+      text-align: left;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .stat-label {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* MOBİL VE TABLET UYUMLULUĞU */
+    @media (max-width: 980px) {
+      .login-container {
+        flex-direction: column;
+      }
+      .login-left {
+        max-width: 100%;
+        padding: 36px 24px;
+      }
+      .login-right {
+        padding: 48px 24px;
+      }
+      .hero-title {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    
+    <!-- SOL PANEL: GİRİŞ FORMU -->
+    <div class="login-left">
+      <!-- Üst Logo -->
+      <a href="/" class="brand-header">
+        <div class="brand-logo-icon">🚕</div>
+        <div class="brand-logo-text">TAKSİDE<span>ÖDE</span></div>
+      </a>
+
+      <!-- Giriş Formu -->
+      <div class="form-wrapper">
+        <h1>Hesabınıza giriş yapın</h1>
+        <p class="subtitle">Devam etmek için bilgilerinizi girin</p>
+
+        <div id="alertBox" class="alert-error"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="username">Kullanıcı Adı</label>
+            <div class="input-wrapper">
+              <input type="text" id="username" placeholder="durak kullanıcı adı veya admin" required autocomplete="username">
+              <span class="input-icon-btn" title="Kullanıcı">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Şifre</label>
+            <div class="input-wrapper">
+              <input type="password" id="password" placeholder="Şifrenizi girin" required autocomplete="current-password">
+              <button type="button" class="input-icon-btn" onclick="togglePasswordVisibility()" title="Şifreyi Göster/Gizle">
+                <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row-between">
+            <a href="https://wa.me/905415776277?text=Merhaba,%20TaksideÖde%20panel%20şifremi%20unuttum" target="_blank" class="forgot-link">Şifremi Unuttum?</a>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span>Giriş Yap</span>
+          </button>
+        </form>
+
+        <!-- Hızlı Test & Demo Seçicisi -->
+        <div class="demo-selector">
+          <div class="demo-selector-title">
+            <span>⚡ Hızlı Giriş Seçenekleri</span>
+          </div>
+          <div class="demo-badges">
+            <div class="demo-pill admin-pill" onclick="quickFill('demirmedya', '123')">
+              <span>👑 Demir Medya (Süper Admin)</span>
+            </div>
+            <div class="demo-pill" onclick="quickFill('merkez', '123')">
+              <span>🚕 Merkez Moda Durağı</span>
+            </div>
+            <div class="demo-pill" onclick="quickFill('alsancak', '123')">
+              <span>🚕 Alsancak Kordon</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alt Bilgi -->
+      <div class="login-footer">
+        <div>© 2026 <a href="https://demirmedyadijital.com" target="_blank">Demir Medya Dijital</a>. Tüm hakları saklıdır.</div>
+        <div style="font-size: 11px; margin-top: 4px;">v2.4.0 • Enterprise Edition</div>
+      </div>
+    </div>
+
+    <!-- SAĞ PANEL: HERO & METRİKLER -->
+    <div class="login-right">
+      <div class="ambient-circle ambient-circle-1"></div>
+      <div class="ambient-circle ambient-circle-2"></div>
+      <div class="ambient-circle ambient-circle-3"></div>
+
+      <div class="hero-content">
+        <h2 class="hero-title">Filo yönetiminde yeni nesil çözüm</h2>
+        <p class="hero-subtitle">Araçlarınızı, sürücülerinizi ve çağrılarınızı tek bir panelden kolayca yönetin.</p>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">150+</div>
+            <div class="stat-label">Aktif Araç</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">1.2K</div>
+            <div class="stat-label">Günlük Çağrı</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Memnuniyet</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">7/24</div>
+            <div class="stat-label">Destek</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Şifre Göster / Gizle
+    function togglePasswordVisibility() {
+      const passInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        eyeIcon.innerHTML = `
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+        `;
+      } else {
+        passInput.type = 'password';
+        eyeIcon.innerHTML = `
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        `;
+      }
+    }
+
+    // Hızlı Giriş Doldurucu
+    function quickFill(user, pass) {
+      document.getElementById('username').value = user;
+      document.getElementById('password').value = pass;
+      document.getElementById('alertBox').style.display = 'none';
+      document.getElementById('submitBtn').focus();
+    }
+
+    // Giriş İşlemi
+    async function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const submitBtn = document.getElementById('submitBtn');
+      const alertBox = document.getElementById('alertBox');
+
+      alertBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Doğrulanıyor...</span>';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          throw new Error(data.error || 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.');
+        }
+
+        // Başarılı Giriş -> Oturum Bilgisini Sakla
+        localStorage.setItem('taksideode_auth', JSON.stringify({
+          role: data.role,
+          user: data.user || null,
+          station: data.station || null,
+          timestamp: Date.now()
+        }));
+
+        submitBtn.innerHTML = '<span>✓ Giriş Başarılı! Yönlendiriliyorsunuz...</span>';
+        submitBtn.style.background = '#10b981';
+
+        setTimeout(() => {
+          if (data.role === 'admin') {
+            // Demir Medya Sistem Yöneticisi -> Master Durak Paneline (/panel veya /admin)
+            window.location.href = '/panel';
+          } else {
+            // Durak Yöneticisi -> Durak Paneline (demodurak veya /durak-panel)
+            const host = window.location.hostname;
+            if (host.includes('taksideode.com.tr') && !host.includes('demodurak')) {
+              window.location.href = 'https://demodurak.taksideode.com.tr?stationId=' + (data.station ? data.station.id : 'durak_merkez');
+            } else {
+              window.location.href = (data.redirectUrl || '/durak-panel') + (data.station ? `?stationId=${data.station.id}` : '');
+            }
+          }
+        }, 600);
+
+      } catch (err) {
+        alertBox.textContent = err.message;
+        alertBox.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Giriş Yap</span>';
+      }
+    }
+
+    // Sayfa Yüklendiğinde URL parametrelerini kontrol et (ör. ?registered=1 veya ?logout=1)
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('logout') === '1') {
+        localStorage.removeItem('taksideode_auth');
+      }
+    });
+  </script>
+</body>
+</html>

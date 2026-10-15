@@ -4,6 +4,208 @@ const db = require('../data/store');
 const QREngine = require('./qrEngine');
 
 module.exports = function(queueEngine, io) {
+  // ==========================================
+  // AUTH (DURAK & SÜPER ADMİN GİRİŞİ)
+  // ==========================================
+  router.post('/auth/login', (req, res) => {
+    const { username, password } = req.body;
+    const data = db.get();
+
+    // 1. Süper Admin Kontrolü
+    const admin = data.admin || { username: 'demirmedya', password: '123' };
+    if (admin.username === username && admin.password === password) {
+      return res.json({
+        success: true,
+        role: 'admin',
+        user: { name: admin.name || 'Demir Medya Admin', username: admin.username },
+        redirectUrl: '/admin'
+      });
+    }
+
+    // 2. Durak Girişi Kontrolü
+    const station = (data.stations || []).find(s => 
+      (s.username && s.username.toLowerCase() === (username || '').toLowerCase().trim()) ||
+      s.id === username
+    );
+
+    if (station) {
+      if (station.password !== password) {
+        return res.status(401).json({ success: false, error: 'Durak şifresi hatalı!' });
+      }
+      if (station.status === 'passive') {
+        return res.status(403).json({ success: false, error: 'Bu durak hesabı pasife alınmıştır. Lütfen sistem yöneticisi ile iletişime geçiniz.' });
+      }
+
+      return res.json({
+        success: true,
+        role: 'station',
+        station: {
+          id: station.id,
+          name: station.name,
+          city: station.city,
+          district: station.district,
+          username: station.username
+        },
+        redirectUrl: `/panel?stationId=${station.id}`
+      });
+    }
+
+    return res.status(401).json({ success: false, error: 'Kullanıcı adı veya şifre hatalı!' });
+  });
+
+  // ==========================================
+  // SÜPER ADMİN (TÜM DURAKLARIN YÖNETİMİ)
+  // ==========================================
+  router.get('/admin/overview', (req, res) => {
+    const data = db.get();
+    const stations = data.stations || [];
+    const vehicles = data.vehicles || [];
+    const drivers = data.drivers || [];
+    const calls = data.calls || [];
+
+    const detailedStations = stations.map(st => {
+      const stVehicles = vehicles.filter(v => v.station_id === st.id);
+      const stDrivers = drivers.filter(d => d.station_id === st.id);
+      const stCalls = calls.filter(c => c.station_id === st.id);
+      const completedCalls = stCalls.filter(c => c.status === 'completed');
+      const totalRevenue = completedCalls.reduce((sum, c) => sum + (c.fare || 0), 0);
+      
+      const createdTime = st.createdAt ? new Date(st.createdAt).getTime() : Date.now();
+      const diffDays = Math.max(1, Math.round((Date.now() - createdTime) / (1000 * 60 * 60 * 24)));
+      const durationText = diffDays > 30 ? `${Math.round(diffDays / 30)} Aydır Bizimle` : `${diffDays} Gündür Bizimle`;
+
+      return {
+        ...st,
+        vehicleCount: stVehicles.length,
+        driverCount: stDrivers.length,
+        totalCallsCount: stCalls.length,
+        completedCallsCount: completedCalls.length,
+        totalRevenue,
+        durationDays: diffDays,
+        durationText
+      };
+    });
+
+    const totalSystemRevenue = calls.filter(c => c.status === 'completed').reduce((sum, c) => sum + (c.fare || 0), 0);
+
+    res.json({
+      success: true,
+      stats: {
+        totalStations: stations.length,
+        activeStations: stations.filter(s => s.status === 'active').length,
+        trialStations: stations.filter(s => s.status === 'trial').length,
+        totalVehicles: vehicles.length,
+        totalDrivers: drivers.length,
+        totalCalls: calls.length,
+        totalRevenue: totalSystemRevenue
+      },
+      stations: detailedStations
+    });
+  });
+
+  // Yeni Durak Ekle
+  router.post('/admin/stations', (req, res) => {
+    const { name, username, password, officerName, phone, city, district, address, lat, lng, geofenceRadiusMeters, status } = req.body;
+    if (!name || !username || !password) {
+      return res.status(400).json({ success: false, error: 'Durak adı, kullanıcı adı ve şifre zorunludur.' });
+    }
+
+    const newId = 'durak_' + Date.now();
+    const newStation = {
+      id: newId,
+      name,
+      username: username.toLowerCase().trim(),
+      password,
+      officerName: officerName || '',
+      phone: phone || '',
+      city: city || 'İstanbul',
+      district: district || '',
+      address: address || '',
+      status: status || 'active',
+      location: {
+        lat: lat ? parseFloat(lat) : 40.9876,
+        lng: lng ? parseFloat(lng) : 29.0267
+      },
+      geofenceRadiusMeters: geofenceRadiusMeters ? parseInt(geofenceRadiusMeters) : 100,
+      settings: {
+        driverTimeoutSeconds: 30,
+        autoQueueOnEnter: true,
+        allowOperatorManualReorder: true,
+        themeColor: 'amber'
+      },
+      createdAt: new Date().toISOString()
+    };
+
+    db.update(d => {
+      d.stations = d.stations || [];
+      d.stations.push(newStation);
+      return d;
+    });
+
+    res.json({ success: true, station: newStation });
+  });
+
+  // Durak Düzenle
+  router.put('/admin/stations/:id', (req, res) => {
+    const { id } = req.params;
+    const { name, username, password, officerName, phone, city, district, address, status, lat, lng } = req.body;
+    let updated = null;
+
+    db.update(d => {
+      const st = (d.stations || []).find(s => s.id === id);
+      if (st) {
+        if (name) st.name = name;
+        if (username) st.username = username.toLowerCase().trim();
+        if (password) st.password = password;
+        if (officerName !== undefined) st.officerName = officerName;
+        if (phone !== undefined) st.phone = phone;
+        if (city !== undefined) st.city = city;
+        if (district !== undefined) st.district = district;
+        if (address !== undefined) st.address = address;
+        if (status !== undefined) st.status = status;
+        if (lat) st.location.lat = parseFloat(lat);
+        if (lng) st.location.lng = parseFloat(lng);
+        updated = st;
+      }
+      return d;
+    });
+
+    if (!updated) return res.status(404).json({ success: false, error: 'Durak bulunamadı.' });
+    res.json({ success: true, station: updated });
+  });
+
+  // Durak Durumu Değiştir (Aktif / Pasif)
+  router.post('/admin/stations/:id/toggle-status', (req, res) => {
+    const { id } = req.params;
+    let updated = null;
+
+    db.update(d => {
+      const st = (d.stations || []).find(s => s.id === id);
+      if (st) {
+        st.status = st.status === 'active' ? 'passive' : 'active';
+        updated = st;
+      }
+      return d;
+    });
+
+    if (!updated) return res.status(404).json({ success: false, error: 'Durak bulunamadı.' });
+    res.json({ success: true, station: updated });
+  });
+
+  // Durak Sil
+  router.delete('/admin/stations/:id', (req, res) => {
+    const { id } = req.params;
+    db.update(d => {
+      d.stations = (d.stations || []).filter(s => s.id !== id);
+      d.vehicles = (d.vehicles || []).filter(v => v.station_id !== id);
+      d.drivers = (d.drivers || []).filter(drv => drv.station_id !== id);
+      d.shifts = (d.shifts || []).filter(sh => sh.station_id !== id);
+      d.qrPoints = (d.qrPoints || []).filter(q => q.station_id !== id);
+      return d;
+    });
+    res.json({ success: true, message: 'Durak ve ilişkili verileri silindi.' });
+  });
+
   // 1. Durak Genel Bakış & Finansal/Operasyon Verisi (Pano İstatistikleri)
   router.get('/stations/:id/overview', (req, res) => {
     const stationId = req.params.id;

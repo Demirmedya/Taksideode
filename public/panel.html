@@ -29,6 +29,19 @@
       color: #ffffff;
     }
   </style>
+  <script>
+    // Durak Oturum Kontrolü (Giriş yapılmamışsa login ekranına yönlendir)
+    (function() {
+      try {
+        const auth = JSON.parse(localStorage.getItem('taksideode_auth'));
+        const urlParams = new URLSearchParams(window.location.search);
+        // Doğrudan demo veya stationId parametresi verilmişse veya geçerli bir auth varsa geç
+        if (!auth && !urlParams.get('stationId') && !urlParams.get('demo')) {
+          window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -134,6 +147,9 @@
           </button>
           <button class="btn btn-accent" onclick="openPhoneModal()">
             📞 Telefon İşi Ekle
+          </button>
+          <button class="btn btn-secondary" onclick="handleStationLogout()" style="color: #ef4444; border-color: #fecaca; background: #fff5f5;" title="Oturumu Kapat">
+            🚪 Çıkış
           </button>
         </div>
       </header>

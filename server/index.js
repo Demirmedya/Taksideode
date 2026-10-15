@@ -57,7 +57,32 @@ app.get('/cagri/:qrCode', (req, res) => {
 });
 
 // Sayfa Rotaları
+app.get('/', (req, res, next) => {
+  const host = (req.headers.host || '').toLowerCase();
+  if (host.startsWith('demodurak.')) {
+    return res.sendFile(path.join(__dirname, '../public/panel.html'));
+  }
+  return res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/login.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin.html'));
+});
+
 app.get('/panel', (req, res) => {
+  const host = (req.headers.host || '').toLowerCase();
+  if (host.startsWith('demodurak.')) {
+    return res.sendFile(path.join(__dirname, '../public/panel.html'));
+  }
+  // Ana alan adında /panel -> Master Durak Yönetim Konsolu (Admin)
+  return res.sendFile(path.join(__dirname, '../public/admin.html'));
+});
+
+app.get(['/durak-panel', '/station-panel'], (req, res) => {
   res.sendFile(path.join(__dirname, '../public/panel.html'));
 });
 

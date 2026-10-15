@@ -1,4 +1,18 @@
-const CURRENT_STATION_ID = 'durak_merkez';
+// URL parametresinden veya oturumdan aktif durak kimliğini dinamik al
+const urlParams = new URLSearchParams(window.location.search);
+let authData = null;
+try {
+  authData = JSON.parse(localStorage.getItem('taksideode_auth'));
+} catch(e) {}
+
+const CURRENT_STATION_ID = urlParams.get('stationId') || 
+  (authData && authData.station ? authData.station.id : 'durak_merkez');
+
+function handleStationLogout() {
+  localStorage.removeItem('taksideode_auth');
+  window.location.href = '/login?logout=1';
+}
+
 const socket = io();
 
 let map = null;
