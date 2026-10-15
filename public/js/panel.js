@@ -8,6 +8,23 @@ try {
 const CURRENT_STATION_ID = urlParams.get('stationId') || 
   (authData && authData.station ? authData.station.id : 'durak_merkez');
 
+const isDemoMode = (urlParams.get('demo') === '1' || (authData && (authData.role === 'demo' || authData.isDemo)));
+
+function checkDemoPermission(actionName = 'Bu işlem') {
+  if (isDemoMode) {
+    const textEl = document.getElementById('demoRestrictedActionText');
+    if (textEl) textEl.textContent = actionName;
+    const modal = document.getElementById('demoRestrictedModal');
+    if (modal) {
+      modal.style.display = 'flex';
+    } else {
+      alert(`🔒 Demo Modu Koruması: ${actionName} yetkisi kısıtlanmıştır.\nTam yetkili panel için Demir Medya ile iletişime geçiniz: 0541 577 62 77`);
+    }
+    return false;
+  }
+  return true;
+}
+
 function handleStationLogout() {
   localStorage.removeItem('taksideode_auth');
   window.location.href = '/login?logout=1';
@@ -39,6 +56,11 @@ const tabMeta = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (isDemoMode) {
+    const banner = document.getElementById('demoModeBanner');
+    if (banner) banner.style.display = 'flex';
+  }
+
   initMap();
   initSocket();
   fetchStationData();
@@ -46,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Telefon İşi Formu
   document.getElementById('phoneCallForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!checkDemoPermission('Telefonla Çağrı / İş Ekleme')) return;
     const body = {
       stationId: CURRENT_STATION_ID,
       pickupAddress: document.getElementById('pcAddress').value,
@@ -681,12 +704,14 @@ function renderFleetTables(vehicles, drivers) {
 }
 
 async function deleteVehicle(id) {
+  if (!checkDemoPermission('Araç Silme')) return;
   if (!confirm('Aracı silmek istediğinize emin misiniz?')) return;
   await fetch(`/api/stations/${CURRENT_STATION_ID}/vehicles/${id}`, { method: 'DELETE' });
   fetchStationData();
 }
 
 async function deleteDriver(id) {
+  if (!checkDemoPermission('Şoför Silme')) return;
   if (!confirm('Şoförü silmek istediğinize emin misiniz?')) return;
   await fetch(`/api/stations/${CURRENT_STATION_ID}/drivers/${id}`, { method: 'DELETE' });
   fetchStationData();
@@ -749,6 +774,7 @@ function renderCustomersTable(customers) {
 }
 
 async function deleteCustomer(id) {
+  if (!checkDemoPermission('Müşteri Silme')) return;
   if (!confirm('Müşteriyi silmek istediğinize emin misiniz?')) return;
   await fetch(`/api/stations/${CURRENT_STATION_ID}/customers/${id}`, { method: 'DELETE' });
   fetchStationData();
@@ -784,11 +810,13 @@ function renderAnnouncementsTable(announcements) {
 }
 
 async function toggleAnnouncement(id) {
+  if (!checkDemoPermission('Duyuru Durumunu Değiştirme')) return;
   await fetch(`/api/stations/${CURRENT_STATION_ID}/announcements/${id}/toggle`, { method: 'POST' });
   fetchStationData();
 }
 
 async function deleteAnnouncement(id) {
+  if (!checkDemoPermission('Duyuru Silme')) return;
   if (!confirm('Duyuruyu silmek istediğinize emin misiniz?')) return;
   await fetch(`/api/stations/${CURRENT_STATION_ID}/announcements/${id}`, { method: 'DELETE' });
   fetchStationData();

@@ -57,7 +57,7 @@ if ($endpoint === 'auth/login' && $method === 'POST') {
     $password = trim($input['password'] ?? '');
 
     // Süper Admin Kontrolü
-    $admin = $data['admin'] ?? ['username' => 'demirmedya', 'password' => '123', 'name' => 'Demir Medya Admin'];
+    $admin = $data['admin'] ?? ['username' => 'taksideode', 'password' => 'Doguhan2001', 'name' => 'Demir Medya Admin'];
     if ($admin['username'] === $username && $admin['password'] === $password) {
         echo json_encode([
             'success' => true,

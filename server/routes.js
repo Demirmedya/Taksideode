@@ -12,7 +12,7 @@ module.exports = function(queueEngine, io) {
     const data = db.get();
 
     // 1. Süper Admin Kontrolü
-    const admin = data.admin || { username: 'demirmedya', password: '123' };
+    const admin = data.admin || { username: 'taksideode', password: 'Doguhan2001' };
     if (admin.username === username && admin.password === password) {
       return res.json({
         success: true,

@@ -9,6 +9,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-purple: #7c3aed;
+      --primary-purple-hover: #6d28d9;
+      --accent-gold: #f59e0b;
+      --accent-gold-hover: #d97706;
+      --bg-dark: #0f172a;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -19,7 +29,7 @@
     body {
       background: #ffffff;
       min-height: 100vh;
-      color: #0f172a;
+      color: var(--text-main);
       display: flex;
       overflow-x: hidden;
     }
@@ -50,37 +60,15 @@
       text-decoration: none;
     }
 
-    .brand-logo-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
-    }
-
-    .brand-logo-text {
-      font-size: 20px;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-      color: #d97706;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .brand-logo-text span {
-      color: #0f172a;
-      font-weight: 800;
+    .brand-logo-img {
+      height: 52px;
+      max-width: 220px;
+      object-fit: contain;
     }
 
     .form-wrapper {
       width: 100%;
-      max-width: 420px;
+      max-width: 430px;
       margin: auto 0;
       padding: 24px 0;
     }
@@ -97,7 +85,7 @@
       color: #64748b;
       font-size: 14.5px;
       font-weight: 500;
-      margin-bottom: 32px;
+      margin-bottom: 30px;
     }
 
     .alert-error {
@@ -133,11 +121,11 @@
 
     .input-wrapper input {
       width: 100%;
-      height: 48px;
+      height: 50px;
       padding: 0 44px 0 16px;
       font-size: 14.5px;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
       outline: none;
       transition: all 0.2s ease;
       background: #f8fafc;
@@ -146,8 +134,8 @@
 
     .input-wrapper input:focus {
       background: #ffffff;
-      border-color: #f59e0b;
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+      border-color: var(--primary-purple);
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
     }
 
     .input-wrapper input::placeholder {
@@ -177,32 +165,32 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      margin-top: -8px;
+      margin-top: -6px;
       margin-bottom: 24px;
     }
 
     .forgot-link {
       font-size: 13px;
       font-weight: 600;
-      color: #d97706;
+      color: var(--primary-purple);
       text-decoration: none;
       transition: color 0.15s;
     }
 
     .forgot-link:hover {
-      color: #b45309;
+      color: #5b21b6;
       text-decoration: underline;
     }
 
     .btn-submit {
       width: 100%;
-      height: 48px;
-      background: #f59e0b;
+      height: 50px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
       color: #ffffff;
-      font-size: 15px;
+      font-size: 15.5px;
       font-weight: 700;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -213,7 +201,7 @@
     }
 
     .btn-submit:hover {
-      background: #d97706;
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
       transform: translateY(-1px);
       box-shadow: 0 6px 18px rgba(217, 119, 6, 0.4);
     }
@@ -227,56 +215,64 @@
       cursor: not-allowed;
     }
 
-    /* DEMO HIZLI DOLDURMA */
-    .demo-selector {
-      margin-top: 26px;
-      padding-top: 20px;
-      border-top: 1px dashed #e2e8f0;
+    /* DEMO GİRİŞ KARTI (CANLI DEMO İNCELEME) */
+    .demo-showcase-box {
+      margin-top: 28px;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(245, 158, 11, 0.08) 100%);
+      border: 1.5px dashed rgba(124, 58, 237, 0.3);
+      border-radius: 14px;
+      text-align: center;
+      transition: all 0.2s;
     }
 
-    .demo-selector-title {
-      font-size: 12px;
-      font-weight: 700;
+    .demo-showcase-box:hover {
+      border-color: var(--primary-purple);
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(245, 158, 11, 0.12) 100%);
+    }
+
+    .demo-showcase-tag {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--primary-purple);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #94a3b8;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+      display: inline-block;
     }
 
-    .demo-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .demo-pill {
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      color: #334155;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
+    .demo-showcase-btn {
+      width: 100%;
+      height: 44px;
+      background: #ffffff;
+      border: 1.5px solid var(--primary-purple);
+      color: var(--primary-purple);
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 10px;
       cursor: pointer;
-      transition: all 0.15s;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.12);
     }
 
-    .demo-pill:hover {
-      background: #fef3c7;
-      border-color: #fcd34d;
-      color: #92400e;
+    .demo-showcase-btn:hover {
+      background: var(--primary-purple);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
     }
 
-    .demo-pill.admin-pill:hover {
-      background: #ede9fe;
-      border-color: #ddd6fe;
-      color: #5b21b6;
+    .demo-note {
+      font-size: 11.5px;
+      color: #64748b;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
     }
 
     .login-footer {
@@ -291,10 +287,10 @@
       font-weight: 600;
     }
 
-    /* SAĞ TARAF: VİTRİN / HERO */
+    /* SAĞ TARAF: HERO / VİTRİN */
     .login-right {
       flex: 1.3;
-      background: linear-gradient(135deg, #c28810 0%, #a16207 45%, #78350f 100%);
+      background: linear-gradient(135deg, #1e1b4b 0%, #31104b 45%, #78350f 100%);
       color: #ffffff;
       display: flex;
       flex-direction: column;
@@ -305,35 +301,38 @@
       overflow: hidden;
     }
 
-    /* Arka plan dekoratif daireler */
+    /* Dekoratif ambient halkalar */
     .ambient-circle {
       position: absolute;
       border-radius: 50%;
       pointer-events: none;
-      background: rgba(255, 255, 255, 0.05);
     }
 
     .ambient-circle-1 {
-      width: 520px;
-      height: 520px;
+      width: 560px;
+      height: 560px;
       top: -120px;
       right: -120px;
+      background: rgba(124, 58, 237, 0.16);
+      filter: blur(50px);
     }
 
     .ambient-circle-2 {
-      width: 440px;
-      height: 440px;
+      width: 480px;
+      height: 480px;
       bottom: -100px;
       left: -80px;
+      background: rgba(245, 158, 11, 0.14);
+      filter: blur(60px);
     }
 
     .ambient-circle-3 {
-      width: 240px;
-      height: 240px;
-      top: 35%;
-      right: 15%;
-      background: rgba(251, 191, 36, 0.12);
-      filter: blur(40px);
+      width: 300px;
+      height: 300px;
+      top: 40%;
+      right: 20%;
+      background: rgba(234, 179, 8, 0.1);
+      filter: blur(45px);
     }
 
     .hero-content {
@@ -341,6 +340,21 @@
       z-index: 2;
       max-width: 520px;
       text-align: center;
+    }
+
+    .hero-brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 24px;
     }
 
     .hero-title {
@@ -369,9 +383,9 @@
     }
 
     .stat-card {
-      background: rgba(0, 0, 0, 0.18);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 16px;
       padding: 24px 20px;
@@ -381,13 +395,14 @@
 
     .stat-card:hover {
       transform: translateY(-2px);
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(251, 191, 36, 0.4);
     }
 
     .stat-number {
       font-size: 28px;
       font-weight: 800;
-      color: #ffffff;
+      color: #fbbf24;
       margin-bottom: 4px;
       letter-spacing: -0.5px;
     }
@@ -395,7 +410,7 @@
     .stat-label {
       font-size: 13.5px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, 0.85);
     }
 
     @keyframes fadeIn {
@@ -403,7 +418,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* MOBİL VE TABLET UYUMLULUĞU */
+    /* MOBİL VE TABLET */
     @media (max-width: 980px) {
       .login-container {
         flex-direction: column;
@@ -427,10 +442,9 @@
     
     <!-- SOL PANEL: GİRİŞ FORMU -->
     <div class="login-left">
-      <!-- Üst Logo -->
+      <!-- Orijinal Logo -->
       <a href="/" class="brand-header">
-        <div class="brand-logo-icon">🚕</div>
-        <div class="brand-logo-text">TAKSİDE<span>ÖDE</span></div>
+        <img src="/images/logo.png" alt="TaksideÖde" class="brand-logo-img">
       </a>
 
       <!-- Giriş Formu -->
@@ -476,21 +490,14 @@
           </button>
         </form>
 
-        <!-- Hızlı Test & Demo Seçicisi -->
-        <div class="demo-selector">
-          <div class="demo-selector-title">
-            <span>⚡ Hızlı Giriş Seçenekleri</span>
-          </div>
-          <div class="demo-badges">
-            <div class="demo-pill admin-pill" onclick="quickFill('demirmedya', '123')">
-              <span>👑 Demir Medya (Süper Admin)</span>
-            </div>
-            <div class="demo-pill" onclick="quickFill('merkez', '123')">
-              <span>🚕 Merkez Moda Durağı</span>
-            </div>
-            <div class="demo-pill" onclick="quickFill('alsancak', '123')">
-              <span>🚕 Alsancak Kordon</span>
-            </div>
+        <!-- CANLI DURAK PANELİ DEMOSU -->
+        <div class="demo-showcase-box">
+          <span class="demo-showcase-tag">✨ Tanıtım & İnceleme</span>
+          <button type="button" class="demo-showcase-btn" onclick="enterDemoMode()">
+            <span>🚀 Durak Panel Demosuna Giriş Yap</span>
+          </button>
+          <div class="demo-note">
+            <span>🔒 Demo modu canlı izleme amaçlıdır, değişiklikler salt okunurdur.</span>
           </div>
         </div>
       </div>
@@ -509,6 +516,9 @@
       <div class="ambient-circle ambient-circle-3"></div>
 
       <div class="hero-content">
+        <div class="hero-brand-badge">
+          <span>🚕 YENİ NESİL AKILLI DURAK</span>
+        </div>
         <h2 class="hero-title">Filo yönetiminde yeni nesil çözüm</h2>
         <p class="hero-subtitle">Araçlarınızı, sürücülerinizi ve çağrılarınızı tek bir panelden kolayca yönetin.</p>
 
@@ -522,7 +532,7 @@
             <div class="stat-label">Günlük Çağrı</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number">98%</div>
+            <div class="stat-number">%98</div>
             <div class="stat-label">Memnuniyet</div>
           </div>
           <div class="stat-card">
@@ -555,15 +565,30 @@
       }
     }
 
-    // Hızlı Giriş Doldurucu
-    function quickFill(user, pass) {
-      document.getElementById('username').value = user;
-      document.getElementById('password').value = pass;
-      document.getElementById('alertBox').style.display = 'none';
-      document.getElementById('submitBtn').focus();
+    // Demo Moduna Doğrudan Geçiş (Salt Okunur Demo Hesabı)
+    function enterDemoMode() {
+      localStorage.setItem('taksideode_auth', JSON.stringify({
+        role: 'demo',
+        isDemo: true,
+        user: { name: 'Demo Misafir Kullanıcı' },
+        station: {
+          id: 'durak_merkez',
+          name: 'Merkez Moda Taksi Durağı (Demo)',
+          city: 'İstanbul',
+          district: 'Kadıköy'
+        },
+        timestamp: Date.now()
+      }));
+
+      const host = window.location.hostname;
+      if (host.includes('taksideode.com.tr') && !host.includes('demodurak')) {
+        window.location.href = 'https://demodurak.taksideode.com.tr?demo=1';
+      } else {
+        window.location.href = '/durak-panel?demo=1';
+      }
     }
 
-    // Giriş İşlemi
+    // Gerçek Giriş İşlemi
     async function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
@@ -588,7 +613,7 @@
           throw new Error(data.error || 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.');
         }
 
-        // Başarılı Giriş -> Oturum Bilgisini Sakla
+        // Başarılı Giriş -> Oturum Sakla
         localStorage.setItem('taksideode_auth', JSON.stringify({
           role: data.role,
           user: data.user || null,
@@ -601,10 +626,10 @@
 
         setTimeout(() => {
           if (data.role === 'admin') {
-            // Demir Medya Sistem Yöneticisi -> Master Durak Paneline (/panel veya /admin)
+            // Demir Medya Sistem Yöneticisi -> Master Durak Paneline (/panel)
             window.location.href = '/panel';
           } else {
-            // Durak Yöneticisi -> Durak Paneline (demodurak veya /durak-panel)
+            // Durak Yöneticisi -> Durak Paneline
             const host = window.location.hostname;
             if (host.includes('taksideode.com.tr') && !host.includes('demodurak')) {
               window.location.href = 'https://demodurak.taksideode.com.tr?stationId=' + (data.station ? data.station.id : 'durak_merkez');
@@ -612,7 +637,7 @@
               window.location.href = (data.redirectUrl || '/durak-panel') + (data.station ? `?stationId=${data.station.id}` : '');
             }
           }
-        }, 600);
+        }, 500);
 
       } catch (err) {
         alertBox.textContent = err.message;
@@ -622,7 +647,7 @@
       }
     }
 
-    // Sayfa Yüklendiğinde URL parametrelerini kontrol et (ör. ?registered=1 veya ?logout=1)
+    // Sayfa Yüklendiğinde URL parametrelerini kontrol et
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('logout') === '1') {

@@ -45,6 +45,20 @@
 </head>
 <body>
 
+  <!-- CANLI DEMO ÖNİZLEME BANDI (SALT OKUNUR) -->
+  <div id="demoModeBanner" style="display: none; background: linear-gradient(90deg, #6d28d9 0%, #b45309 100%); color: #ffffff; padding: 10px 24px; font-size: 13.5px; font-weight: 700; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 9999; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 18px;">🔒</span>
+      <span><strong>CANLI DEMO MODU (SALT OKUNUR):</strong> Şu anda tanıtım sürümünü inceliyorsunuz. Bilgi ekleme, silme ve düzenleme yetkisi kısıtlanmıştır.</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <a href="https://wa.me/905415776277?text=Merhaba,%20TaksideÖde%20durağımız%20için%20lisans%20ve%20kurulum%20satın%20almak%20istiyoruz" target="_blank" style="background: #ffffff; color: #7c3aed; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-size: 12.5px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+        <span>⚡ Durak Satın Al / Lisans Başlat</span>
+      </a>
+      <a href="/login?logout=1" style="color: rgba(255,255,255,0.85); font-size: 12px; text-decoration: underline;">Çıkış Yap</a>
+    </div>
+  </div>
+
   <div class="app-shell">
     
     <!-- Mobil Menü Karartması -->
@@ -1012,6 +1026,36 @@
           </a>
         </div>
         <button type="button" class="btn btn-secondary" onclick="closeModal('qrPreviewModal')">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEMO KISITLAMA UYARI MODALI -->
+  <div class="modal-backdrop" id="demoRestrictedModal" style="display: none; z-index: 10001; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);">
+    <div class="modal-card" style="max-width: 480px; text-align: center; padding: 32px 24px; border-radius: 20px; background: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 2px solid #fecaca;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px;">
+        🔒
+      </div>
+      <h3 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Demo Modu: Yetkiniz Yok</h3>
+      <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin-bottom: 20px;">
+        <span id="demoRestrictedActionText" style="font-weight: 700; color: #0f172a;">Bu işlem</span> tanıtım sürümünde <strong>kilitlidir</strong>.<br>
+        Sistemimiz demo modunda sadece inceleme ve canlı veri takibi amaçlı salt-okunurdur.
+      </p>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; text-align: left; margin-bottom: 20px; font-size: 12.5px; color: #334155;">
+        <div style="font-weight: 700; margin-bottom: 6px; color: #7c3aed;">👑 Kendi Durağınız İçin Tam Yetkili Panel Açtırın:</div>
+        <div>📞 Telefon: <strong>+90 541 577 62 77</strong></div>
+        <div>✉️ E-Posta: <strong>malicihaztaksi@gmail.com</strong></div>
+        <div>🏢 Demir Medya Dijital Güvencesiyle 14 Gün Ücretsiz Kurulum</div>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <a href="https://wa.me/905415776277?text=Merhaba,%20TaksideÖde%20durağımız%20için%20lisans%20ve%20kurulum%20satın%20almak%20istiyoruz" target="_blank" class="btn btn-primary" style="flex: 1; justify-content: center; padding: 12px; background: #10b981;">
+          💬 WhatsApp ile Satın Al
+        </a>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('demoRestrictedModal')" style="padding: 12px 20px;">
+          Anladım, Kapat
+        </button>
       </div>
     </div>
   </div>
