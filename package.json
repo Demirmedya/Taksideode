@@ -1,0 +1,16 @@
+{
+  "name": "taksideode-platform",
+  "version": "1.0.0",
+  "description": "TaksideÖde QR Taksi Çağrı, Durak Yönetimi ve POS Hizmetleri Platformu",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
+  }
+}

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaksideÖde • Akıllı Durak Yönetimi & QR Taksi Platformu</title>
+  <link rel="icon" type="image/png" href="/images/icon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      background: #ffffff;
+      color: #0f172a;
+    }
+    .navbar {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .hero {
+      text-align: center;
+      padding: 80px 20px 50px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #f5f3ff;
+      color: #7c3aed;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      border: 1px solid #ddd6fe;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 54px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: #0f172a;
+      letter-spacing: -1px;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, #7c3aed 20%, #f59e0b 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: clamp(16px, 2.5vw, 19px);
+      color: #64748b;
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+    .demo-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 60px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+      max-width: 1100px;
+      margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 28px;
+      text-align: left;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(124, 58, 237, 0.1);
+      border-color: #ddd6fe;
+    }
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 14px;
+      display: inline-block;
+      padding: 10px;
+      background: #f5f3ff;
+      border-radius: 12px;
+    }
+    .feature-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .feature-desc {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+    .pos-section {
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      padding: 70px 20px;
+      text-align: center;
+    }
+    .pos-form-box {
+      max-width: 520px;
+      margin: 30px auto 0;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 32px;
+      text-align: left;
+      box-shadow: 0 12px 30px rgba(124, 58, 237, 0.08);
+    }
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .demo-bar {
+        flex-direction: column;
+        width: 100%;
+        max-width: 360px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .demo-bar .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Bar -->
+  <header class="navbar">
+    <a href="/" style="display: flex; align-items: center; text-decoration: none;">
+      <img src="/images/logo.png" alt="TaksideÖde" style="height: 48px; object-fit: contain;">
+    </a>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+      <a href="/panel" class="btn btn-secondary">🖥️ Durak Paneli</a>
+      <a href="/surucu" class="btn btn-secondary">📱 Sürücü / POS Ekranı</a>
+      <a href="/cagri/KR-101" class="btn btn-accent" target="_blank">📲 Örnek QR Çağır</a>
+    </div>
+  </header>
+
+  <!-- Hero Bölümü -->
+  <section class="hero">
+    <div class="hero-badge">✨ Türkiye'nin Yeni Nesil Akıllı Taksi Altyapısı</div>
+    <h1>Durakların Kendi Düzeni, <span>Müşterinin En Hızlı Taksi Çağrısı.</span></h1>
+    <p>
+      Müşteri uygulama indirmeden sokaktaki QR ile 5 saniyede taksi çağırsın; durak sıralama motoru işi anında sıradaki taksinin POS ekranına düşürsün.
+    </p>
+
+    <!-- Hızlı Demo Butonları -->
+    <div class="demo-bar">
+      <a href="/panel" class="btn btn-primary btn-lg" style="padding: 14px 28px; font-size: 15px;">
+        🖥️ Durak Yönetim Panelini Aç
+      </a>
+      <a href="/surucu" class="btn btn-secondary btn-lg" style="padding: 14px 28px; font-size: 15px;">
+        📱 Sürücü / POS Ekranını Aç
+      </a>
+      <a href="/cagri/KR-101" class="btn btn-accent btn-lg" style="padding: 14px 28px; font-size: 15px;" target="_blank">
+        📲 Müşteri QR Çağrısını Test Et
+      </a>
+    </div>
+  </section>
+
+  <!-- Özellikler Izgarası -->
+  <section class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📲</div>
+      <div class="feature-title">İndirmesiz QR Çağrı</div>
+      <div class="feature-desc">Müşteri marketten uygulama indirmekle uğraşmaz. Telefon kamerasıyla QR'ı okutur, durağın sıradaki taksisi kapısına gelir.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">⏱️</div>
+      <div class="feature-title">Adil Dijital Sıralama</div>
+      <div class="feature-desc">Durağa giren araç otomatik sıraya girer. 1. taksiye iş düştüğünde sistem sonraki aracı 1. sıraya taşır. Durak operatörü manuel müdahale edebilir.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🖨️</div>
+      <div class="feature-title">Duraktan Tek Tıkla QR Baskısı</div>
+      <div class="feature-desc">Pahalı metal tabelalara son. Durak istediği sokak veya mekan için anında QR oluşturup ofis yazıcısından tek tıkla A4/etiket basabilir.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">💳</div>
+      <div class="feature-title">Mevcut POS Entegrasyonu</div>
+      <div class="feature-desc">Araçlara ekstra cihaz takmaya gerek yok. Mevcut Android POS cihazlarında veya şoför telefonlarında kusursuz çalışır.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🗺️</div>
+      <div class="feature-title">Canlı Harita & GPS</div>
+      <div class="feature-desc">Taksiler nerede, dolu mu boş mu, durakta mı? Durak ekranında tüm filo canlı GPS ile anlık akar.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">QR & Durak Analitiği</div>
+      <div class="feature-desc">Hangi sokaktaki QR kaç kez okutulmuş? Kaç taksi çağrısı dönmüş? En çok kazandıran noktalar tek raporda.</div>
+    </div>
+  </section>
+
+  <!-- POS & Durak Başvuru Bölümü -->
+  <section class="pos-section" id="basvuru">
+    <h2 style="font-size: 32px; font-weight: 800; color: #0f172a;">Durağınız İçin TaksideÖde'ye Başvurun</h2>
+    <p style="color: #64748b; margin-top: 8px;">Durağınızı hemen dijitalleştirin, POS ve akıllı sıra sistemine geçin.</p>
+
+    <div class="pos-form-box">
+      <form id="applyForm">
+        <div class="form-group">
+          <label>Durak Adı</label>
+          <input type="text" id="stationName" class="form-input" placeholder="Örn: Kadıköy Sahil Taksi Durağı" required>
+        </div>
+        <div class="form-group">
+          <label>Yetkili Adı Soyadı</label>
+          <input type="text" id="authorizedPerson" class="form-input" placeholder="Örn: Ahmet Yılmaz" required>
+        </div>
+        <div class="form-group">
+          <label>İletişim Telefonu</label>
+          <input type="tel" id="phone" class="form-input" placeholder="05XX XXX XX XX" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>Şehir</label>
+            <input type="text" id="city" class="form-input" placeholder="İstanbul" required>
+          </div>
+          <div class="form-group">
+            <label>Araç Sayısı</label>
+            <input type="number" id="taxiCount" class="form-input" placeholder="15" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 14px; font-size: 15px;">
+          🚀 Durak Başvurusunu Gönder
+        </button>
+      </form>
+      <div id="applySuccess" style="display: none; margin-top: 16px; padding: 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; color: #065f46; font-size: 14px; text-align: center; font-weight: 700;">
+        ✅ Başvurunuz alındı! Ekibimiz 1 saat içinde sizinle iletişime geçecektir.
+      </div>
+    </div>
+  </section>
+
+  <footer style="padding: 24px; text-align: center; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 13px; background: #ffffff;">
+    TaksideÖde Platformu © 2026 • Tüm Hakları Saklıdır • Akıllı Durak & POS Çözümleri
+  </footer>
+
+  <script>
+    document.getElementById('applyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        stationName: document.getElementById('stationName').value,
+        authorizedPerson: document.getElementById('authorizedPerson').value,
+        phone: document.getElementById('phone').value,
+        city: document.getElementById('city').value,
+        taxiCount: document.getElementById('taxiCount').value
+      };
+
+      try {
+        const res = await fetch('/api/pos-apply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          document.getElementById('applyForm').reset();
+          document.getElementById('applySuccess').style.display = 'block';
+        }
+      } catch (err) {
+        alert('Hata oluştu!');
+      }
+    });
+  </script>
+</body>
+</html>

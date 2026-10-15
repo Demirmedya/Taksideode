@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaksideÖde • Durak Yönetim & Operasyon Merkezi</title>
+  <link rel="icon" type="image/png" href="/images/icon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Leaflet Harita Kütüphanesi -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Socket.io -->
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    .taxi-marker-icon {
+      background: #7c3aed;
+      color: #ffffff;
+      font-weight: 800;
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 11px;
+      border: 2px solid #fbbf24;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+      white-space: nowrap;
+    }
+    .taxi-marker-in-trip {
+      background: #ef4444;
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    
+    <!-- Mobil Menü Karartması -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+
+    <!-- SOL MENÜ (9 ÖZEL KATEGORİ) -->
+    <aside class="sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <a href="/" class="brand-logo" style="width: 100%; display: flex; align-items: center; justify-content: center;">
+          <img src="/images/logo.png" alt="TaksideÖde" style="height: 50px; max-width: 100%; object-fit: contain;">
+        </a>
+      </div>
+
+      <div class="station-chip">
+        <div class="station-indicator"></div>
+        <div>
+          <div style="font-size: 13.5px; font-weight: 800; color: #0f172a;" id="sideStationName">Merkez Taksi Durağı</div>
+          <div style="font-size: 11px; color: var(--text-muted);" id="sideStationCity">Kadıköy, İstanbul</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-category">Ana Menü</div>
+        <div class="nav-item active" onclick="navigateTab('tab-pano')">
+          <span class="nav-icon">📊</span>
+          <span>1. Pano (Dashboard)</span>
+        </div>
+        <div class="nav-item" onclick="navigateTab('tab-sira')">
+          <span class="nav-icon">⏱️</span>
+          <span>2. Sıra Yönetimi</span>
+          <span class="nav-badge" id="sideInQueueBadge">3</span>
+        </div>
+        <div class="nav-item" onclick="navigateTab('tab-isemirleri')">
+          <span class="nav-icon">📋</span>
+          <span>3. İş Emirleri</span>
+          <span class="nav-badge" id="sideActiveCallsBadge" style="background: #ef4444; color: #fff;">0</span>
+        </div>
+        <div class="nav-item" onclick="navigateTab('tab-harita')">
+          <span class="nav-icon">🗺️</span>
+          <span>4. Canlı Harita</span>
+        </div>
+
+        <div class="nav-category">Filo & İletişim</div>
+        <div class="nav-item" onclick="navigateTab('tab-araclar')">
+          <span class="nav-icon">🚕</span>
+          <span>5. Araçlar & Şoförler</span>
+        </div>
+        <div class="nav-item" onclick="navigateTab('tab-sohbet')">
+          <span class="nav-icon">💬</span>
+          <span>6. Sohbet & Telsiz</span>
+        </div>
+        <div class="nav-item" onclick="navigateTab('tab-musteriler')">
+          <span class="nav-icon">👥</span>
+          <span>7. Kayıtlı Müşteriler</span>
+        </div>
+        <div class="nav-item" onclick="navigateTab('tab-duyurular')">
+          <span class="nav-icon">📢</span>
+          <span>8. Duyurular (Anons)</span>
+        </div>
+
+        <div class="nav-category">Saha & Operasyon</div>
+        <div class="nav-item" onclick="navigateTab('tab-qrnoktalari')">
+          <span class="nav-icon">📍</span>
+          <span>10. QR Noktaları & Taramalar</span>
+          <span class="nav-badge" id="sideQRBadge" style="background: #8b5cf6; color: #fff;">3</span>
+        </div>
+
+        <div class="nav-category">Sistem</div>
+        <div class="nav-item" onclick="navigateTab('tab-ayarlar')">
+          <span class="nav-icon">⚙️</span>
+          <span>9. Durak Ayarları</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-primary" style="width: 100%; font-size: 13px;" onclick="openPhoneModal()">
+          📞 + Telefon İşi Ekle
+        </button>
+      </div>
+    </aside>
+
+    <!-- SAĞ ANA ALAN -->
+    <div class="main-wrapper">
+      
+      <!-- Üst Uygulama Barı -->
+      <header class="appbar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" title="Menüyü Aç/Kapa">☰</button>
+          <div class="appbar-title">
+            <h1 id="pageTitleHeading">Pano (Genel Bakış)</h1>
+            <p id="pageSubtitleText">Durağın anlık cirosu, canlı sıralaması ve son iş emirleri</p>
+          </div>
+        </div>
+        <div class="appbar-actions">
+          <button class="btn btn-secondary" onclick="openQRPreviewModal('KR-101')" style="background: #f5f3ff; color: #7c3aed; border-color: #ddd6fe;">
+            🔍 Örnek QR Gör
+          </button>
+          <button class="btn btn-secondary" onclick="openNewQRModal()">
+            🖨️ Sokak QR Yazdır
+          </button>
+          <button class="btn btn-accent" onclick="openPhoneModal()">
+            📞 Telefon İşi Ekle
+          </button>
+        </div>
+      </header>
+
+      <!-- İÇERİK ALANI (9 SAYFA) -->
+      <div class="content-body">
+
+        <!-- 1. PANO (DASHBOARD) -->
+        <section id="tab-pano" class="page-view active">
+          <div class="stat-cards-grid">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Bugünkü Toplam Ciro</span>
+                <span class="stat-card-icon">💰</span>
+              </div>
+              <div class="stat-card-value" id="dashTodayRevenue">0 ₺</div>
+              <div class="stat-card-meta">Ortalama Sefer: <span id="dashAvgFare">0 ₺</span></div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Sıradaki Taksi</span>
+                <span class="stat-card-icon">🚕</span>
+              </div>
+              <div class="stat-card-value" id="dashInQueueCount" style="color: var(--primary);">0</div>
+              <div class="stat-card-meta">Toplam Filo: <span id="dashTotalVehicles">0</span> araç</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Tamamlanan Seferler</span>
+                <span class="stat-card-icon">🏁</span>
+              </div>
+              <div class="stat-card-value" id="dashCompletedCalls">0</div>
+              <div class="stat-card-meta">Canlı İş: <span id="dashActiveCalls">0</span> çağrı</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Toplam QR Okunma</span>
+                <span class="stat-card-icon">📱</span>
+              </div>
+              <div class="stat-card-value" id="dashTotalScans" style="color: var(--success);">0</div>
+              <div class="stat-card-meta">Aktif Nokta: <span id="dashQRCount">0</span> sokak</div>
+            </div>
+          </div>
+
+          <div class="dashboard-row">
+            <!-- Sol: Son İş Emirleri Akışı -->
+            <div class="panel-card">
+              <div class="panel-card-header">
+                <span class="panel-card-title">📋 Canlı İş Akışı (Son Çağrılar)</span>
+                <button class="btn btn-secondary btn-sm" onclick="navigateTab('tab-isemirleri')">Tümünü Gör</button>
+              </div>
+              <div class="table-responsive">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th>Kaynak</th>
+                      <th>Alınacak Adres</th>
+                      <th>Atanan Taksi</th>
+                      <th>Durum</th>
+                      <th>Saat</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashRecentCallsBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Sağ: Anlık Sıralama Özeti -->
+            <div class="panel-card">
+              <div class="panel-card-header">
+                <span class="panel-card-title">⭐ 1. Sıradaki Taksi</span>
+                <button class="btn btn-secondary btn-sm" onclick="navigateTab('tab-sira')">Sırayı Düzenle</button>
+              </div>
+              <div style="padding: 20px; text-align: center;" id="dashFirstTaxiBox">
+                <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px;">SIRADAKİ İŞİ ALACAK ARAÇ</div>
+                <div style="font-size: 34px; font-weight: 900; color: var(--purple-main); letter-spacing: 1px;" id="dashFirstPlate">-</div>
+                <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 6px;" id="dashFirstDriver">-</div>
+                <div style="margin-top: 14px; padding: 10px; background: rgba(16, 185, 129, 0.12); border-radius: 8px; color: #059669; font-size: 13px; font-weight: 800;">
+                  🟢 Durakta Hazır Bekliyor
+                </div>
+                <button class="btn btn-primary" style="margin-top: 12px; width: 100%; font-size: 13px; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);" onclick="sendInstantTestJob()">
+                  ⚡ 1. Araca Test İşi Gönder
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. SIRA YÖNETİMİ -->
+        <section id="tab-sira" class="page-view">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h2 style="font-size: 20px; font-weight: 800; color: #0f172a;">Durak Sıralama Motoru (FIFO)</h2>
+              <p style="font-size: 13px; color: var(--text-muted);">Taksiler durağa giriş saatine göre sıraya girer. Yukarı/Aşağı oklarla manuel sıra değiştirebilirsiniz.</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="fetchStationData()">🔄 Sırayı Yenile</button>
+          </div>
+
+          <div class="panel-card">
+            <div class="queue-grid" id="fullQueueList">
+              <!-- Dinamik sıra kartları -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. İŞ EMİRLERİ (ÇAĞRILAR) -->
+        <section id="tab-isemirleri" class="page-view">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h2 style="font-size: 20px; font-weight: 800; color: #0f172a;">İş Emirleri & Çağrı Kayıtları</h2>
+              <p style="font-size: 13px; color: var(--text-muted);">Sokak QR kodlarından ve operatör telefonundan gelen tüm taksi seferleri.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openPhoneModal()">+ Yeni Telefon İşi Ekle</button>
+          </div>
+
+          <div class="panel-card">
+            <div class="table-responsive">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>İş No</th>
+                    <th>Kaynak</th>
+                    <th>Müşteri / Telefon</th>
+                    <th>Nereden</th>
+                    <th>Nereye (Hedef)</th>
+                    <th>Atanan Araç</th>
+                    <th>Tutar</th>
+                    <th>Durum</th>
+                    <th>Saat</th>
+                  </tr>
+                </thead>
+                <tbody id="allCallsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. CANLI HARİTA -->
+        <section id="tab-harita" class="page-view" style="padding: 0; height: calc(100vh - 68px); position: relative;">
+          <div style="position: absolute; top: 14px; right: 14px; z-index: 500; background: #ffffff; padding: 10px 14px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px;">
+            <button class="btn btn-secondary btn-sm" onclick="openGpsInfoModal()">📡 Araçlar Nasıl Takip Edilir?</button>
+            <button class="btn btn-primary btn-sm" onclick="locateStationOnMap()">📍 Durağa Odaklan</button>
+          </div>
+          <div id="map" style="width: 100%; height: 100%;"></div>
+        </section>
+
+        <!-- 5. ARAÇLAR & ŞOFÖRLER -->
+        <section id="tab-araclar" class="page-view">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+            <button class="btn btn-secondary btn-sm" onclick="openGpsInfoModal()">📡 Araçlar Canlı Nasıl Takip Edilir?</button>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <!-- Araçlar -->
+            <div class="panel-card">
+              <div class="panel-card-header">
+                <span class="panel-card-title">🚕 Kayıtlı Araçlar</span>
+                <button class="btn btn-primary btn-sm" onclick="openNewVehicleModal()">+ Araç Ekle</button>
+              </div>
+              <div class="table-responsive">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th>Plaka</th>
+                      <th>Model/Yıl</th>
+                      <th>Toplam KM</th>
+                      <th>Muayene</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fleetVehiclesBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Şoförler -->
+            <div class="panel-card">
+              <div class="panel-card-header">
+                <span class="panel-card-title">👨‍✈️ Şoförler & Performans</span>
+                <button class="btn btn-primary btn-sm" onclick="openNewDriverModal()">+ Şoför Ekle</button>
+              </div>
+              <div class="table-responsive">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th>Şoför Adı</th>
+                      <th>Telefon</th>
+                      <th>Atanan Plaka</th>
+                      <th>POS Giriş Şifresi</th>
+                      <th>Puan</th>
+                      <th>Aylık Sefer</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fleetDriversBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. SOHBET & TELSİZ -->
+        <section id="tab-sohbet" class="page-view">
+          <div class="chat-container">
+            <div class="panel-card-header">
+              <span class="panel-card-title">💬 Durak - Şoför Anlık Mesajlaşma Kanalı</span>
+              <span class="badge badge-success">🟢 Telsiz Hattı Canlı</span>
+            </div>
+            <div class="chat-messages" id="chatMessagesBox">
+              <!-- Dinamik Mesajlar -->
+            </div>
+            <form class="chat-input-bar" id="chatSendForm">
+              <input type="text" id="chatTextInput" class="form-input" placeholder="Tüm şoförlerin ekranına anlık mesaj yazın..." required>
+              <button type="submit" class="btn btn-primary">Gönder</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- 7. KAYITLI MÜŞTERİLER (CRM) -->
+        <section id="tab-musteriler" class="page-view">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h2 style="font-size: 20px; font-weight: 800; color: #0f172a;">Kayıtlı Müşteriler & Adres Rehberi</h2>
+              <p style="font-size: 13px; color: var(--text-muted);">Sürekli çağıran yolcular, ev/iş adresleri, VIP müşteriler ve çağrı geçmişi.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openNewCustomerModal()">+ Yeni Müşteri Kaydet</button>
+          </div>
+
+          <div class="panel-card">
+            <div class="table-responsive">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Müşteri Adı</th>
+                    <th>Telefon</th>
+                    <th>Kayıtlı Sokak / Adres</th>
+                    <th>Toplam Çağrı</th>
+                    <th>Son Çağrı</th>
+                    <th>Etiket</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="customersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 8. DUYURULAR (ANONS) -->
+        <section id="tab-duyurular" class="page-view">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h2 style="font-size: 20px; font-weight: 800; color: #0f172a;">Taksilere Otomatik Duyuru & Anons</h2>
+              <p style="font-size: 13px; color: var(--text-muted);">
+                Ayarladığınız duyurular tüm şoförlerin telefon ve POS ekranında belirlediğiniz aralıklarla (Örn: 1 dakikada bir 5 sn) otomatik görünür.
+              </p>
+            </div>
+            <button class="btn btn-primary" onclick="openNewAnnouncementModal()">+ Yeni Duyuru Oluştur</button>
+          </div>
+
+          <div class="panel-card">
+            <div class="table-responsive">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Başlık</th>
+                    <th>Duyuru Metni</th>
+                    <th>Tekrar Aralığı</th>
+                    <th>Ekranda Kalma</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="announcementsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 9. DURAK AYARLARI -->
+        <section id="tab-ayarlar" class="page-view">
+          <div class="panel-card" style="max-width: 700px;">
+            <div class="panel-card-header">
+              <span class="panel-card-title">⚙️ Durak ve Panel Yapılandırması</span>
+            </div>
+            <form id="settingsForm" style="padding: 24px;">
+              <h3 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 14px; text-transform: uppercase;">🎨 Panel Görünüm Rengi (Tema)</h3>
+              <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="radio" name="themeColor" value="amber" checked> 🟡 Amber Altın (Klasik Taksi)
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="radio" name="themeColor" value="emerald"> 🟢 Zümrüt Yeşili
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="radio" name="themeColor" value="blue"> 🔵 Kobalt Mavi
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="radio" name="themeColor" value="purple"> 🟣 Mor
+                </label>
+              </div>
+
+              <h3 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 14px; text-transform: uppercase;">📍 Durak İletişim Bilgileri</h3>
+              <div class="form-group">
+                <label>Durak Adı</label>
+                <input type="text" id="setStationName" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label>Durak Sabit / İletişim Telefonu</label>
+                <input type="text" id="setStationPhone" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label>Durak Açık Adresi</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="setStationAddress" class="form-input" required>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="geocodeStationAddress()" style="white-space: nowrap;">🔍 Adresi Haritada Bul</button>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                  <label>Durak Enlem (Latitude)</label>
+                  <input type="number" step="0.000001" id="setStationLat" class="form-input" placeholder="40.9876" required>
+                </div>
+                <div class="form-group">
+                  <label>Durak Boylam (Longitude)</label>
+                  <input type="number" step="0.000001" id="setStationLng" class="form-input" placeholder="29.0267" required>
+                </div>
+              </div>
+
+              <h3 style="font-size: 14px; font-weight: 800; color: var(--primary); margin: 24px 0 14px; text-transform: uppercase;">⏱️ Otomasyon & Kuyruk Kuralları</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                  <label>Durak Geofence Çemberi (Metre)</label>
+                  <input type="number" id="setGeofenceRadius" class="form-input" value="100" required>
+                </div>
+                <div class="form-group">
+                  <label>Şoför Çağrı Cevap Süresi (Saniye)</label>
+                  <input type="number" id="setTimeoutSeconds" class="form-input" value="30" required>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="margin-top: 10px;">💾 Ayarları Kaydet ve Uygula</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- 10. QR NOKTALARI & TARAMALAR -->
+        <section id="tab-qrnoktalari" class="page-view">
+          <div class="stat-cards-grid" style="margin-bottom: 20px;">
+            <div class="stat-card">
+              <div class="stat-card-label">Toplam Sokak QR Noktası</div>
+              <div class="stat-card-value" id="qrStatTotalPoints" style="color: #8b5cf6;">0</div>
+              <div class="stat-card-sub">Sahadaki aktif etiketler</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-label">Toplam Tarama (Okutma)</div>
+              <div class="stat-card-value" id="qrStatTotalScans" style="color: #0284c7;">0</div>
+              <div class="stat-card-sub">Yolcuların QR okutma sayısı</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-label">Gönderilen Taksi (Başarılı)</div>
+              <div class="stat-card-value" id="qrStatTotalCalls" style="color: #059669;">0</div>
+              <div class="stat-card-sub">Çağrıya dönüşen seferler</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-label">Ortalama Dönüşüm Oranı</div>
+              <div class="stat-card-value" id="qrStatConversionRate" style="color: #f59e0b;">%0</div>
+              <div class="stat-card-sub">Okutma / Taksi çağırma başarısı</div>
+            </div>
+          </div>
+
+          <div class="panel-card">
+            <div class="panel-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span class="panel-card-title">📍 Sokaktaki QR Noktaları & Performans Tablosu</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;">
+                  Durağa bağlı sokak direkleri, duraklar ve mekanlardaki tüm QR kodların canlı istatistikleri
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary btn-sm" onclick="openQRPreviewModal('KR-101')" style="background: #f5f3ff; color: #7c3aed; border-color: #ddd6fe;">
+                  🔍 Örnek QR Kodunu İncele
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openNewQRModal()">
+                  + Yeni Sokak QR Ekle
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>QR KOD</th>
+                    <th>NOKTA ADI & SOKAK</th>
+                    <th>MAHALLE & DETAY</th>
+                    <th style="text-align: center;">TOPLAM OKUTMA</th>
+                    <th style="text-align: center;">GÖNDERİLEN TAKSİ</th>
+                    <th style="text-align: center;">BAŞARI</th>
+                    <th>SON OKUTMA</th>
+                    <th>İŞLEMLER</th>
+                  </tr>
+                </thead>
+                <tbody id="qrPointsTableBody">
+                  <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">Yükleniyor...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Telefon İşi Ekle -->
+  <div class="modal-overlay" id="phoneModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">📞 Telefonla Gelen İşi Ekle</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('phoneModal')">✕</button>
+      </div>
+      <form id="phoneCallForm">
+        <div class="form-group">
+          <label>Alınacak Sokak / Adres (Nereden)</label>
+          <input type="text" id="pcAddress" class="form-input" placeholder="Örn: Moda Caddesi No:82 (Eczane önü)" required>
+        </div>
+        <div class="form-group">
+          <label>Varış Noktası (Nereye?)</label>
+          <input type="text" id="pcDropoffAddress" class="form-input" placeholder="Örn: Kadıköy Rıhtım İskele veya Sabiha Gökçen Havalimanı">
+        </div>
+        <div class="form-group">
+          <label>Müşteri Telefonu</label>
+          <input type="tel" id="pcPhone" class="form-input" placeholder="05XX XXX XX XX">
+        </div>
+        <div class="form-group">
+          <label>Müşteri Adı</label>
+          <input type="text" id="pcName" class="form-input" placeholder="Ayşe Hanım">
+        </div>
+        <div class="form-group">
+          <label>Not</label>
+          <input type="text" id="pcNotes" class="form-input" placeholder="Bavullu / Havalimanı">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('phoneModal')">Vazgeç</button>
+          <button type="submit" class="btn btn-primary">İşi 1. Taksiye Gönder</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Yeni QR Noktası ve Baskı -->
+  <div class="modal-overlay" id="newQRModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">🖨️ Yeni Sokak QR Baskısı Oluştur</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('newQRModal')">✕</button>
+      </div>
+      <form id="newQRForm">
+        <div class="form-group">
+          <label>Sokak / Mekan Başlığı</label>
+          <input type="text" id="qrTitle" class="form-input" placeholder="Örn: Karanfil Sokak No:12" required>
+        </div>
+        <div class="form-group">
+          <label>Mahalle</label>
+          <input type="text" id="qrNeighborhood" class="form-input" placeholder="Caferağa Mah.">
+        </div>
+        <div class="form-group">
+          <label>Önemli Tarif Noktası</label>
+          <input type="text" id="qrLandmark" class="form-input" placeholder="Köşem Kafe Önü">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('newQRModal')">İptal</button>
+          <button type="submit" class="btn btn-primary">Oluştur ve Yazdır</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Yeni Araç Ekle -->
+  <div class="modal-overlay" id="newVehicleModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">🚕 Yeni Araç Ekle</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('newVehicleModal')">✕</button>
+      </div>
+      <form id="newVehicleForm">
+        <div class="form-group">
+          <label>Plaka</label>
+          <input type="text" id="vehPlate" class="form-input" placeholder="34 TKS 99" required>
+        </div>
+        <div class="form-group">
+          <label>Model & Yıl</label>
+          <input type="text" id="vehModel" class="form-input" placeholder="Fiat Egea 2024" required>
+        </div>
+        <div class="form-group">
+          <label>Toplam Kilometre</label>
+          <input type="number" id="vehKm" class="form-input" placeholder="45000">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('newVehicleModal')">İptal</button>
+          <button type="submit" class="btn btn-primary">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Yeni Şoför Ekle -->
+  <div class="modal-overlay" id="newDriverModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">👨‍✈️ Yeni Şoför Ekle</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('newDriverModal')">✕</button>
+      </div>
+      <form id="newDriverForm">
+        <div class="form-group">
+          <label>Adı Soyadı</label>
+          <input type="text" id="drvName" class="form-input" placeholder="Kemal Arslan" required>
+        </div>
+        <div class="form-group">
+          <label>Telefon Numarası</label>
+          <input type="tel" id="drvPhone" class="form-input" placeholder="05XX XXX XX XX" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>Atanan Araç Plakası</label>
+            <input type="text" id="drvPlate" class="form-input" placeholder="34 TKS 05" required style="font-weight: 800; text-transform: uppercase;">
+          </div>
+          <div class="form-group">
+            <label>POS Giriş Şifresi / PIN</label>
+            <input type="text" id="drvPassword" class="form-input" placeholder="Örn: 1234" value="1234" required style="font-weight: 700;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Ehliyet Belge No</label>
+          <input type="text" id="drvLicense" class="form-input" placeholder="TR-982134">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('newDriverModal')">İptal</button>
+          <button type="submit" class="btn btn-primary">Şoförü Onayla</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Yeni Müşteri Ekle -->
+  <div class="modal-overlay" id="newCustomerModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">👥 Yeni Müşteri Rehberine Kaydet</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('newCustomerModal')">✕</button>
+      </div>
+      <form id="newCustomerForm">
+        <div class="form-group">
+          <label>Müşteri Adı Soyadı</label>
+          <input type="text" id="custName" class="form-input" placeholder="Mehmet Bey" required>
+        </div>
+        <div class="form-group">
+          <label>Telefon Numarası</label>
+          <input type="tel" id="custPhone" class="form-input" placeholder="05XX XXX XX XX" required>
+        </div>
+        <div class="form-group">
+          <label>Kayıtlı Sokak / Adres</label>
+          <input type="text" id="custStreet" class="form-input" placeholder="Moda Cad. No:10 D:4">
+        </div>
+        <div class="form-group">
+          <label>Müşteri Etiketi</label>
+          <select id="custTag" class="form-input">
+            <option value="VIP Müşteri">⭐ VIP Müşteri</option>
+            <option value="Düzenli Yolcu">🚕 Düzenli Yolcu</option>
+            <option value="Standart">Standart</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('newCustomerModal')">İptal</button>
+          <button type="submit" class="btn btn-primary">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Yeni Duyuru Ekle -->
+  <div class="modal-overlay" id="newAnnouncementModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">📢 Taksilere Otomatik Duyuru Oluştur</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('newAnnouncementModal')">✕</button>
+      </div>
+      <form id="newAnnouncementForm">
+        <div class="form-group">
+          <label>Duyuru Başlığı</label>
+          <input type="text" id="annTitle" class="form-input" placeholder="Örn: Trafik Uyarısı" required>
+        </div>
+        <div class="form-group">
+          <label>Duyuru Metni (Tüm şoförlerin ekranında görünecektir)</label>
+          <textarea id="annContent" class="form-input" rows="3" placeholder="Örn: Rıhtım caddesinde kaza var, alternatif rotaları kullanın." required></textarea>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>Tekrar Sıklığı (Dakika)</label>
+            <input type="number" id="annInterval" class="form-input" value="1" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>Ekranda Kalma Süresi (Saniye)</label>
+            <input type="number" id="annDuration" class="form-input" value="5" min="3" required>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('newAnnouncementModal')">İptal</button>
+          <button type="submit" class="btn btn-primary">Duyuruyu Başlat</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Araç Düzenle -->
+  <div class="modal-overlay" id="editVehicleModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">✏️ Araç Bilgilerini Düzenle</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('editVehicleModal')">✕</button>
+      </div>
+      <form id="editVehicleForm">
+        <input type="hidden" id="editVehId">
+        <div class="form-group">
+          <label>Plaka</label>
+          <input type="text" id="editVehPlate" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label>Model & Yıl</label>
+          <input type="text" id="editVehModel" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label>Toplam Kilometre</label>
+          <input type="number" id="editVehKm" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Muayene Tarihi</label>
+          <input type="date" id="editVehInspection" class="form-input">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editVehicleModal')">İptal</button>
+          <button type="submit" class="btn btn-primary">Güncelle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Şoför Düzenle -->
+  <div class="modal-overlay" id="editDriverModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">✏️ Şoför Bilgilerini Düzenle</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('editDriverModal')">✕</button>
+      </div>
+      <form id="editDriverForm">
+        <input type="hidden" id="editDrvId">
+        <div class="form-group">
+          <label>Adı Soyadı</label>
+          <input type="text" id="editDrvName" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label>Telefon Numarası</label>
+          <input type="tel" id="editDrvPhone" class="form-input" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>Atanan Araç Plakası</label>
+            <input type="text" id="editDrvPlate" class="form-input" required style="font-weight: 800; text-transform: uppercase;">
+          </div>
+          <div class="form-group">
+            <label>POS Giriş Şifresi / PIN</label>
+            <input type="text" id="editDrvPassword" class="form-input" required style="font-weight: 700;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Ehliyet Belge No</label>
+          <input type="text" id="editDrvLicense" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Puan (1.0 - 5.0)</label>
+          <input type="number" step="0.1" max="5" min="1" id="editDrvRating" class="form-input">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editDriverModal')">İptal</button>
+          <button type="submit" class="btn btn-primary">Güncelle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Müşteri Düzenle -->
+  <div class="modal-overlay" id="editCustomerModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">✏️ Müşteri Bilgilerini Düzenle</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('editCustomerModal')">✕</button>
+      </div>
+      <form id="editCustomerForm">
+        <input type="hidden" id="editCustId">
+        <div class="form-group">
+          <label>Müşteri Adı Soyadı</label>
+          <input type="text" id="editCustName" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label>Telefon Numarası</label>
+          <input type="tel" id="editCustPhone" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label>Kayıtlı Sokak / Adres</label>
+          <input type="text" id="editCustStreet" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Müşteri Etiketi</label>
+          <select id="editCustTag" class="form-input">
+            <option value="VIP Müşteri">⭐ VIP Müşteri</option>
+            <option value="Düzenli">🚕 Düzenli</option>
+            <option value="Standart">Standart</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Özel Notlar</label>
+          <input type="text" id="editCustNotes" class="form-input">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editCustomerModal')">İptal</button>
+          <button type="submit" class="btn btn-primary">Güncelle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: GPS ve Araç Takip Bilgilendirme -->
+  <div class="modal-overlay" id="gpsInfoModal">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">📡 Araçlar Canlı Nasıl Takip Edilir?</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('gpsInfoModal')">✕</button>
+      </div>
+      <div style="font-size: 13.5px; line-height: 1.6; color: #334155;">
+        <p style="margin-bottom: 12px;">
+          <strong>1. Android POS Cihazı Üzerinden (Önerilen & Hazır):</strong><br>
+          Taksideki POS cihazında çalışan uygulama (veya şoförün cep telefonu tarayıcısındaki <code>/surucu</code> ekranı), dahili GPS çipi sayesinde aracın konumunu durağın haritasına her 5-10 saniyede bir otomatik yansıtır.
+        </p>
+        <p style="margin-bottom: 12px;">
+          <strong>2. Şoför Cep Telefonu (Bluetooth / GPS):</strong><br>
+          Şoförler durağın linkini cep telefonundan açıp "GPS Konumu Paylaş" dediğinde veya araç içi Bluetooth'a bağlandığında telefonun arka plan GPS'i taksiyi haritada canlı oynatır.
+        </p>
+        <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 12px; padding: 12px; color: #5b21b6; font-size: 13px;">
+          💡 Eklediğiniz her yeni araç otomatik olarak haritada durak çemberi çevresinde aktifleşir ve şoför giriş yaptığında gerçek anlık GPS ile güncellenir.
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+        <button type="button" class="btn btn-primary" onclick="closeModal('gpsInfoModal')">Anladım</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Şoför Performans & Sefer Geçmişi -->
+  <div class="modal-overlay" id="driverPerfModal">
+    <div class="modal-window" style="max-width: 600px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;" id="driverPerfModalTitle">📊 Şoför Performans & Sefer Raporu</h3>
+        <button style="background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer;" onclick="closeModal('driverPerfModal')">✕</button>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px;">
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px; text-align: center;">
+          <div style="font-size: 11px; color: #64748b; font-weight: 700;">PUAN</div>
+          <div style="font-size: 18px; font-weight: 900; color: #f59e0b; margin-top: 2px;" id="panelPerfRating">⭐ 5.0</div>
+        </div>
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px; text-align: center;">
+          <div style="font-size: 11px; color: #64748b; font-weight: 700;">KABUL ORANI</div>
+          <div style="font-size: 18px; font-weight: 900; color: #0284c7; margin-top: 2px;" id="panelPerfRate">%100</div>
+        </div>
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px; text-align: center;">
+          <div style="font-size: 11px; color: #64748b; font-weight: 700;">SEFERLER</div>
+          <div style="font-size: 18px; font-weight: 900; color: var(--purple-main); margin-top: 2px;" id="panelPerfTrips">0</div>
+        </div>
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px; text-align: center;">
+          <div style="font-size: 11px; color: #64748b; font-weight: 700;">TOPLAM CİRO</div>
+          <div style="font-size: 18px; font-weight: 900; color: #059669; margin-top: 2px;" id="panelPerfRevenue">0 ₺</div>
+        </div>
+      </div>
+
+      <div style="font-size: 13px; font-weight: 800; color: #334155; margin-bottom: 8px;">📋 Son Seferler (Nereden - Nereye):</div>
+      <div id="panelDriverHistoryList" style="display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; margin-bottom: 16px;">
+        <div style="text-align: center; color: #94a3b8; font-size: 13px; padding: 20px;">Yükleniyor...</div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('driverPerfModal')">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Örnek QR Kodu Gör / İncele -->
+  <div class="modal-overlay" id="qrPreviewModal">
+    <div class="modal-window" style="max-width: 620px; padding: 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;" id="prevModalTitle">📍 Sokak QR Noktası & Önizleme</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;">Yolcunun sokakta kamerasıyla okuttuğu anlık QR kodu ve istatistikleri</p>
+        </div>
+        <button style="background: none; border: none; color: #64748b; font-size: 22px; cursor: pointer;" onclick="closeModal('qrPreviewModal')">✕</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: center; margin-bottom: 24px;">
+        <!-- Sol: QR Görseli -->
+        <div style="text-align: center; background: #faf5ff; border: 2px dashed #c084fc; border-radius: 16px; padding: 16px;">
+          <img id="prevModalQrImg" src="" alt="QR Kod" style="width: 160px; height: 160px; display: block; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+          <div style="margin-top: 10px;">
+            <span id="prevModalBadge" style="background: #7c3aed; color: #fff; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 999px;">
+              KR-101
+            </span>
+          </div>
+          <div style="font-size: 10px; color: #7c3aed; font-weight: 700; margin-top: 6px;">📱 Canlı Taranabilir QR</div>
+        </div>
+
+        <!-- Sağ: Detaylar & İstatistikler -->
+        <div>
+          <div style="font-size: 15px; font-weight: 800; color: #0f172a;" id="prevModalStreet">Karanfil Sokak No:12</div>
+          <div style="font-size: 13px; color: #64748b; margin-top: 2px;" id="prevModalNeighborhood">Caferağa Mah. • Köşem Kafe Karşısı</div>
+          <div style="font-size: 11.5px; color: #94a3b8; margin-top: 4px;" id="prevModalNotes">Sokak aydınlatma direğine yapıştırıldı</div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
+              <div style="font-size: 11px; color: #64748b; font-weight: 700;">OKUTMA (TARAMA)</div>
+              <div style="font-size: 14px; font-weight: 900; color: #0284c7; margin-top: 2px;" id="prevModalScans">53 Defa Okutuldu</div>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
+              <div style="font-size: 11px; color: #64748b; font-weight: 700;">BAŞARILI SEFER</div>
+              <div style="font-size: 14px; font-weight: 900; color: #059669; margin-top: 2px;" id="prevModalCalls">39 Taksi Gönderildi</div>
+            </div>
+          </div>
+
+          <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 8px 12px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 12px; font-weight: 700; color: #065f46;">Dönüşüm Başarı Oranı:</span>
+            <span style="font-size: 13px; font-weight: 900; color: #047857;" id="prevModalRate">%74 Başarı</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: #92400e; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 18px;">💡</span>
+        <span>Bu QR kodu telefonunuzun kamerasıyla ekrandan okutabilir veya aşağıdaki <strong>"Yolcu Gözünden Aç"</strong> butonuna tıklayarak doğrudan müşteri taksi çağırma ekranını test edebilirsiniz.</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <div style="display: flex; gap: 8px;">
+          <a id="prevModalTestBtn" href="#" target="_blank" class="btn btn-accent" style="font-size: 12.5px;">
+            📱 Yolcu Gözünden Aç (Canlı Test)
+          </a>
+          <a id="prevModalPrintBtn" href="#" target="_blank" class="btn btn-secondary" style="font-size: 12.5px;">
+            🖨️ A4 Baskı Şablonu
+          </a>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('qrPreviewModal')">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/panel.js"></script>
+</body>
+</html>

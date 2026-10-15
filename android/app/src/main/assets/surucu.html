@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sürücü & POS Terminali • TaksideÖde</title>
+  <link rel="icon" type="image/png" href="images/icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/socket.io.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #f8fafc;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #0f172a;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+    }
+    .pos-terminal {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      overflow: visible;
+      position: relative;
+      box-shadow: 0 0 30px rgba(0,0,0,0.04);
+    }
+    .pos-header {
+      background: #ffffff;
+      padding: 14px 18px;
+      border-bottom: 2px solid #ede9fe;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .pos-body {
+      padding: 16px;
+      padding-bottom: 100px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #ffffff;
+      overflow: visible;
+    }
+    .rank-card {
+      background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+      border: 2px solid var(--yellow-main);
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);
+    }
+    .rank-number {
+      font-size: 72px;
+      font-weight: 900;
+      color: var(--yellow-main);
+      line-height: 1;
+      margin: 8px 0;
+    }
+    .incoming-alert-box {
+      background: #fef2f2;
+      border: 3px solid #ef4444;
+      border-radius: 24px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 35px rgba(239, 68, 68, 0.35);
+      animation: emergencyPulse 0.8s infinite alternate;
+    }
+    @keyframes emergencyPulse {
+      0% { transform: scale(0.99); border-color: #ef4444; }
+      100% { transform: scale(1.015); border-color: #b91c1c; }
+    }
+    .btn-action-pos {
+      width: 100%;
+      padding: 18px 16px;
+      font-size: 19px;
+      font-weight: 900;
+      border-radius: 18px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+    .btn-action-pos:active {
+      transform: scale(0.97);
+    }
+    .btn-accept {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+    }
+    .btn-reject {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 2px solid #fecaca;
+      margin-top: 10px;
+      font-size: 16px;
+      padding: 14px;
+    }
+    .btn-nav {
+      background: #3b82f6;
+      color: #ffffff;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Pop-up ve Toast Modallar */
+    @keyframes slideDownToast {
+      from { transform: translateY(-40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-sheet {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-sheet-content {
+      background: #ffffff;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 28px 28px 0 0;
+      padding: 24px 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pos-terminal">
+    
+    <!-- ========================================== -->
+    <!-- 1. SÜRÜCÜ GİRİŞ EKRANI (LOGIN VIEW) -->
+    <!-- ========================================== -->
+    <div id="loginView" style="display: none; padding: 32px 24px; flex-direction: column; justify-content: center; min-height: 560px; background: #ffffff;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img src="images/logo.png" alt="TaksideÖde" style="height: 52px; object-fit: contain; margin-bottom: 12px;">
+        <h2 style="font-size: 22px; font-weight: 900; color: #1e1b4b; margin: 0;">Sürücü POS Girişi</h2>
+        <p style="font-size: 13px; color: #64748b; margin-top: 6px;">Durak tarafından tanımlanan plaka ve şifrenizle giriş yapın</p>
+      </div>
+
+      <div id="loginErrorMsg" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 700; margin-bottom: 16px; text-align: center;"></div>
+
+      <form id="driverLoginForm" onsubmit="handleDriverLogin(event)" style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px;">ARAÇ PLAKASI</label>
+          <input type="text" id="loginPlate" class="form-input" placeholder="Örn: 34 TKS 01" required
+            style="font-size: 18px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; padding: 14px 16px; border: 2px solid #cbd5e1; border-radius: 14px; width: 100%; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px;">GİRİŞ ŞİFRESİ / PIN</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Şifrenizi girin" required
+            style="font-size: 18px; font-weight: 800; padding: 14px 16px; border: 2px solid #cbd5e1; border-radius: 14px; width: 100%; box-sizing: border-box;">
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #475569; margin: 4px 0;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+            <input type="checkbox" id="rememberMe" checked style="width: 18px; height: 18px; accent-color: var(--purple-main);">
+            Beni Hatırla (Oturumu Açık Tut)
+          </label>
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="btn-action-pos" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #000000; box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35); margin-top: 8px;">
+          🚕 SİSTEME GİRİŞ YAP
+        </button>
+
+        <div style="text-align: center; margin-top: 14px; font-size: 12px; color: #94a3b8;">
+          Şifrenizi unuttuysanız durak yöneticiniz ile iletişime geçiniz.
+        </div>
+      </form>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. SÜRÜCÜ POS ANA EKRANI (DRIVER MAIN VIEW) -->
+    <!-- ========================================== -->
+    <div id="posMainView" style="display: none; flex-direction: column; flex: 1;">
+
+      <!-- DİNAMİK BİLDİRİM & ANONS TOAST KAPSAYICISI (KOMPAKT & ŞIK) -->
+      <div id="driverToastContainer" style="position: fixed; top: 12px; left: 12px; right: 12px; max-width: 460px; margin: 0 auto; z-index: 99999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;">
+        
+        <!-- Şık Durak Duyuru Çubuğu -->
+        <div id="driverAnnouncementPopup" style="display: none; pointer-events: auto; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1.5px solid #818cf8; border-radius: 16px; padding: 10px 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); color: #ffffff; animation: slideDownToast 0.3s ease;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+              <div style="background: rgba(251, 191, 36, 0.2); border-radius: 10px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;">
+                📢
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 12.5px; font-weight: 800; color: #fbbf24; line-height: 1.2; text-transform: uppercase;" id="annPopupTitle">Durak Duyurusu</div>
+                <div style="font-size: 12px; color: #e2e8f0; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="annPopupContent">Lütfen dikkatli sürün.</div>
+              </div>
+            </div>
+            <button onclick="document.getElementById('driverAnnouncementPopup').style.display='none'" style="background: none; border: none; color: #94a3b8; font-size: 16px; padding: 4px; cursor: pointer;">✕</button>
+          </div>
+        </div>
+
+        <!-- Sistem Toast Bildirimi (Zaman Aşımı, Başarılı Sefer vb.) -->
+        <div id="driverSystemToast" style="display: none; pointer-events: auto; background: #0f172a; border-radius: 16px; padding: 12px 14px; box-shadow: 0 12px 35px rgba(0,0,0,0.4); color: #ffffff; animation: slideDownToast 0.3s ease;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+              <div id="toastIconBox" style="font-size: 22px; flex-shrink: 0;">🔔</div>
+              <div style="flex: 1; min-width: 0;">
+                <div id="toastTitleText" style="font-size: 13.5px; font-weight: 900; line-height: 1.2;">Bildirim</div>
+                <div id="toastMessageText" style="font-size: 12px; opacity: 0.92; margin-top: 2px; line-height: 1.3;">Mesaj içeriği</div>
+              </div>
+            </div>
+            <button onclick="document.getElementById('driverSystemToast').style.display='none'" style="background: none; border: none; color: #94a3b8; font-size: 16px; padding: 4px; cursor: pointer;">✕</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- POS Üst Bar -->
+      <div class="pos-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="images/logo.png" alt="TaksideÖde" style="height: 36px; object-fit: contain;">
+          <div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--purple-main); line-height: 1.1;" id="activePlateDisplay">34 TKS 01</div>
+            <div style="font-size: 11px; font-weight: 800; color: #64748b;" id="activeDriverNameDisplay">Ahmet Yılmaz</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button onclick="openHistoryModal()" title="Geçmiş Seferlerim & İstatistik" style="background: #f5f3ff; border: 1.5px solid #ddd6fe; color: var(--purple-main); border-radius: 10px; padding: 6px 10px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            📊 Seferler
+          </button>
+          <button onclick="handleDriverLogout()" title="Oturumu Kapat" style="background: #fef2f2; border: 1.5px solid #fecaca; color: #dc2626; border-radius: 10px; padding: 6px 10px; font-size: 12px; font-weight: 800; cursor: pointer;">
+            🚪 Çıkış
+          </button>
+        </div>
+      </div>
+
+      <!-- POS Gövde -->
+      <div class="pos-body">
+
+        <!-- DURAK SIRASI KARTI -->
+        <div class="rank-card" id="queueStatusCard">
+          <div style="font-size: 13px; font-weight: 800; color: var(--purple-dark); text-transform: uppercase;">DURAKTAKİ SIRANIZ</div>
+          <div class="rank-number" id="driverRankDisplay">1</div>
+          <div style="font-size: 15px; font-weight: 700; color: #059669;" id="rankStatusText">
+            ⭐ Sırada 1. Araçsınız — Sıradaki İş Size Gelecektir!
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- GELEN ÇAĞRI ALARMI (SESLİ & TİTREŞİMLİ 30 SN) -->
+        <!-- ========================================== -->
+        <div id="incomingCallBox" style="display: none;" class="incoming-alert-box">
+          <div style="font-size: 13px; font-weight: 900; letter-spacing: 1px; color: #dc2626;">
+            🔔 YENİ MÜŞTERİ ÇAĞRISI GELDİ!
+          </div>
+          
+          <!-- Adresler Kutusu -->
+          <div style="background: #ffffff; border: 2px solid #fecaca; border-radius: 18px; padding: 14px; margin: 12px 0; text-align: left;">
+            <div style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase;">📍 1. ALIŞ NOKTASI (NEREDEN):</div>
+            <div style="font-size: 17px; font-weight: 900; color: #0f172a; margin-top: 2px;" id="incomingAddressDisplay">
+              Moda Caddesi No:42
+            </div>
+            
+            <div style="height: 1px; background: #e2e8f0; margin: 10px 0;"></div>
+
+            <div style="font-size: 11px; font-weight: 800; color: #7c3aed; text-transform: uppercase;">🏁 2. VARIŞ NOKTASI (NEREYE):</div>
+            <div style="font-size: 17px; font-weight: 900; color: #0f172a; margin-top: 2px;" id="incomingDropoffDisplay">
+              Sabiha Gökçen Havalimanı
+            </div>
+
+            <div style="height: 1px; background: #e2e8f0; margin: 10px 0;"></div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 700;">TAHMİNİ ÜCRET:</div>
+                <div style="font-size: 18px; font-weight: 900; color: #b45309;" id="incomingFareDisplay">480 ₺</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 11px; color: #64748b; font-weight: 700;">MÜŞTERİ NOTU:</div>
+                <div style="font-size: 12px; font-weight: 800; color: #334155;" id="incomingNoteDisplay">2 Valiz var</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">
+            Kalan Kabul Süresi: <span id="countdownDisplay" style="font-size: 24px; color: #ea580c; font-weight: 900;">30</span> sn
+          </div>
+
+          <button class="btn-action-pos btn-accept" onclick="acceptIncomingCall()">
+            ✅ İŞİ KABUL ET
+          </button>
+          <button class="btn-action-pos btn-reject" onclick="rejectIncomingCall()">
+            ❌ REDDET (Son Sıraya Geç)
+          </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- YOLCULUK AŞAMASI 1: MÜŞTERİYE GİDİLİYOR -->
+        <!-- ========================================== -->
+        <div id="stagePickupBox" style="display: none; background: #f0fdf4; border: 2px solid #86efac; border-radius: 22px; padding: 18px; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 12px; font-weight: 900; color: #166534; background: #dcfce7; padding: 4px 10px; border-radius: 8px;">
+              🚕 1. AŞAMA: MÜŞTERİYE GİDİLİYOR
+            </span>
+            <span style="font-size: 13px; font-weight: 800; color: #15803d;" id="tripCustPhoneDisplay">0532 999 00 11</span>
+          </div>
+
+          <div style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase;">MÜŞTERİ ADI & ALIŞ ADRESİ:</div>
+          <div style="font-size: 19px; font-weight: 900; color: #0f172a; margin: 4px 0 14px;" id="tripPickupAddressDisplay">
+            Moda Caddesi No:42 (Tarihi Tramvay Durağı)
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
+            <button id="btnNavToPickup" onclick="openNavToCurrentPickup()" class="btn-nav" style="border: none; cursor: pointer; text-align: center; text-decoration: none;">
+              🧭 Navigasyon Aç
+            </button>
+            <button id="btnCallCustomer" onclick="callCurrentCustomer()" class="btn-nav" style="border: none; cursor: pointer; text-align: center; text-decoration: none; background: #10b981; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+              📞 Müşteriyi Ara
+            </button>
+          </div>
+
+          <button class="btn-action-pos" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff;" onclick="completePickupStage()">
+            🙋 MÜŞTERİYİ ALDIM (Yolculuğu Başlat)
+          </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- YOLCULUK AŞAMASI 2: VARIŞ NOKTASINA GİDİLİYOR -->
+        <!-- ========================================== -->
+        <div id="stageDropoffBox" style="display: none; background: #faf5ff; border: 2px solid var(--purple-border); border-radius: 22px; padding: 18px; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 12px; font-weight: 900; color: var(--purple-main); background: #f3e8ff; padding: 4px 10px; border-radius: 8px;">
+              🎯 2. AŞAMA: VARIŞ NOKTASINA GİDİLİYOR
+            </span>
+            <span style="font-size: 16px; font-weight: 900; color: #b45309;" id="tripFareLiveDisplay">480 ₺</span>
+          </div>
+
+          <div style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase;">VARIŞ NOKTASI (NEREYE):</div>
+          <div style="font-size: 20px; font-weight: 900; color: #0f172a; margin: 4px 0 14px;" id="tripDropoffAddressDisplay">
+            Sabiha Gökçen Havalimanı Dış Hatlar
+          </div>
+
+          <button id="btnNavToDropoff" onclick="openNavToCurrentDropoff()" class="btn-nav" style="width: 100%; border: none; cursor: pointer; text-align: center; text-decoration: none; margin-bottom: 14px; background: #7c3aed; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
+            🧭 Varış Yeri Navigasyonu (Google Maps)
+          </button>
+
+          <button class="btn-action-pos" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #000000; box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);" onclick="completeFinalTrip()">
+            🏁 YOLCULUĞU BİTİR (FİŞ KES & DURAĞA DÖN)
+          </button>
+        </div>
+
+        <!-- DURAĞA HIZLI MESAJ GÖNDERME -->
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 12px; margin-top: auto;">
+          <div style="font-size: 11px; font-weight: 800; color: var(--purple-dark); margin-bottom: 6px;">💬 DURAĞA HIZLI MESAJ GÖNDER</div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="quickMsgInput" class="form-input" style="font-size: 13px; padding: 8px 12px;" placeholder="Örn: Müşteri bindi, havalimanına gidiyorum...">
+            <button class="btn btn-primary btn-sm" onclick="sendQuickMessage()">Yolla</button>
+          </div>
+        </div>
+
+        <!-- Telefon GPS Bilgi Kartı -->
+        <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+          <div style="font-size: 11.5px; color: #334155;">
+            🛰️ <strong>GPS Durumu:</strong> <span id="realGpsBadge" style="color: #059669; font-weight: 800;">Bağlanıyor...</span>
+            <div id="gpsCoordsText" style="font-size: 10.5px; color: #64748b; font-family: monospace; margin-top: 1px;">Enlem: --, Boylam: --</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" style="font-size: 10.5px; padding: 5px 8px; white-space: nowrap;" onclick="requestPhoneGps()">GPS Yenile</button>
+        </div>
+
+      </div>
+
+      <!-- POS Alt Durum -->
+      <div style="background: #ffffff; padding: 10px 18px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
+        <div>GPS: <span id="posGpsStatusText" style="color: #10b981; font-weight: 800;">Canlı</span></div>
+        <div id="wakeLockStatusText" style="color: #7c3aed; font-weight: 700; font-size: 11px;">☀️ Ekran Açık</div>
+        <div id="posTimeDisplay" style="font-weight: 700; color: var(--text-main);">18:30</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 3. GEÇMİŞ SEFERLERİM & PERFORMANS MODAL SHEET -->
+  <!-- ========================================== -->
+  <div class="modal-sheet" id="driverHistoryModal">
+    <div class="modal-sheet-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 900; color: #0f172a; margin: 0;">📊 Sefer Geçmişim & Performansım</h3>
+        <button onclick="closeHistoryModal()" style="background: none; border: none; font-size: 22px; color: #64748b; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Özet Kartları -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: #64748b; font-weight: 700;">BUGÜNKÜ KAZANÇ</div>
+          <div style="font-size: 20px; font-weight: 900; color: #059669; margin-top: 2px;" id="perfRevenueDisplay">0 ₺</div>
+        </div>
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: #64748b; font-weight: 700;">ŞOFÖR PUANI</div>
+          <div style="font-size: 20px; font-weight: 900; color: #f59e0b; margin-top: 2px;" id="perfRatingDisplay">⭐ 5.0</div>
+        </div>
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: #64748b; font-weight: 700;">BAŞARILI SEFER</div>
+          <div style="font-size: 20px; font-weight: 900; color: var(--purple-main); margin-top: 2px;" id="perfTripsDisplay">0 Sefer</div>
+        </div>
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: #64748b; font-weight: 700;">KABUL ORANI</div>
+          <div style="font-size: 20px; font-weight: 900; color: #0284c7; margin-top: 2px;" id="perfAcceptRateDisplay">%100</div>
+        </div>
+      </div>
+
+      <div style="font-size: 13px; font-weight: 800; color: #334155; margin-bottom: 8px;">📋 Son Seferlerim (Kimi Nereden Nereye Götürdüm):</div>
+      <div id="driverHistoryList" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto;">
+        <!-- Dinamik seferler -->
+        <div style="text-align: center; color: #94a3b8; font-size: 13px; padding: 20px;">Yükleniyor...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE_URL = (window.location.protocol === 'file:' || !window.location.origin.includes(':3000')) ? 'http://192.168.1.102:3000' : '';
+    const socket = io(BASE_URL || window.location.origin);
+    let currentShiftId = null;
+    let currentStationId = 'durak_merkez';
+    let currentDriverInfo = null;
+    let activeCall = null;
+    let countdownInterval = null;
+    let audioCtx = null;
+    let gpsWatchId = null;
+    let wakeLock = null;
+    let lastGeofence = null;
+    let isTestSimulatedLocation = false;
+
+    function playAlarmSound() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      } catch (e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setInterval(() => {
+        const timeEl = document.getElementById('posTimeDisplay');
+        if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      }, 1000);
+
+      checkDriverSession();
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+
+      requestWakeLock();
+    });
+
+    // Oturum Kontrolü
+    function checkDriverSession() {
+      const saved = localStorage.getItem('taksideode_driver_session') || sessionStorage.getItem('taksideode_driver_session');
+      if (saved) {
+        try {
+          const session = JSON.parse(saved);
+          if (session && session.driver && session.shift) {
+            activateDriverSession(session);
+            return;
+          }
+        } catch (e) {}
+      }
+      showLoginView();
+    }
+
+    function showLoginView() {
+      document.getElementById('loginView').style.display = 'flex';
+      document.getElementById('posMainView').style.display = 'none';
+    }
+
+    function showMainView() {
+      document.getElementById('loginView').style.display = 'none';
+      document.getElementById('posMainView').style.display = 'flex';
+    }
+
+    // Sürücü Girişi
+    async function handleDriverLogin(e) {
+      e.preventDefault();
+      const plate = document.getElementById('loginPlate').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const errorEl = document.getElementById('loginErrorMsg');
+      const submitBtn = document.getElementById('loginSubmitBtn');
+
+      errorEl.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Giriş Yapılıyor...';
+
+      try {
+        const res = await fetch(`${BASE_URL}/api/drivers/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plate, password })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Giriş başarısız oldu');
+        }
+
+        const remember = document.getElementById('rememberMe').checked;
+        if (remember) {
+          localStorage.setItem('taksideode_driver_session', JSON.stringify(data));
+        } else {
+          sessionStorage.setItem('taksideode_driver_session', JSON.stringify(data));
+        }
+
+        activateDriverSession(data);
+      } catch (err) {
+        errorEl.textContent = '❌ ' + (err.message || 'Bağlantı hatası');
+        errorEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🚕 SİSTEME GİRİŞ YAP';
+      }
+    }
+
+    function activateDriverSession(session) {
+      currentDriverInfo = session.driver;
+      currentShiftId = session.shift.id;
+      currentStationId = session.station.id || 'durak_merkez';
+
+      document.getElementById('activePlateDisplay').textContent = session.driver.plate;
+      document.getElementById('activeDriverNameDisplay').textContent = session.driver.fullName;
+
+      showMainView();
+      initShift();
+      startPhoneGpsTracking();
+      startAnnouncementChecker();
+    }
+
+    function handleDriverLogout() {
+      if (!confirm('Sürücü oturumunu kapatmak istediğinize emin misiniz?')) return;
+      localStorage.removeItem('taksideode_driver_session');
+      sessionStorage.removeItem('taksideode_driver_session');
+      if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
+      currentShiftId = null;
+      currentDriverInfo = null;
+      showLoginView();
+      document.getElementById('loginPassword').value = '';
+    }
+
+    // Ekran Wake Lock
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          const el = document.getElementById('wakeLockStatusText');
+          if (el) el.textContent = '☀️ Ekran Açık';
+        }
+      } catch (err) {}
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') requestWakeLock();
+    });
+
+    // Gerçek Telefon GPS Takipçisi
+    function startPhoneGpsTracking() {
+      if (isTestSimulatedLocation) return;
+      if (!('geolocation' in navigator)) return;
+
+      gpsWatchId = navigator.geolocation.watchPosition(
+        async (position) => {
+          if (!currentShiftId || isTestSimulatedLocation) return;
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const acc = Math.round(position.coords.accuracy || 10);
+          
+          const rBadge = document.getElementById('realGpsBadge');
+          if (rBadge) {
+            rBadge.textContent = '🟢 Canlı GPS Aktif';
+            rBadge.style.color = '#059669';
+          }
+          const coordsTxt = document.getElementById('gpsCoordsText');
+          if (coordsTxt) coordsTxt.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)} (±${acc}m)`;
+          const posGpsTxt = document.getElementById('posGpsStatusText');
+          if (posGpsTxt) posGpsTxt.textContent = 'Canlı GPS';
+
+          try {
+            await fetch(BASE_URL + '/api/drivers/location', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ shiftId: currentShiftId, lat, lng })
+            });
+          } catch (e) {}
+        },
+        (error) => {},
+        { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+      );
+    }
+
+    function requestPhoneGps() {
+      if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
+      isTestSimulatedLocation = false;
+      document.getElementById('btnResumeRealGps').style.display = 'none';
+      startPhoneGpsTracking();
+    }
+
+    // ========================================================
+    // TEST MODU METOTLARI (İZMİR'DEN TEST EDEBİLMEK İÇİN)
+    // ========================================================
+    async function simulateEnterStation() {
+      if (!currentShiftId) return;
+      isTestSimulatedLocation = true;
+      if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
+
+      const res = await fetch(`${BASE_URL}/api/test/teleport-to-station`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shiftId: currentShiftId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        lastGeofence = data.geofence;
+        document.getElementById('realGpsBadge').textContent = '🧪 Test Modu (Durak İçi)';
+        document.getElementById('realGpsBadge').style.color = '#7c3aed';
+        document.getElementById('gpsCoordsText').textContent = 'Kadıköy Merkez (Simüle)';
+        document.getElementById('btnResumeRealGps').style.display = 'inline-block';
+        alert('🟢 Test Modu Aktif: Durağa ışınlandınız! 1. Sıraya geçtiniz. Artık çağrı alabilirsiniz.');
+        fetchQueueStatus();
+      }
+    }
+
+    async function resumeRealPhoneGps() {
+      isTestSimulatedLocation = false;
+      document.getElementById('btnResumeRealGps').style.display = 'none';
+      const res = await fetch(`${BASE_URL}/api/test/teleport-outside`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shiftId: currentShiftId })
+      });
+      alert('🛰️ Gerçek telefon GPS moduna dönüldü.');
+      requestPhoneGps();
+      fetchQueueStatus();
+    }
+
+    async function requestTestCallToMe() {
+      if (!currentShiftId) return;
+      const res = await fetch(`${BASE_URL}/api/test/create-test-job`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shiftId: currentShiftId,
+          stationId: currentStationId,
+          pickupAddress: 'Moda Caddesi No:42 (Tarihi Tramvay Durağı)',
+          dropoffAddress: 'Sabiha Gökçen Havalimanı Dış Hatlar',
+          customerName: 'Caner Test Müşterisi',
+          customerPhone: '0532 999 00 11',
+          fare: 480
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Çağrı hemen socket üzerinden düşecek
+      }
+    }
+
+    // ========================================================
+    // ÇAĞRI VE SIRA DİNLENMESİ
+    // ========================================================
+    async function initShift() {
+      if (!currentShiftId) return;
+      socket.emit('join_driver', currentShiftId);
+      socket.emit('join_station', currentStationId);
+      if (window.AndroidApp && window.AndroidApp.startBackgroundService) {
+        window.AndroidApp.startBackgroundService(currentShiftId);
+      }
+      try {
+        const sRes = await fetch(`${BASE_URL}/api/drivers/shift/${currentShiftId}`);
+        const sData = await sRes.json();
+        if (sData && sData.geofence) {
+          lastGeofence = sData.geofence;
+        }
+      } catch (e) {}
+
+      // Aktif işi geri yükle (Haritadan dönüldüğünde veya sayfa yeniden açıldığında kaybolmaz)
+      await checkAndRestoreActiveCall();
+      fetchQueueStatus();
+    }
+
+    // Uygulamaya arka plandan / Google Maps'ten dönüldüğünde anında durumu tazele
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        checkAndRestoreActiveCall();
+        fetchQueueStatus();
+      }
+    });
+    window.addEventListener('focus', () => {
+      checkAndRestoreActiveCall();
+      fetchQueueStatus();
+    });
+
+    socket.on('geofence_status', (data) => {
+      lastGeofence = data;
+      if (data.event === 'entered') {
+        alert('🟢 Durağa giriş yaptınız! Otomatik sıraya alındınız.');
+      } else if (data.event === 'exited') {
+        alert('⚠️ Durak alanından çıktınız. Sıradan çıkarıldınız.');
+      }
+      fetchQueueStatus();
+    });
+
+    async function fetchQueueStatus() {
+      if (!currentShiftId) return;
+      try {
+        const res = await fetch(`${BASE_URL}/api/stations/${currentStationId}/queue`);
+        const queue = await res.json();
+        const myItem = queue.find(q => q.shift_id === currentShiftId);
+        
+        const rankDisplay = document.getElementById('driverRankDisplay');
+        const statusText = document.getElementById('rankStatusText');
+
+        if (myItem) {
+          rankDisplay.textContent = myItem.queueOrder;
+          rankDisplay.style.fontSize = '72px';
+          rankDisplay.style.color = 'var(--yellow-main)';
+          if (myItem.queueOrder === 1) {
+            statusText.innerHTML = '⭐ <strong>Sırada 1. Araçsınız</strong> — Sıradaki İş Size Gelecektir!';
+            statusText.style.color = '#059669';
+          } else {
+            statusText.innerHTML = `Önünüzde <strong>${myItem.queueOrder - 1}</strong> taksi var.`;
+            statusText.style.color = '#d97706';
+          }
+        } else {
+          rankDisplay.textContent = 'Dışarıda';
+          rankDisplay.style.fontSize = '36px';
+          rankDisplay.style.color = '#dc2626';
+
+          let distInfo = '';
+          if (lastGeofence && lastGeofence.distanceMeters) {
+            const d = lastGeofence.distanceMeters;
+            distInfo = d >= 1000 ? (d / 1000).toFixed(1) + ' km' : d + ' metre';
+          }
+
+          statusText.innerHTML = `
+            <div style="font-weight: 900; color: #dc2626; font-size: 14px;">
+              📍 Durak Alanı Dışındasınız ${distInfo ? '(' + distInfo + ')' : ''}
+            </div>
+            <div style="font-size: 11.5px; color: #64748b; font-weight: 600; margin-top: 4px;">
+              Yukarıdaki <strong>"📍 Durağa Gir (Test)"</strong> butonuna basarak 1. sıraya geçip test edebilirsiniz.
+            </div>
+          `;
+        }
+      } catch (err) {}
+    }
+
+    socket.on('queue_updated', () => fetchQueueStatus());
+
+    // Şık Toast Bildirim Sistemi (file:// alert yerine)
+    function showDriverToast({ title, message, type = 'info', icon, duration = 4500 }) {
+      const toast = document.getElementById('driverSystemToast');
+      const iconBox = document.getElementById('toastIconBox');
+      const titleEl = document.getElementById('toastTitleText');
+      const msgEl = document.getElementById('toastMessageText');
+      if (!toast) return;
+
+      try {
+        if (window.AndroidApp && window.AndroidApp.playNotificationSound) {
+          window.AndroidApp.playNotificationSound();
+        }
+      } catch (e) {}
+
+      if (type === 'warning') {
+        toast.style.background = 'linear-gradient(135deg, #78350f 0%, #451a03 100%)';
+        toast.style.border = '1.5px solid #f59e0b';
+        titleEl.style.color = '#fef08a';
+        iconBox.textContent = icon || '⏱️';
+      } else if (type === 'success') {
+        toast.style.background = 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)';
+        toast.style.border = '1.5px solid #10b981';
+        titleEl.style.color = '#6ee7b7';
+        iconBox.textContent = icon || '✅';
+      } else if (type === 'danger') {
+        toast.style.background = 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)';
+        toast.style.border = '1.5px solid #ef4444';
+        titleEl.style.color = '#fca5a5';
+        iconBox.textContent = icon || '🚨';
+      } else {
+        toast.style.background = 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)';
+        toast.style.border = '1.5px solid #818cf8';
+        titleEl.style.color = '#c7d2fe';
+        iconBox.textContent = icon || '💬';
+      }
+
+      titleEl.textContent = title;
+      msgEl.textContent = message;
+      toast.style.display = 'block';
+
+      if (window.toastTimer) clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+      }, duration);
+    }
+
+    // Yeni Çağrı Geldi (Alarm, Titreşim & Kesintisiz 30sn Sayacı)
+    function onIncomingCallReceived(call) {
+      activeCall = call;
+      document.getElementById('incomingAddressDisplay').textContent = call.pickupAddress || 'Müşteri Adresi';
+      document.getElementById('incomingDropoffDisplay').textContent = call.dropoffAddress || 'Şehir İçi / Varış Yeri';
+      document.getElementById('incomingFareDisplay').textContent = `${call.fare || 240} ₺`;
+      document.getElementById('incomingNoteDisplay').textContent = call.customerNote || 'Not yok';
+      
+      const callBox = document.getElementById('incomingCallBox');
+      callBox.style.display = 'block';
+      try {
+        callBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) {}
+
+      // Alarm ve Titreşim Çal (Ses garantisi)
+      try { playAlarmSound(); } catch (e) {}
+      try {
+        if (window.AndroidApp && window.AndroidApp.playCallAlarm) {
+          window.AndroidApp.playCallAlarm(call.pickupAddress || 'Yeni Müşteri Çağrısı');
+        }
+      } catch (e) {}
+
+      let timeLeft = 30;
+      const countEl = document.getElementById('countdownDisplay');
+      if (countEl) countEl.textContent = timeLeft;
+
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+
+      countdownInterval = setInterval(() => {
+        timeLeft--;
+        if (countEl) countEl.textContent = timeLeft;
+        if (timeLeft % 2 === 0) {
+          try { playAlarmSound(); } catch (e) {}
+        }
+
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          callBox.style.display = 'none';
+          try {
+            if (window.AndroidApp && window.AndroidApp.stopCallAlarm) window.AndroidApp.stopCallAlarm();
+          } catch (e) {}
+        }
+      }, 1000);
+    }
+
+    socket.on('new_call_dispatched', (call) => onIncomingCallReceived(call));
+    socket.on('new_call_alert', (data) => onIncomingCallReceived(data.call));
+
+    socket.on('call_timed_out', (data) => {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+      document.getElementById('incomingCallBox').style.display = 'none';
+      try {
+        if (window.AndroidApp && window.AndroidApp.stopCallAlarm) window.AndroidApp.stopCallAlarm();
+      } catch (e) {}
+      showDriverToast({
+        type: 'warning',
+        icon: '⏱️',
+        title: 'Süre Doldu (Zaman Aşımı)',
+        message: data.message || '30 saniye içinde yanıt verilmediği için çağrı sıradaki araca aktarıldı ve sıranın sonuna alındınız.',
+        duration: 5500
+      });
+      fetchQueueStatus();
+    });
+
+    socket.on('call_rejected_confirm', (data) => {
+      showDriverToast({
+        type: 'warning',
+        icon: '❌',
+        title: 'Çağrı Reddedildi',
+        message: data.message || 'Çağrıyı reddettiniz.',
+        duration: 3500
+      });
+      saveActiveCallLocally(null);
+      activeCall = null;
+      fetchQueueStatus();
+    });
+
+    // ========================================================
+    // AKTİF ÇAĞRI HAFIZASI & GOOGLE MAPS NAVİGASYON ENTEGRASYONU
+    // ========================================================
+    function openGoogleMapsNavigation(dest) {
+      if (!dest) return;
+      if (window.AndroidApp && window.AndroidApp.openNavigation) {
+        window.AndroidApp.openNavigation(dest);
+      } else {
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`;
+        window.open(url, '_blank');
+      }
+    }
+
+    function openNavToCurrentPickup() {
+      if (!activeCall || !activeCall.pickupAddress) {
+        alert('Alış adresi bulunamadı.');
+        return;
+      }
+      openGoogleMapsNavigation(activeCall.pickupAddress);
+    }
+
+    function openNavToCurrentDropoff() {
+      if (!activeCall) return;
+      const target = activeCall.dropoffAddress || 'Kadıköy Rıhtım';
+      openGoogleMapsNavigation(target);
+    }
+
+    function callCurrentCustomer() {
+      if (!activeCall || !activeCall.customerPhone) {
+        alert('Müşteri telefon numarası kayıtlı değil.');
+        return;
+      }
+      if (window.AndroidApp && window.AndroidApp.makePhoneCall) {
+        window.AndroidApp.makePhoneCall(activeCall.customerPhone);
+      } else {
+        window.location.href = `tel:${activeCall.customerPhone}`;
+      }
+    }
+
+    function saveActiveCallLocally(call) {
+      try {
+        if (call && currentShiftId) {
+          localStorage.setItem('pos_active_call_' + currentShiftId, JSON.stringify(call));
+        } else if (currentShiftId) {
+          localStorage.removeItem('pos_active_call_' + currentShiftId);
+        }
+      } catch (e) {}
+    }
+
+    function getLocalActiveCall() {
+      try {
+        if (!currentShiftId) return null;
+        const raw = localStorage.getItem('pos_active_call_' + currentShiftId);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function checkAndRestoreActiveCall() {
+      if (!currentShiftId) return;
+      try {
+        let callToRestore = null;
+        try {
+          const res = await fetch(`${BASE_URL}/api/drivers/${currentShiftId}/active-call`);
+          const data = await res.json();
+          if (data && data.success && data.hasActiveCall && data.call) {
+            callToRestore = data.call;
+          }
+        } catch (netErr) {}
+
+        if (!callToRestore) {
+          callToRestore = getLocalActiveCall();
+        }
+
+        if (callToRestore) {
+          activeCall = callToRestore;
+          saveActiveCallLocally(activeCall);
+
+          document.getElementById('queueStatusCard').style.display = 'none';
+          document.getElementById('incomingCallBox').style.display = 'none';
+
+          if (activeCall.status === 'in_trip' || activeCall.stage === 'heading_to_dropoff') {
+            document.getElementById('stagePickupBox').style.display = 'none';
+            document.getElementById('stageDropoffBox').style.display = 'block';
+            document.getElementById('tripDropoffAddressDisplay').textContent = activeCall.dropoffAddress || 'Varış Noktası';
+            document.getElementById('tripFareLiveDisplay').textContent = `${activeCall.fare || 240} ₺`;
+          } else {
+            document.getElementById('stageDropoffBox').style.display = 'none';
+            document.getElementById('stagePickupBox').style.display = 'block';
+            document.getElementById('tripCustPhoneDisplay').textContent = activeCall.customerPhone || 'Telefon Yok';
+            document.getElementById('tripPickupAddressDisplay').textContent = activeCall.pickupAddress;
+          }
+          console.log('[Aktif Çağrı] Devam eden iş ekranda korundu:', activeCall.id);
+        }
+      } catch (err) {
+        console.error('Aktif çağrı geri yükleme hatası:', err);
+      }
+    }
+
+    // İşi Kabul Et
+    async function acceptIncomingCall() {
+      if (!activeCall) return;
+      if (countdownInterval) clearInterval(countdownInterval);
+      document.getElementById('incomingCallBox').style.display = 'none';
+      if (window.AndroidApp && window.AndroidApp.stopCallAlarm) {
+        window.AndroidApp.stopCallAlarm();
+      }
+
+      activeCall.status = 'accepted';
+      activeCall.stage = 'heading_to_pickup';
+      saveActiveCallLocally(activeCall);
+
+      await fetch(`${BASE_URL}/api/calls/${activeCall.id}/accept`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stationId: currentStationId, shiftId: currentShiftId })
+      });
+
+      // 1. Aşamayı Aç: Müşteriye Gidiliyor
+      document.getElementById('queueStatusCard').style.display = 'none';
+      document.getElementById('stagePickupBox').style.display = 'block';
+      document.getElementById('tripCustPhoneDisplay').textContent = activeCall.customerPhone || 'Telefon Yok';
+      document.getElementById('tripPickupAddressDisplay').textContent = activeCall.pickupAddress;
+    }
+
+    // İşi Reddet
+    async function rejectIncomingCall() {
+      if (!activeCall) return;
+      if (countdownInterval) clearInterval(countdownInterval);
+      document.getElementById('incomingCallBox').style.display = 'none';
+      if (window.AndroidApp && window.AndroidApp.stopCallAlarm) {
+        window.AndroidApp.stopCallAlarm();
+      }
+
+      const callId = activeCall.id;
+      saveActiveCallLocally(null);
+      activeCall = null;
+
+      await fetch(`${BASE_URL}/api/calls/${callId}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stationId: currentStationId, shiftId: currentShiftId })
+      });
+      fetchQueueStatus();
+    }
+
+    // 1. Aşamadan 2. Aşamaya: MÜŞTERİYİ ALDIM
+    async function completePickupStage() {
+      if (!activeCall) return;
+      activeCall.status = 'in_trip';
+      activeCall.stage = 'heading_to_dropoff';
+      saveActiveCallLocally(activeCall);
+
+      await fetch(`${BASE_URL}/api/calls/${activeCall.id}/pickup`, { method: 'POST' });
+
+      document.getElementById('stagePickupBox').style.display = 'none';
+      document.getElementById('stageDropoffBox').style.display = 'block';
+      document.getElementById('tripDropoffAddressDisplay').textContent = activeCall.dropoffAddress || 'Varış Noktası';
+      document.getElementById('tripFareLiveDisplay').textContent = `${activeCall.fare || 240} ₺`;
+    }
+
+    // 2. Aşama: YOLCULUĞU TAMAMLA (FİŞ KES)
+    async function completeFinalTrip() {
+      if (!activeCall) return;
+      const fare = activeCall.fare || 240;
+      const callId = activeCall.id;
+
+      saveActiveCallLocally(null);
+      activeCall = null;
+
+      await fetch(`${BASE_URL}/api/calls/${callId}/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fare })
+      });
+
+      showDriverToast({
+        type: 'success',
+        icon: '🏁',
+        title: 'Yolculuk Tamamlandı!',
+        message: `Tahsilat: ${fare} ₺ fiş kesildi. Durağa dönüş sıranız güncellendi.`,
+        duration: 5000
+      });
+      document.getElementById('stageDropoffBox').style.display = 'none';
+      document.getElementById('queueStatusCard').style.display = 'block';
+
+      // Durağa otomatik dönüş/sıra kaydı
+      await fetch(`${BASE_URL}/api/stations/${currentStationId}/queue/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shiftId: currentShiftId })
+      });
+      fetchQueueStatus();
+    }
+
+    // ========================================================
+    // SEFER GEÇMİŞİ & PERFORMANS DÖKÜMÜ MODALI
+    // ========================================================
+    async function openHistoryModal() {
+      if (!currentShiftId) return;
+      document.getElementById('driverHistoryModal').style.display = 'flex';
+      const listEl = document.getElementById('driverHistoryList');
+      listEl.innerHTML = '<div style="text-align:center; padding:15px; color:#64748b;">Yükleniyor...</div>';
+
+      try {
+        // 1. Performans İstatistikleri
+        const driverId = currentDriverInfo ? currentDriverInfo.id : 'd_1';
+        const perfRes = await fetch(`${BASE_URL}/api/drivers/${driverId}/performance`);
+        const perfData = await perfRes.json();
+        if (perfData && perfData.stats) {
+          document.getElementById('perfRevenueDisplay').textContent = `${perfData.stats.todayRevenue.toLocaleString()} ₺`;
+          document.getElementById('perfRatingDisplay').textContent = `⭐ ${perfData.stats.rating}`;
+          document.getElementById('perfTripsDisplay').textContent = `${perfData.stats.totalTrips} Sefer`;
+          document.getElementById('perfAcceptRateDisplay').textContent = `%${perfData.stats.acceptanceRate}`;
+        }
+
+        // 2. Sefer Geçmişi
+        const histRes = await fetch(`${BASE_URL}/api/drivers/${currentShiftId}/history`);
+        const histData = await histRes.json();
+        const calls = histData.calls || [];
+
+        if (calls.length === 0) {
+          listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8; font-size:13px;">Henüz tamamlanan seferiniz bulunmuyor.</div>';
+          return;
+        }
+
+        listEl.innerHTML = calls.map(c => `
+          <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 900; font-size: 13.5px; color: #0f172a;">👤 ${c.customerName || 'Müşteri'}</span>
+              <span style="font-weight: 900; font-size: 15px; color: #059669;">+${c.fare || 240} ₺</span>
+            </div>
+            <div style="font-size: 12px; color: #475569; margin-top: 2px;">
+              📍 <strong>Nereden:</strong> ${c.pickupAddress || '-'}
+            </div>
+            <div style="font-size: 12px; color: #475569;">
+              🏁 <strong>Nereye:</strong> ${c.dropoffAddress || '-'}
+            </div>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: flex; justify-content: space-between;">
+              <span>🕒 ${new Date(c.completedAt || c.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+              <span style="color: #059669; font-weight: 700;">✅ Tamamlandı</span>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (e) {
+        listEl.innerHTML = '<div style="text-align:center; padding:15px; color:#dc2626;">Veriler alınamadı.</div>';
+      }
+    }
+
+    function closeHistoryModal() {
+      document.getElementById('driverHistoryModal').style.display = 'none';
+    }
+
+    // Durağa Hızlı Mesaj
+    async function sendQuickMessage() {
+      const input = document.getElementById('quickMsgInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const plateTxt = document.getElementById('activePlateDisplay').textContent;
+      const driverNameTxt = document.getElementById('activeDriverNameDisplay').textContent;
+      const senderTitle = `${driverNameTxt} (${plateTxt})`;
+
+      await fetch(`${BASE_URL}/api/stations/${currentStationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senderType: 'driver', senderName: senderTitle, text })
+      });
+      input.value = '';
+      showDriverToast({
+        type: 'info',
+        icon: '💬',
+        title: 'Mesaj İletildi',
+        message: 'Telsiz mesajınız durak paneline iletildi.',
+        duration: 3500
+      });
+    }
+
+    // Otomatik Anons Kontrolü
+    function startAnnouncementChecker() {
+      setInterval(async () => {
+        try {
+          const res = await fetch(`${BASE_URL}/api/stations/${currentStationId}/announcements`);
+          const announcements = await res.json();
+          const active = announcements.find(a => a.isActive);
+          if (active) {
+            showAnnouncementPopup(active.title, active.content, active.durationSeconds || 6);
+          }
+        } catch (e) {}
+      }, 60000);
+    }
+
+    socket.on('new_announcement_broadcast', (ann) => {
+      showAnnouncementPopup(ann.title, ann.content, ann.durationSeconds || 6);
+    });
+
+    function showAnnouncementPopup(title, content, duration) {
+      const popup = document.getElementById('driverAnnouncementPopup');
+      if (!popup) return;
+      document.getElementById('annPopupTitle').textContent = title || 'Durak Duyurusu';
+      document.getElementById('annPopupContent').textContent = content || '';
+      popup.style.display = 'block';
+
+      try {
+        if (window.AndroidApp && window.AndroidApp.playNotificationSound) {
+          window.AndroidApp.playNotificationSound();
+        }
+      } catch (e) {}
+
+      if (window.annTimer) clearTimeout(window.annTimer);
+      window.annTimer = setTimeout(() => {
+        popup.style.display = 'none';
+      }, (duration || 6) * 1000);
+    }
+  </script>
+</body>
+</html>

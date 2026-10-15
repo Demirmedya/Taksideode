@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Taksi Çağır • TaksideÖde</title>
+  <link rel="icon" type="image/png" href="/images/icon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      background: #f8fafc;
+      color: #0f172a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .mobile-wrapper {
+      width: 100%;
+      max-width: 440px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(124, 58, 237, 0.08), 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .app-header {
+      background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+      padding: 26px 20px 20px;
+      text-align: center;
+      border-bottom: 1px solid #ede9fe;
+    }
+    .location-box {
+      background: #faf5ff;
+      border: 1px solid #ddd6fe;
+      border-radius: 18px;
+      padding: 16px;
+      margin: 20px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .location-icon {
+      font-size: 26px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+    }
+    .call-btn {
+      width: 100%;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: 900;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000000;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+      letter-spacing: 0.5px;
+    }
+    .call-btn:hover {
+      background: #d97706;
+      color: #ffffff;
+      transform: scale(0.99);
+    }
+    .status-card {
+      background: #ffffff;
+      border: 2px solid #10b981;
+      border-radius: 20px;
+      padding: 24px;
+      margin: 20px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+    }
+    .plate-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000000;
+      font-size: 26px;
+      font-weight: 900;
+      padding: 8px 24px;
+      border-radius: 10px;
+      letter-spacing: 2px;
+      margin: 14px 0 10px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mobile-wrapper">
+    <div class="app-header">
+      <img src="/images/logo.png" alt="TaksideÖde" style="height: 52px; object-fit: contain; margin-bottom: 8px;">
+      <h2 style="font-size: 19px; font-weight: 900; color: #0f172a; margin-top: 4px;" id="stationNameDisplay">
+        Merkez Taksi Durağı
+      </h2>
+      <div style="font-size: 13px; color: #64748b; margin-top: 2px;">
+        Uygulama indirmeden kapınıza taksi çağırın
+      </div>
+    </div>
+
+    <!-- 1. Aşama: Çağrı Formu -->
+    <div id="stepRequest" style="padding: 0 0 24px 0;">
+      <div class="location-box">
+        <div class="location-icon">
+          <img src="/images/icon.png" alt="Konum" style="width: 34px; height: 34px; object-fit: contain;">
+        </div>
+        <div style="flex: 1;">
+          <div style="font-size: 11px; font-weight: 800; color: #7c3aed; text-transform: uppercase;">BULUNDUĞUNUZ SOKAK</div>
+          <div style="font-size: 16px; font-weight: 800; color: #0f172a;" id="locationTitleDisplay">Konum Alınıyor...</div>
+          <div style="font-size: 13px; color: #64748b;" id="locationDescDisplay">QR Noktası</div>
+        </div>
+      </div>
+
+      <div style="padding: 0 20px;">
+        <div class="form-group">
+          <label style="color: #475569;">Telefon Numaranız (Sürücü Ulaşabilsin Diye)</label>
+          <input type="tel" id="customerPhone" class="form-input" placeholder="05XX XXX XX XX">
+        </div>
+        <div class="form-group">
+          <label style="color: #475569;">Sürücüye Not (İsteğe Bağlı)</label>
+          <input type="text" id="customerNote" class="form-input" placeholder="Örn: 2 bavul var, bina önündeyim">
+        </div>
+
+        <button class="call-btn" id="btnCallTaxi" onclick="requestTaxi()">
+          🚖 ŞİMDİ TAKSİ ÇAĞIR
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Aşama: Taksi Aranıyor / Yönlendiriliyor -->
+    <div id="stepWaiting" style="display: none; padding: 40px 20px; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px; animation: pulse 1.5s infinite;">🚕</div>
+      <h3 style="font-size: 20px; font-weight: 800; color: #0f172a;">Sıradaki Taksi Yönlendiriliyor</h3>
+      <p style="font-size: 14px; color: #64748b; margin-top: 8px;">
+        Durağın 1. sırasındaki taksinin POS ekranına bildirim gönderildi. Lütfen bekleyiniz...
+      </p>
+    </div>
+
+    <!-- 3. Aşama: Taksi Kabul Etti & Geliyor -->
+    <div id="stepConfirmed" style="display: none;">
+      <div class="status-card">
+        <div style="font-size: 14px; font-weight: 800; color: #059669; letter-spacing: 0.5px;">✅ TAKSİNİZ YOLA ÇIKTI!</div>
+        <div class="plate-badge" id="assignedPlateDisplay">34 TKS 01</div>
+        <div style="font-size: 17px; font-weight: 800; color: #0f172a;" id="assignedDriverDisplay">Ahmet Yılmaz</div>
+        <div style="font-size: 13.5px; color: #64748b; margin-top: 4px;">Tahmini Varış: <strong style="color: #7c3aed;">~3 Dakika</strong></div>
+      </div>
+
+      <div style="padding: 0 20px 24px; text-align: center;">
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 13px; color: #475569;">
+          📍 Sürücü <strong><span id="confirmedLocationText">belirtilen noktaya</span></strong> doğru yola çıktı.
+        </div>
+        <button class="btn btn-secondary" style="width: 100%; padding: 12px;" onclick="location.reload()">Yeni Çağrı Başlat</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const socket = io();
+    const pathParts = window.location.pathname.split('/');
+    const qrCode = pathParts[pathParts.length - 1] || 'KR-101';
+    let currentCallId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('/api/stations/durak_merkez/overview');
+        const data = await res.json();
+        const point = data.qrPoints.find(p => p.code === qrCode) || data.qrPoints[0];
+        if (point) {
+          document.getElementById('locationTitleDisplay').textContent = point.title;
+          document.getElementById('locationDescDisplay').textContent = (point.neighborhood || '') + ' ' + (point.landmark || '');
+        }
+      } catch (err) {}
+    });
+
+    async function requestTaxi() {
+      const btn = document.getElementById('btnCallTaxi');
+      btn.disabled = true;
+      btn.textContent = 'Çağrılıyor...';
+
+      const phone = document.getElementById('customerPhone').value;
+      const note = document.getElementById('customerNote').value;
+
+      try {
+        const res = await fetch('/api/calls/qr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ qrCode, customerPhone: phone, customerNote: note })
+        });
+        const data = await res.json();
+        if (data.success && data.call) {
+          currentCallId = data.call.id;
+          socket.emit('join_call', currentCallId);
+
+          document.getElementById('stepRequest').style.display = 'none';
+          document.getElementById('stepWaiting').style.display = 'block';
+
+          socket.on('call_status_update', (update) => {
+            if (update.status === 'accepted' || update.status === 'dispatched') {
+              showConfirmed(update.assignedPlate, update.assignedDriverName);
+            }
+          });
+        }
+      } catch (err) {
+        alert('Taksi çağrılırken bir hata oluştu.');
+        btn.disabled = false;
+        btn.textContent = '🚖 ŞİMDİ TAKSİ ÇAĞIR';
+      }
+    }
+
+    function showConfirmed(plate, driverName) {
+      document.getElementById('stepWaiting').style.display = 'none';
+      document.getElementById('stepConfirmed').style.display = 'block';
+      if (plate) document.getElementById('assignedPlateDisplay').textContent = plate;
+      if (driverName) document.getElementById('assignedDriverDisplay').textContent = driverName;
+      document.getElementById('confirmedLocationText').textContent = document.getElementById('locationTitleDisplay').textContent;
+    }
+  </script>
+</body>
+</html>
