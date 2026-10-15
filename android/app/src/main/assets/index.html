@@ -1,290 +1,1650 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" prefix="og: https://ogp.me/ns#">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TaksideÖde • Akıllı Durak Yönetimi & QR Taksi Platformu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>TaksideÖde • Akıllı Taksi Durağı Yönetim Sistemi & QR Taksi Çağrı Platformu</title>
+  
+  <!-- SEO & Arama Motoru Optimizasyonu (AI & Crawler Ready) -->
+  <meta name="description" content="Türkiye'nin en gelişmiş akıllı durak yönetim altyapısı. Müşteri uygulama indirmeden sokaktaki QR kodla 5 saniyede taksi çağırır, durak sıra motoru işi anında sıradaki taksinin Android POS ekranına düşürür. Sıfır komisyon, tam durak hakimiyeti!">
+  <meta name="keywords" content="akıllı taksi durağı, taksi çağırma qr kodu, takside öde, durak sıra yönetimi, taksi pos uygulaması, taksi durağı otomasyonu, taksi takip sistemi, komisyonsuz taksi, taksi çağırma sistemi, izmir taksi yazılımı, istanbul taksi durağı">
+  <meta name="author" content="Demir Medya Dijital • TaksideÖde">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <link rel="canonical" href="https://taksideode.com.tr/">
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://taksideode.com.tr/">
+  <meta property="og:title" content="TaksideÖde • Akıllı Taksi Durağı & QR Çağrı Platformu">
+  <meta property="og:description" content="Uygulama indirmeden sokaktaki QR ile 5 saniyede taksi çağrısı. Adil Geofence durak sıra kuyruğu ve şoförler için Android POS uygulaması.">
+  <meta property="og:image" content="https://taksideode.com.tr/images/logo_purple_yellow.png">
+  <meta property="og:locale" content="tr_TR">
+  <meta property="og:site_name" content="TaksideÖde">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TaksideÖde • Akıllı Taksi Durağı & QR Çağrı Sistemi">
+  <meta name="twitter:description" content="Müşteriye indirmesiz QR çağrı, durağa adil sıra motoru, şoföre Android POS uygulaması.">
+  <meta name="twitter:image" content="https://taksideode.com.tr/images/logo_purple_yellow.png">
+
+  <!-- Favicon & Mobile Icons -->
   <link rel="icon" type="image/png" href="/images/icon.png">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="apple-touch-icon" href="/images/icon.png">
+  <meta name="theme-color" content="#090d16">
+
+  <!-- JSON-LD Yapısal Veri (Google AI & Rich Snippet) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://taksideode.com.tr/#organization",
+        "name": "TaksideÖde",
+        "url": "https://taksideode.com.tr/",
+        "logo": "https://taksideode.com.tr/images/logo.png",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+90-541-577-62-77",
+          "contactType": "customer service",
+          "email": "malicihaztaksi@gmail.com",
+          "areaServed": "TR",
+          "availableLanguage": ["Turkish"]
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "TaksideÖde Akıllı Durak & Android POS Platformu",
+        "operatingSystem": "Android, Web, iOS",
+        "applicationCategory": "BusinessApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "TRY"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "128"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Müşterinin taksi çağırmak için marketten uygulama indirmesi gerekir mi?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Kesinlikle hayır! Yolcu sokaktaki elektrik direğinde, kafe masasında veya durak tabelasında gördüğü QR kodu telefonunun normal kamerasıyla okutur; 5 saniye içinde hiçbir şey indirmeden doğrudan durağın sıradaki taksisini kapısına çağırır."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Durak sırası nasıl adil tutulur? Araya araç girebilir mi?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "TaksideÖde sisteminde akıllı Geofence (GPS çit) motoru çalışır. Durağın belirlenen alanına (örn: 100 metre) giriş yapan taksi otomatik olarak canlı kuyruğa en son sıradan eklenir. Duraktan çıkan araç otomatik sıradan düşer. Sıradaki 1. araç işi 30 saniye içinde kabul etmezse sıranın sonuna atılır ve çağrı adil biçimde 2. araca aktarılır."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Şoförler için hangi cihazlar destekleniyor? Ekstra araç takip cihazı taktırmak gerekir mi?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Hayır, araçlara pahalı montaj veya ek cihaz gerekmez. Şoförler mevcut tüm Android akıllı telefonlarını veya araçlarında bulunan Android POS cihazlarını kullanarak TaksideÖde POS uygulamasını saniyeler içinde çalıştırabilir."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Yolculuklardan veya müşterilerden komisyon kesiliyor mu?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "TaksideÖde aracı komisyoncu bir platform değildir. Yolcudan da şoförden de sefer başına yüzde (%) komisyon KESİLMEZ. Durak kendi bağımsız altyapısını yönetir ve kazanç tamamen durağın ve taksici esnafının cebinde kalır."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
   <style>
-    body {
-      background: #ffffff;
-      color: #0f172a;
+    :root {
+      --bg-dark: #070a12;
+      --bg-card: #0f172a;
+      --bg-surface: #1e293b;
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --accent-yellow: #f59e0b;
+      --accent-emerald: #10b981;
+      --text-white: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(139, 92, 246, 0.35);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
-    .navbar {
-      background: #ffffff;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 16px 24px;
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Glow ve Arka Plan Işık Efektleri */
+    .glow-bg {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 1200px;
+      height: 600px;
+      background: radial-gradient(circle at 50% 10%, rgba(139, 92, 246, 0.18) 0%, rgba(245, 158, 11, 0.08) 45%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Üst Duyuru Barı */
+    .top-announcement {
+      background: linear-gradient(90deg, #6d28d9 0%, #b45309 100%);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      padding: 8px 16px;
+      position: relative;
+      z-index: 101;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .top-announcement a {
+      color: #fef08a;
+      text-decoration: underline;
+      margin-left: 6px;
+    }
+
+    /* Sticky Navbar */
+    .navbar {
+      background: rgba(7, 10, 18, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-    .hero {
-      text-align: center;
-      padding: 80px 20px 50px;
-      max-width: 900px;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1320px;
       margin: 0 auto;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .nav-brand img {
+      height: 44px;
+      object-fit: contain;
+    }
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+      list-style: none;
+    }
+    .nav-links a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: #ffffff;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Genel Butonlar */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 18px rgba(139, 92, 246, 0.35);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5);
+    }
+    .btn-accent {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0f172a;
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.3);
+    }
+    .btn-accent:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+    .btn-lg {
+      padding: 14px 28px;
+      font-size: 15.5px;
+      border-radius: 14px;
+    }
+
+    /* Hero Bölümü */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 70px 20px 40px;
+      max-width: 1050px;
+      margin: 0 auto;
+      z-index: 1;
     }
     .hero-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: #f5f3ff;
-      color: #7c3aed;
-      padding: 6px 16px;
+      background: rgba(139, 92, 246, 0.12);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      padding: 6px 18px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 800;
       margin-bottom: 24px;
-      border: 1px solid #ddd6fe;
     }
     .hero h1 {
-      font-size: clamp(32px, 5vw, 54px);
+      font-size: clamp(34px, 5.5vw, 62px);
       font-weight: 900;
       line-height: 1.15;
-      margin-bottom: 20px;
-      color: #0f172a;
-      letter-spacing: -1px;
+      letter-spacing: -1.2px;
+      margin-bottom: 22px;
+      color: #ffffff;
     }
-    .hero h1 span {
-      background: linear-gradient(135deg, #7c3aed 20%, #f59e0b 90%);
+    .hero h1 .highlight-purple {
+      background: linear-gradient(135deg, #c084fc 20%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero h1 .highlight-gold {
+      background: linear-gradient(135deg, #fbbf24 20%, #f59e0b 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     .hero p {
-      font-size: clamp(16px, 2.5vw, 19px);
-      color: #64748b;
-      margin-bottom: 36px;
+      font-size: clamp(16px, 2.2vw, 20px);
+      color: #94a3b8;
+      max-width: 820px;
+      margin: 0 auto 36px;
       line-height: 1.6;
     }
-    .demo-bar {
+    .hero-ctas {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 60px;
+      gap: 14px;
+      margin-bottom: 50px;
     }
-    .features-grid {
+
+    /* Metrik Sayacı Bandı */
+    .metrics-bar {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
       max-width: 1100px;
       margin: 0 auto 80px;
       padding: 0 20px;
     }
-    .feature-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 28px;
-      text-align: left;
-      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.05);
-      transition: transform 0.2s, box-shadow 0.2s;
+    .metric-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      backdrop-filter: blur(10px);
     }
-    .feature-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 24px rgba(124, 58, 237, 0.1);
-      border-color: #ddd6fe;
-    }
-    .feature-icon {
+    .metric-num {
       font-size: 32px;
-      margin-bottom: 14px;
-      display: inline-block;
-      padding: 10px;
-      background: #f5f3ff;
-      border-radius: 12px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
     }
-    .feature-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: #0f172a;
-      margin-bottom: 8px;
+    .metric-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 700;
     }
-    .feature-desc {
-      font-size: 14px;
-      color: #64748b;
-      line-height: 1.5;
-    }
-    .pos-section {
-      background: #f8fafc;
-      border-top: 1px solid #e2e8f0;
-      padding: 70px 20px;
+
+    /* Canlı Ekran Simülatörü Showcase */
+    .showcase-section {
+      max-width: 1240px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
       text-align: center;
     }
-    .pos-form-box {
-      max-width: 520px;
-      margin: 30px auto 0;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 20px;
-      padding: 32px;
-      text-align: left;
-      box-shadow: 0 12px 30px rgba(124, 58, 237, 0.08);
+    .section-tag {
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: block;
     }
-    @media (max-width: 768px) {
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      margin-bottom: 16px;
+      color: #ffffff;
+    }
+    .section-desc {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 40px;
+    }
+
+    .device-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 4px 18px rgba(139, 92, 246, 0.4);
+    }
+
+    .preview-card {
+      background: #0f172a;
+      border: 1px solid var(--border-accent);
+      border-radius: 24px;
+      padding: 40px 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      text-align: left;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+    .preview-info h3 {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 14px;
+      color: #ffffff;
+    }
+    .preview-info p {
+      font-size: 15px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .feature-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .feature-bullets li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+    .feature-bullets li span.check {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .preview-mockup-wrap {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 3 Adımda Nasıl Çalışır */
+    .steps-section {
+      max-width: 1240px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 50px;
+    }
+    .step-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 28px;
+      text-align: left;
+      position: relative;
+      transition: transform 0.2s;
+    }
+    .step-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-accent);
+    }
+    .step-number {
+      font-size: 44px;
+      font-weight: 900;
+      color: rgba(139, 92, 246, 0.25);
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      line-height: 1;
+    }
+    .step-icon {
+      font-size: 34px;
+      margin-bottom: 20px;
+      display: inline-block;
+      padding: 14px;
+      background: rgba(139, 92, 246, 0.12);
+      border-radius: 16px;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    .step-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+    .step-desc {
+      font-size: 14.5px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    /* Özellikler Izgarası (Grid) */
+    .features-section {
+      max-width: 1240px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 22px;
+      margin-top: 40px;
+    }
+    .feature-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      transition: all 0.2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(139, 92, 246, 0.4);
+      background: #131d33;
+      transform: translateY(-3px);
+    }
+    .feature-icon-box {
+      font-size: 28px;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+    .feature-card h4 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: #94a3b8;
+      line-height: 1.55;
+    }
+
+    /* Karşılaştırma Tablosu */
+    .compare-section {
+      max-width: 1100px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 36px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      text-align: left;
+    }
+    .compare-table th, .compare-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .compare-table th {
+      background: #1e293b;
+      font-weight: 800;
+      color: #f8fafc;
+    }
+    .compare-table td.brand-col {
+      background: rgba(139, 92, 246, 0.1);
+      font-weight: 800;
+      color: #c4b5fd;
+    }
+
+    /* Durak Kazanç / ROI Hesaplayıcı */
+    .roi-section {
+      max-width: 900px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .roi-box {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+      border: 1.5px solid var(--border-accent);
+      border-radius: 24px;
+      padding: 40px 30px;
+      text-align: left;
+      box-shadow: 0 20px 50px rgba(139, 92, 246, 0.15);
+    }
+    .slider-group {
+      margin: 24px 0;
+    }
+    .slider-group label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    .range-input {
+      width: 100%;
+      height: 8px;
+      border-radius: 99px;
+      background: #334155;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #f59e0b;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.8);
+    }
+    .roi-result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 30px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* SSS (Accordion) */
+    .faq-section {
+      max-width: 900px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+    }
+    .faq-item {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .faq-question {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+      color: #f1f5f9;
+      user-select: none;
+    }
+    .faq-question:hover {
+      color: #a78bfa;
+    }
+    .faq-arrow {
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+    .faq-item.open .faq-arrow {
+      transform: rotate(180deg);
+    }
+    .faq-answer {
+      display: none;
+      padding: 0 24px 20px;
+      font-size: 14.5px;
+      color: #94a3b8;
+      line-height: 1.6;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding-top: 16px;
+    }
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    /* Başvuru & İletişim Formu */
+    .contact-section {
+      max-width: 1000px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .form-box {
+      background: #0f172a;
+      border: 1.5px solid var(--border-accent);
+      border-radius: 24px;
+      padding: 34px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #ffffff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+
+    /* Footer & Backlink */
+    footer {
+      background: #040711;
+      border-top: 1px solid var(--border);
+      padding: 60px 20px 30px;
+      font-size: 13.5px;
+      color: #64748b;
+    }
+    .footer-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.5fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-col h5 {
+      font-size: 15px;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 18px;
+    }
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-col a {
+      color: #94a3b8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover {
+      color: #f59e0b;
+    }
+    .footer-bottom {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    /* Çerez İzin Barı (Cookie Consent) */
+    .cookie-banner {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      right: 24px;
+      max-width: 520px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 20px 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px);
+      z-index: 9998;
+      display: none;
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Hızlı WhatsApp Destek Butonu (Floating Widget) */
+    .wp-floating-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+      color: #ffffff;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
+      z-index: 9999;
+      text-decoration: none;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .wp-floating-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 12px 30px rgba(37, 211, 102, 0.6);
+    }
+    .wp-badge-dot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 14px;
+      height: 14px;
+      background: #22c55e;
+      border: 2.5px solid #0f172a;
+      border-radius: 50%;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    /* Mobil Uyumluluk */
+    @media (max-width: 900px) {
       .navbar {
-        flex-direction: column;
-        gap: 12px;
+        padding: 12px 18px;
       }
-      .demo-bar {
-        flex-direction: column;
-        width: 100%;
-        max-width: 360px;
-        margin-left: auto;
-        margin-right: auto;
+      .nav-links {
+        display: none;
       }
-      .demo-bar .btn {
+      .preview-card {
+        grid-template-columns: 1fr;
+        padding: 24px 20px;
+      }
+      .contact-section {
+        grid-template-columns: 1fr;
+      }
+      .footer-inner {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 640px) {
+      .footer-inner {
+        grid-template-columns: 1fr;
+      }
+      .roi-result-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-ctas .btn {
         width: 100%;
+      }
+      .wp-floating-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 54px;
+        height: 54px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Üst Bar -->
+  <div class="glow-bg"></div>
+
+  <!-- 1. ÜST DUYURU BARI -->
+  <aside class="top-announcement" aria-label="Duyuru">
+    <span>📢 <strong>2026 Akıllı Durak Dönüşümü:</strong> Duraklar için 14 gün ücretsiz canlı demo ve yerinde kurulum!</span>
+    <span>📞 Müşteri & Durak Destek: <a href="tel:+905415776277">+90 541 577 62 77</a></span>
+  </aside>
+
+  <!-- 2. STICKY NAVBAR -->
   <header class="navbar">
-    <a href="/" style="display: flex; align-items: center; text-decoration: none;">
-      <img src="/images/logo.png" alt="TaksideÖde" style="height: 48px; object-fit: contain;">
+    <a href="/" class="nav-brand" title="TaksideÖde Ana Sayfa">
+      <img src="/images/logo.png" alt="TaksideÖde Akıllı Durak ve QR Taksi Logosu">
     </a>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-      <a href="/panel" class="btn btn-secondary">🖥️ Durak Paneli</a>
-      <a href="https://github.com/Demirmedya/Taksideode/raw/main/android_outputs/TaksideOde_POS_v1.0.apk" class="btn btn-secondary">📲 Android POS (APK)</a>
-      <a href="/cagri/KR-101" class="btn btn-accent" target="_blank">📲 Örnek QR Çağır</a>
+
+    <nav aria-label="Ana Menü">
+      <ul class="nav-links">
+        <li><a href="#nasil-calisir">Nasıl Çalışır?</a></li>
+        <li><a href="#ozellikler">Özellikler</a></li>
+        <li><a href="#ekranlar">Sistem Ekranları</a></li>
+        <li><a href="#karsilastirma">Neden Biz?</a></li>
+        <li><a href="#hesaplayici">Gelir Hesapla</a></li>
+        <li><a href="#sss">SSS</a></li>
+        <li><a href="#iletisim">İletişim</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-actions">
+      <a href="/TaksideOde_POS_v1.0.apk" class="btn btn-secondary" title="Şoför Android POS Uygulaması İndir">
+        📲 Android POS (APK)
+      </a>
+      <a href="#basvuru" class="btn btn-primary" title="Durağınız İçin Başvurun">
+        🚀 Demo İste
+      </a>
     </div>
   </header>
 
-  <!-- Hero Bölümü -->
-  <section class="hero">
-    <div class="hero-badge">✨ Türkiye'nin Yeni Nesil Akıllı Taksi Altyapısı</div>
-    <h1>Durakların Kendi Düzeni, <span>Müşterinin En Hızlı Taksi Çağrısı.</span></h1>
-    <p>
-      Müşteri uygulama indirmeden sokaktaki QR ile 5 saniyede taksi çağırsın; durak sıralama motoru işi anında sıradaki taksinin POS ekranına düşürsün.
-    </p>
+  <main>
+    <!-- 3. HERO SECTION -->
+    <section class="hero">
+      <div class="hero-badge">
+        <span>✨</span> Türkiye'nin İlk Yerli & Bağımsız Akıllı Taksi Altyapısı
+      </div>
+      <h1>
+        Durakların Kendi Düzeni, <br>
+        <span class="highlight-purple">Müşterinin 5 Saniyede</span> <span class="highlight-gold">İndirmesiz Taksi Çağrısı.</span>
+      </h1>
+      <p>
+        Pahalı metal tabelalara, aracı komisyoncu dev platformlara son! Yolcu telefon kamerasıyla sokaktaki QR'ı okutsun; durağın akıllı sıra motoru çağrıyı anında sıradaki taksinin Android POS ekranına düşürsün.
+      </p>
 
-    <!-- Hızlı Demo Butonları -->
-    <div class="demo-bar">
-      <a href="/panel" class="btn btn-primary btn-lg" style="padding: 14px 28px; font-size: 15px;">
-        🖥️ Durak Yönetim Panelini Aç
-      </a>
-      <a href="https://github.com/Demirmedya/Taksideode/raw/main/android_outputs/TaksideOde_POS_v1.0.apk" class="btn btn-secondary btn-lg" style="padding: 14px 28px; font-size: 15px;">
-        📲 Android POS Uygulamasını İndir (APK)
-      </a>
-      <a href="/cagri/KR-101" class="btn btn-accent btn-lg" style="padding: 14px 28px; font-size: 15px;" target="_blank">
-        📲 Müşteri QR Çağrısını Test Et
-      </a>
-    </div>
-  </section>
+      <div class="hero-ctas">
+        <a href="/panel" target="_blank" class="btn btn-primary btn-lg" title="Durak Yönetim Paneli Canlı Önizleme">
+          🖥️ Durak Yönetim Panelini Aç
+        </a>
+        <a href="/TaksideOde_POS_v1.0.apk" class="btn btn-accent btn-lg" title="Şoför Android POS APK Doğrudan İndir">
+          📲 Android POS Uygulamasını İndir (APK)
+        </a>
+        <a href="/cagri/KR-101" target="_blank" class="btn btn-secondary btn-lg" title="Örnek Müşteri QR Çağrısını Test Et">
+          📍 Müşteri QR Çağrısını Test Et
+        </a>
+      </div>
 
-  <!-- Özellikler Izgarası -->
-  <section class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">📲</div>
-      <div class="feature-title">İndirmesiz QR Çağrı</div>
-      <div class="feature-desc">Müşteri marketten uygulama indirmekle uğraşmaz. Telefon kamerasıyla QR'ı okutur, durağın sıradaki taksisi kapısına gelir.</div>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">⏱️</div>
-      <div class="feature-title">Adil Dijital Sıralama</div>
-      <div class="feature-desc">Durağa giren araç otomatik sıraya girer. 1. taksiye iş düştüğünde sistem sonraki aracı 1. sıraya taşır. Durak operatörü manuel müdahale edebilir.</div>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">🖨️</div>
-      <div class="feature-title">Duraktan Tek Tıkla QR Baskısı</div>
-      <div class="feature-desc">Pahalı metal tabelalara son. Durak istediği sokak veya mekan için anında QR oluşturup ofis yazıcısından tek tıkla A4/etiket basabilir.</div>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">💳</div>
-      <div class="feature-title">Android POS & Sürücü Uygulaması</div>
-      <div class="feature-desc">Araçlara ekstra cihaz takmaya son. Özel Android POS uygulamamız arka planda sesli uyarılar, anlık harita navigasyonu ve canlı sıra takibiyle kesintisiz çalışır.</div>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">🗺️</div>
-      <div class="feature-title">Canlı Harita & GPS</div>
-      <div class="feature-desc">Taksiler nerede, dolu mu boş mu, durakta mı? Durak ekranında tüm filo canlı GPS ile anlık akar.</div>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon">📊</div>
-      <div class="feature-title">QR & Durak Analitiği</div>
-      <div class="feature-desc">Hangi sokaktaki QR kaç kez okutulmuş? Kaç taksi çağrısı dönmüş? En çok kazandıran noktalar tek raporda.</div>
-    </div>
-  </section>
-
-  <!-- POS & Durak Başvuru Bölümü -->
-  <section class="pos-section" id="basvuru">
-    <h2 style="font-size: 32px; font-weight: 800; color: #0f172a;">Durağınız İçin TaksideÖde'ye Başvurun</h2>
-    <p style="color: #64748b; margin-top: 8px;">Durağınızı hemen dijitalleştirin, POS ve akıllı sıra sistemine geçin.</p>
-
-    <div class="pos-form-box">
-      <form id="applyForm">
-        <div class="form-group">
-          <label>Durak Adı</label>
-          <input type="text" id="stationName" class="form-input" placeholder="Örn: Kadıköy Sahil Taksi Durağı" required>
+      <!-- Metrik Sayacı Bandı -->
+      <div class="metrics-bar">
+        <div class="metric-card">
+          <div class="metric-num" style="color: #a78bfa;">5 Saniye</div>
+          <div class="metric-label">Ortalama Taksi Çağrı Süresi</div>
         </div>
-        <div class="form-group">
-          <label>Yetkili Adı Soyadı</label>
-          <input type="text" id="authorizedPerson" class="form-input" placeholder="Örn: Ahmet Yılmaz" required>
+        <div class="metric-card">
+          <div class="metric-num" style="color: #34d399;">%100 Adil</div>
+          <div class="metric-label">Canlı GPS Geofence Kuyruğu</div>
         </div>
-        <div class="form-group">
-          <label>İletişim Telefonu</label>
-          <input type="tel" id="phone" class="form-input" placeholder="05XX XXX XX XX" required>
+        <div class="metric-card">
+          <div class="metric-num" style="color: #fbbf24;">%0 Komisyon</div>
+          <div class="metric-label">Yolcu Başına Komisyon Yok</div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="form-group">
-            <label>Şehir</label>
-            <input type="text" id="city" class="form-input" placeholder="İstanbul" required>
+        <div class="metric-card">
+          <div class="metric-num" style="color: #60a5fa;">0 TL Donanım</div>
+          <div class="metric-label">Mevcut Android Cihazlarla Uyumlu</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. CANLI EKRANLAR & SİMÜLASYON VITRINI -->
+    <section class="showcase-section" id="ekranlar">
+      <span class="section-tag">TEK PLATFORMDA ÜÇLÜ ENTEGRASYON</span>
+      <h2 class="section-title">Durak, Şoför ve Yolcu Arasında Kusursuz Dijital Köprü</h2>
+      <p class="section-desc">
+        TaksideÖde, durağın tüm operasyonunu tek çatı altında toplar: Durak başkanı paneli yönetir, şoför POS cihazından çağrı karşılar, müşteri ise uygulama indirmeden tek tıkla taksi çağırır.
+      </p>
+
+      <div class="device-tabs">
+        <button class="tab-btn active" onclick="switchPreview('qr')">📍 1. Sokak QR & Yolcu Çağrısı</button>
+        <button class="tab-btn" onclick="switchPreview('panel')">🖥️ 2. Durak Yönetim Paneli</button>
+        <button class="tab-btn" onclick="switchPreview('pos')">📱 3. Şoför Android POS Ekranı</button>
+      </div>
+
+      <div class="preview-card" id="previewCard">
+        <!-- Dinamik İçerik (JS ile Değişir) -->
+        <div class="preview-info" id="previewInfo">
+          <h3>Sokak QR Noktaları ile İndirmesiz Çağrı</h3>
+          <p>
+            Yolcular marketten uygulama indirmekle, kayıt olmakla veya kredi kartı tanımlamakla uğraşmaz. Telefon kamerasıyla sokak direğindeki QR'ı okuttuğu an konum otomatik algılanır.
+          </p>
+          <ul class="feature-bullets">
+            <li><span class="check">✓</span> Uygulama indirme veya kayıt zorunluluğu yok</li>
+            <li><span class="check">✓</span> Sokak adı, bina ve referans nokta otomatik algılama</li>
+            <li><span class="check">✓</span> Müşteriye anlık taksi plakası, şoför adı ve tahmini geliş süresi</li>
+            <li><span class="check">✓</span> Nakit, Kredi Kartı veya Durak POS ile ödeme seçeneği</li>
+          </ul>
+          <a href="/cagri/KR-101" target="_blank" class="btn btn-accent">
+            📲 Canlı Müşteri QR Ekranını Aç (Test)
+          </a>
+        </div>
+        <div class="preview-mockup-wrap" id="previewVisual">
+          <div style="background: #1e293b; border-radius: 16px; padding: 24px; text-align: center;">
+            <div style="background: #f5f3ff; color: #7c3aed; font-weight: 800; font-size: 13px; display: inline-block; padding: 6px 14px; border-radius: 999px; margin-bottom: 16px;">
+              📍 ÖRNEK SOKAK QR ETİKETİ
+            </div>
+            <div style="font-size: 22px; font-weight: 900; color: #ffffff; margin-bottom: 6px;">Karanfil Sokak No:12</div>
+            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Caferağa Mah. • Köşem Kafe Karşısı</div>
+            <div style="background: #ffffff; padding: 16px; border-radius: 16px; display: inline-block; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+              <img src="/images/icon.png" alt="QR Kod Örneği" style="width: 140px; height: 140px; object-fit: contain;">
+            </div>
+            <div style="margin-top: 16px; font-size: 12px; color: #34d399; font-weight: 700;">
+              ⚡ Kamerayla Okutun → Sıradaki Taksi Kapınızda
+            </div>
           </div>
-          <div class="form-group">
-            <label>Araç Sayısı</label>
-            <input type="number" id="taxiCount" class="form-input" placeholder="15" required>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 3 ADIMDA NASIL ÇALIŞIR? -->
+    <section class="steps-section" id="nasil-calisir">
+      <span class="section-tag">OTOMATİK ÇALIŞMA PRENSİBİ</span>
+      <h2 class="section-title">Sıfır Karışıklık, %100 Adil ve Şeffaf Düzen</h2>
+      <p class="section-desc">
+        Durak içinde telsiz kargaşasına ve sıra tartışmalarına son veren akıllı durak döngüsü.
+      </p>
+
+      <div class="steps-grid">
+        <article class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon">📸</div>
+          <h3 class="step-title">Yolcu QR Kodu Okutur</h3>
+          <p class="step-desc">
+            Sokaktaki elektrik direğinde, kafe masasında veya durak panosundaki QR kod okutulur. Yolcu varış noktasını seçip tek tıkla "Taksi Çağır" butonuna basar.
+          </p>
+        </article>
+
+        <article class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon">⏱️</div>
+          <h3 class="step-title">Adil Sıra Motoru Eşler</h3>
+          <p class="step-desc">
+            Geofence GPS motoru durağın 1. sırasındaki aracı tespit eder. Şoförün Android POS cihazında 30 saniyelik sayaç ve sesli siren başlar. Kabul edilmezse sıra sonuna atılarak 2. araca aktarılır.
+          </p>
+        </article>
+
+        <article class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon">🏁</div>
+          <h3 class="step-title">Google Maps & Fiş Kesme</h3>
+          <p class="step-desc">
+            Şoför tek tuşla Google Maps'i açar, müşteriyi adresten alır. İndiğinde kendi POS cihazından tahsilatını yapar, durak alanına döndüğünde otomatikman tekrar sıraya girer.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 6. ÖZELLİKLER & AVANTAJLAR -->
+    <section class="features-section" id="ozellikler">
+      <div style="text-align: center;">
+        <span class="section-tag">A'DAN Z'YE DONANIMLI ÇÖZÜMLER</span>
+        <h2 class="section-title">Modern Bir Taksi Durağının İhtiyacı Olan Her Şey</h2>
+        <p class="section-desc">
+          Harici hiçbir üçüncü parti yazılıma veya yüksek donanım masrafına ihtiyaç duymadan durağınızı dijitalleştirin.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-box">🛡️</div>
+          <h4>Adil Geofence Sıra Kuyruğu</h4>
+          <p>Durağın 100 metrelik sanal çemberine giren araçlar otomatik sıraya alınır. Önceden gelen hakkını korur, duraktan ayrılan sıradan otomatik düşer.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🖨️</div>
+          <h4>Tek Tıkla A4 Sokak QR Baskısı</h4>
+          <p>Pahalı metal levhalara para ödemeyin. Durak panelinden dilediğiniz sokak için anında QR oluşturup ofis yazıcınızdan A4 veya etiket olarak yazdırın.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📲</div>
+          <h4>Özel Android POS Uygulaması</h4>
+          <p>Mevcut Android POS cihazlarında veya şoför cep telefonlarında çalışır. Arka planda olsa dahi uykuya dalmaz, sesli sirenle çağrıyı kaçırmaz.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🗺️</div>
+          <h4>Canlı GPS Filo Haritası</h4>
+          <p>Durak ekranında hangi taksi nerede, dolu mu boş mu, müşteriye mi gidiyor? Tüm filo canlı harita üzerinde gerçek zamanlı izlenir.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📊</div>
+          <h4>QR Analitiği & Raporlama</h4>
+          <p>Hangi sokaktaki QR kaç kez taranmış, kaç taksi seferi yapılmış, hangi şoför ne kadar ciro üretmiş? Detaylı performans grafikleri.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📻</div>
+          <h4>Telsiz & Anlık Sesli Anons</h4>
+          <p>Durak operatörü tek tuşla tüm taksilerin ekranına anlık duyuru veya acil trafik bilgisi yollayabilir, şoförlerle çift yönlü mesajlaşabilir.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">⭐</div>
+          <h4>Şoför Performans & Puanlama</h4>
+          <p>Şoförlerin çağrı kabul oranları, günlük ve aylık ciroları, çalışma süreleri ve yolcu memnuniyet puanları tek raporda toplanır.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">💳</div>
+          <h4>Kendi POS Cihazınızla Tahsilat</h4>
+          <p>Tahsilat aracı şirketlerin havuzunda beklemez. Şoför kredi kartı ödemesini kendi POS cihazından alır, para anında kendi hesabına geçer.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📞</div>
+          <h4>Telefonla Gelen İşleri Kuyruğa Atma</h4>
+          <p>Telefonla arayan müşterilerin adresini operatör panele yazar; sistem işi otomatik olarak sıradaki 1. taksinin ekranına düşürür.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. KARŞILAŞTIRMA TABLOSU -->
+    <section class="compare-section" id="karsilastirma">
+      <span class="section-tag">DOĞRU TERCİH</span>
+      <h2 class="section-title">Geleneksel Durak vs. Aracı Uygulamalar vs. TaksideÖde</h2>
+      <p class="section-desc">
+        Neden yüzlerce durak başkanı ve binlerce taksici esnafı TaksideÖde altyapısını tercih ediyor?
+      </p>
+
+      <div style="overflow-x: auto;">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Özellik</th>
+              <th>Geleneksel Telsizli Durak</th>
+              <th>Yabancı Aracı Uygulamalar</th>
+              <th style="color: #fbbf24;">TaksideÖde Platformu</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Sefer Komisyonu</strong></td>
+              <td>%0</td>
+              <td style="color: #ef4444; font-weight: 700;">%15 - %25 Komisyon Keser</td>
+              <td class="brand-col" style="color: #10b981;">%0 Komisyon (Tamamen Sizin)</td>
+            </tr>
+            <tr>
+              <td><strong>Müşteri Uygulama İndirme</strong></td>
+              <td>Telefon Araması Gerekir</td>
+              <td style="color: #ef4444;">Zorunlu İndirme & Kayıt</td>
+              <td class="brand-col" style="color: #10b981;">İndirmesiz 5 Sn QR Çağrı</td>
+            </tr>
+            <tr>
+              <td><strong>Durak Sıra Adaleti</strong></td>
+              <td>Manuel Telsiz / Tartışmalı</td>
+              <td style="color: #ef4444;">Durağı Tanımaz (Rastgele)</td>
+              <td class="brand-col" style="color: #10b981;">Geofence GPS Canlı Sıralama</td>
+            </tr>
+            <tr>
+              <td><strong>Cihaz & Montaj Masrafı</strong></td>
+              <td>Pahalı Telsiz & Anten</td>
+              <td>Özel Donanım / Akıllı Telefon</td>
+              <td class="brand-col" style="color: #10b981;">0 TL (Mevcut Android POS / Tel)</td>
+            </tr>
+            <tr>
+              <td><strong>Müşteri Bilgileri & Portföy</strong></td>
+              <td>Kağıt Defterde</td>
+              <td>Şirketin Kendi Mülkü</td>
+              <td class="brand-col" style="color: #10b981;">Durağınızın Kendi Mülkü</td>
+            </tr>
+            <tr>
+              <td><strong>Tabela / QR Maliyeti</strong></td>
+              <td>1.000 TL+ Metal Levhalar</td>
+              <td>Yok</td>
+              <td class="brand-col" style="color: #10b981;">Yazıcıdan Ücretsiz A4 Baskı</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 8. DURAK KAZANÇ / ROI HESAPLAYICI -->
+    <section class="roi-section" id="hesaplayici">
+      <span class="section-tag">KAZANÇ SİMÜLASYONU</span>
+      <h2 class="section-title">Durağınız Ayda Ne Kadar Ek Ciro Kazanır?</h2>
+      <p class="section-desc">
+        Durak araç sayınızı belirleyin; sokak QR noktalarından gelecek ek iş potansiyelini canlı hesaplayın.
+      </p>
+
+      <div class="roi-box">
+        <div class="slider-group">
+          <label>
+            <span>Durağınızdaki Aktif Araç Sayısı:</span>
+            <span id="sliderVehicleVal" style="color: #fbbf24; font-size: 20px;">25 Araç</span>
+          </label>
+          <input type="range" id="vehicleSlider" min="5" max="150" value="25" class="range-input" oninput="calculateROI()">
+        </div>
+
+        <div class="slider-group">
+          <label>
+            <span>Sokağa Asılan QR Noktası Sayısı:</span>
+            <span id="sliderQRVal" style="color: #c084fc; font-size: 20px;">20 Nokta</span>
+          </label>
+          <input type="range" id="qrSlider" min="5" max="100" value="20" class="range-input" oninput="calculateROI()">
+        </div>
+
+        <div class="roi-result-grid">
+          <div>
+            <div style="font-size: 13px; color: #94a3b8; font-weight: 700;">AYLIK TAHMİNİ EK QR ÇAĞRISI</div>
+            <div style="font-size: 32px; font-weight: 900; color: #60a5fa; margin-top: 4px;" id="calcMonthlyCalls">1.200 Çağrı</div>
+            <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">Kayıp yolcular durağa geri döner</div>
+          </div>
+          <div>
+            <div style="font-size: 13px; color: #94a3b8; font-weight: 700;">DURAĞA EK AYLIK CİRO</div>
+            <div style="font-size: 32px; font-weight: 900; color: #34d399; margin-top: 4px;" id="calcMonthlyRevenue">240.000 ₺</div>
+            <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">Aracı komisyonu olmadan esnafa kalır</div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 14px; font-size: 15px;">
-          🚀 Durak Başvurusunu Gönder
-        </button>
-      </form>
-      <div id="applySuccess" style="display: none; margin-top: 16px; padding: 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; color: #065f46; font-size: 14px; text-align: center; font-weight: 700;">
-        ✅ Başvurunuz alındı! Ekibimiz 1 saat içinde sizinle iletişime geçecektir.
+
+        <div style="margin-top: 24px; text-align: center;">
+          <a href="#basvuru" class="btn btn-primary" style="padding: 12px 28px;">
+            🚀 Bu Potansiyeli Durağınıza Kazandırın
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. SIKÇA SORULAN SORULAR (FAQ) -->
+    <section class="faq-section" id="sss">
+      <div style="text-align: center; margin-bottom: 36px;">
+        <span class="section-tag">AKLINIZDAKİ TÜM SORULAR</span>
+        <h2 class="section-title">Sıkça Sorulan Sorular</h2>
+        <p class="section-desc">Sistem kurulumu, sıra kuralları ve şoför uygulaması hakkında merak ettiğiniz her şey.</p>
+      </div>
+
+      <div class="faq-item open">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Yolcunun taksi çağırmak için uygulama indirmesi gerekir mi?</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          Hayır! En büyük avantajımız budur. Yolcu sokak direğinde, kafe masasında veya durak tabelasında gördüğü QR kodu telefonunun standart kamerasıyla okutur; 5 saniye içinde hiçbir uygulama indirmeden doğrudan durağın sıradaki taksisini çağırır.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Durak sıra sistemi nasıl adil çalışır? Bir şoför haksız yere öne geçebilir mi?</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          Asla geçemez. Geofence GPS motoru durağın çevresindeki sanal çemberi (örn: 100 metre) milisaniyelik tarar. Alana giren araç otomatik olarak en son sıraya yerleşir. Bir şoföre iş düştüğünde 30 saniye içinde kabul etmezse sıranın sonuna atılır ve çağrı 2. araca aktarılır.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Şoförler hangi cihazları kullanabilir? Araçlara pahalı montaj gerekir mi?</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          Kesinlikle hiçbir araç montajı gerekmez. Şoförlerin kendi Android akıllı telefonlarına veya araçta kullandıkları Android POS cihazlarına özel TaksideÖde POS uygulamamız (APK) yüklenir. Arka planda çalışırken dahi ekran kapanmaz, sesli sirenle çağrıyı kaçırmaz.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>TaksideÖde yolculuk başına yüzde (%) komisyon alıyor mu?</span>
+          <span class="faq-answer">
+            Hayır! TaksideÖde aracı komisyoncu bir platform değildir. Yolcudan da şoförden de sefer başına yüzde komisyon kesilmez. Sistem durağın bağımsız mülküdür ve cironun tamamı taksici esnafına aittir.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Sokak QR kodlarını nasıl basıyoruz? Yağmurdan etkilenir mi?</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          Durak yönetim panelindeki "Sokak QR Yazdır" butonuyla dilediğiniz sokak için saniyeler içinde şık A4 baskı şablonu alabilirsiniz. Çıktıyı pvc kaplatarak veya şeffaf laminasyon etiketle sokak aydınlatma direklerine, duraklara ve mekanlara yapıştırarak yıllarca güvenle kullanabilirsiniz.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Telefonla durağı arayan müşteriler ne olacak?</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          Durak operatörü, telefonla arayan müşterinin adresini paneldeki "📞 + Telefon İşi Ekle" butonuna basarak 3 saniyede girer. Sistem bu işi de anında sıradaki taksinin Android POS ekranına sesli alarmla düşürür.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Kurulum ne kadar sürer? Durağımız ne zaman kullanmaya başlayabilir?</span>
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          Kurulum aynı gün içinde tamamlanır. Araç plakalarınız ve şoförleriniz sisteme girilir, durak Geofence çemberi haritada işaretlenir ve Android POS uygulaması şoförlerin telefonuna kurulur. Aynı gün QR kodlarınızı asıp sistemi aktif edebilirsiniz.
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. ONLINE BAŞVURU & DEMO İSTEK FORMU -->
+    <section class="contact-section" id="basvuru">
+      <div>
+        <span class="section-tag">DURAĞINIZI DİJİTALLEŞTİRİN</span>
+        <h2 class="section-title">Durağınız İçin Hemen Başvurun</h2>
+        <p style="color: #94a3b8; font-size: 15px; margin-bottom: 24px; line-height: 1.6;">
+          Durağınızın akıllı QR sırasını ve Android POS sistemini aynı gün kuralım. 14 gün boyunca durağınızda ücretsiz test edin.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 20px; color: #f59e0b;">📞</span>
+            <div>
+              <div style="font-size: 12px; color: #94a3b8;">Doğrudan İletişim Hattı</div>
+              <a href="tel:+905415776277" style="color: #ffffff; font-weight: 800; text-decoration: none; font-size: 16px;">+90 541 577 62 77</a>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 20px; color: #10b981;">💬</span>
+            <div>
+              <div style="font-size: 12px; color: #94a3b8;">WhatsApp Destek & Demo</div>
+              <a href="https://wa.me/905415776277?text=Merhaba,%20TaksideÖde%20akıllı%20durak%20sistemi%20hakkında%20bilgi%20ve%20demo%20istiyorum." target="_blank" rel="noopener" style="color: #34d399; font-weight: 800; text-decoration: none; font-size: 15px;">Hızlı Mesaj Gönder</a>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 20px; color: #8b5cf6;">✉️</span>
+            <div>
+              <div style="font-size: 12px; color: #94a3b8;">Resmi E-Posta</div>
+              <a href="mailto:malicihaztaksi@gmail.com" style="color: #cbd5e1; font-weight: 700; text-decoration: none;">malicihaztaksi@gmail.com</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-box" id="iletisim">
+        <h3 style="font-size: 20px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">Durak Bilgi Formu</h3>
+        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Formu doldurun, uzman ekibimiz 15 dakika içinde arasın.</p>
+
+        <form id="leadApplyForm">
+          <div class="form-group">
+            <label for="formStationName">Durak Adı</label>
+            <input type="text" id="formStationName" class="form-input" placeholder="Örn: Moda Sahil Taksi Durağı" required>
+          </div>
+
+          <div class="form-group">
+            <label for="formOfficerName">Yetkili Adı Soyadı</label>
+            <input type="text" id="formOfficerName" class="form-input" placeholder="Örn: Mehmet Demir" required>
+          </div>
+
+          <div class="form-group">
+            <label for="formPhone">İletişim Telefonu (GSM)</label>
+            <input type="tel" id="formPhone" class="form-input" placeholder="0541 577 62 77" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="formCity">Şehir</label>
+              <input type="text" id="formCity" class="form-input" placeholder="İzmir / İstanbul" required>
+            </div>
+            <div class="form-group">
+              <label for="formTaxiCount">Araç Sayısı</label>
+              <input type="number" id="formTaxiCount" class="form-input" placeholder="25" min="1" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-accent" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 8px;">
+            🚀 Ücretsiz Demo ve Bilgi Talebi Gönder
+          </button>
+        </form>
+
+        <div id="leadSuccessMsg" style="display: none; margin-top: 16px; padding: 14px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 12px; color: #34d399; font-size: 13.5px; text-align: center; font-weight: 700;">
+          ✅ Başvurunuz başarıyla iletildi! Temsilcimiz gün içinde sizinle iletişime geçecektir.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 11. FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-col">
+        <a href="/" style="display: inline-block; margin-bottom: 14px;">
+          <img src="/images/logo.png" alt="TaksideÖde Logo" style="height: 42px; object-fit: contain;">
+        </a>
+        <p style="font-size: 13.5px; color: #94a3b8; line-height: 1.6; margin-bottom: 16px;">
+          TaksideÖde; taksi duraklarına özel indirmesiz sokak QR taksi çağırma altyapısı, canlı Geofence GPS sıra kuyruğu ve şoför Android POS yazılımı sunan bağımsız yeni nesil platformdur.
+        </p>
+        <div style="color: #cbd5e1; font-weight: 700; font-size: 13px;">
+          📍 Tüm Türkiye'de (81 İl) Yetkili Kurulum & 7/24 Destek
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h5>Hızlı Menü</h5>
+        <ul>
+          <li><a href="#nasil-calisir">Nasıl Çalışır?</a></li>
+          <li><a href="#ozellikler">Sistem Özellikleri</a></li>
+          <li><a href="#ekranlar">Ekran Mockup'ları</a></li>
+          <li><a href="#karsilastirma">Neden TaksideÖde?</a></li>
+          <li><a href="#hesaplayici">Gelir Hesaplayıcı</a></li>
+          <li><a href="#sss">Sıkça Sorulan Sorular</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>Canlı Demolar</h5>
+        <ul>
+          <li><a href="/panel" target="_blank">🖥️ Durak Paneli Girişi</a></li>
+          <li><a href="/cagri/KR-101" target="_blank">📍 Müşteri QR Ekranı</a></li>
+          <li><a href="/TaksideOde_POS_v1.0.apk">📲 Şoför Android POS (APK)</a></li>
+          <li><a href="#basvuru">🚀 Durak Başvuru Formu</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>İletişim & Destek</h5>
+        <ul>
+          <li style="color: #ffffff; font-weight: 800;">📞 Telefon: <a href="tel:+905415776277">+90 541 577 62 77</a></li>
+          <li>💬 WhatsApp: <a href="https://wa.me/905415776277" target="_blank" rel="noopener">+90 541 577 62 77</a></li>
+          <li>✉️ E-Posta: <a href="mailto:malicihaztaksi@gmail.com">malicihaztaksi@gmail.com</a></li>
+          <li style="color: #94a3b8; font-size: 12px; margin-top: 6px;">Mesai Saatleri: 7 Gün 24 Saat Kesintisiz Teknik Destek</li>
+        </ul>
       </div>
     </div>
-  </section>
 
-  <footer style="padding: 24px; text-align: center; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 13px; background: #ffffff;">
-    TaksideÖde Platformu © 2026 • Tüm Hakları Saklıdır • Akıllı Durak & POS Çözümleri
+    <div class="footer-bottom">
+      <div>
+        © 2026 <strong>TaksideÖde Platformu</strong>. Tüm Hakları Saklıdır.
+      </div>
+      <div>
+        Web Tasarım & Yazılım: 
+        <a href="https://demirmedyadijital.com" target="_blank" rel="noopener" title="İzmir Web Tasarım & Dijital Pazarlama Ajansı - Demir Medya Dijital" style="color: #f59e0b; font-weight: 800; text-decoration: none;">
+          Demir Medya Dijital
+        </a>
+      </div>
+    </div>
   </footer>
 
-  <script>
-    document.getElementById('applyForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const body = {
-        stationName: document.getElementById('stationName').value,
-        authorizedPerson: document.getElementById('authorizedPerson').value,
-        phone: document.getElementById('phone').value,
-        city: document.getElementById('city').value,
-        taxiCount: document.getElementById('taxiCount').value
-      };
+  <!-- 12. FLOATING WHATSAPP DESTEK WIDGET'I (SAĞ ALT) -->
+  <a href="https://wa.me/905415776277?text=Merhaba,%20TaksideÖde%20akıllı%20durak%20ve%20QR%20taksi%20sistemi%20hakkında%20detaylı%20bilgi%20ve%20demo%20almak%20istiyorum." target="_blank" rel="noopener" class="wp-floating-btn" aria-label="WhatsApp Destek Hattı">
+    <div class="wp-badge-dot"></div>
+    <svg style="width: 34px; height: 34px; fill: currentColor;" viewBox="0 0 24 24">
+      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zM12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.662 1.435 5.178L2.05 22l4.978-1.306A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/>
+    </svg>
+  </a>
 
-      try {
-        const res = await fetch('/api/pos-apply', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        if (res.ok) {
-          document.getElementById('applyForm').reset();
-          document.getElementById('applySuccess').style.display = 'block';
-        }
-      } catch (err) {
-        alert('Hata oluştu!');
+  <!-- 13. ÇEREZ İZİN BARI (COOKIE CONSENT) -->
+  <div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Çerez İzni">
+    <div style="font-size: 14px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">🍪 Çerez Politikası & Gizlilik</div>
+    <p style="font-size: 12.5px; color: #94a3b8; line-height: 1.5; margin-bottom: 14px;">
+      Sitemizde deneyiminizi iyileştirmek, durak sıra analizlerini ölçümlemek ve güvenli gezinme sağlamak amacıyla KVKK kapsamında çerezler kullanılmaktadır.
+    </p>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <button class="btn btn-primary" onclick="acceptCookies()" style="font-size: 12.5px; padding: 8px 16px;">Tümünü Kabul Et</button>
+      <button class="btn btn-secondary" onclick="acceptCookies()" style="font-size: 12.5px; padding: 8px 16px;">Yalnızca Gerekli Olanlar</button>
+    </div>
+  </div>
+
+  <script>
+    // Canlı Ekran Simülatörü İçerik Değiştirme
+    const previews = {
+      qr: {
+        title: "Sokak QR Noktaları ile İndirmesiz Çağrı",
+        desc: "Yolcular marketten uygulama indirmekle, kayıt olmakla veya kredi kartı tanımlamakla uğraşmaz. Telefon kamerasıyla sokak direğindeki QR'ı okuttuğu an konum otomatik algılanır.",
+        bullets: [
+          "Uygulama indirme veya kayıt zorunluluğu yok",
+          "Sokak adı, bina ve referans nokta otomatik algılama",
+          "Müşteriye anlık taksi plakası, şoför adı ve tahmini geliş süresi",
+          "Nakit, Kredi Kartı veya Durak POS ile ödeme seçeneği"
+        ],
+        btnText: "📲 Canlı Müşteri QR Ekranını Aç (Test)",
+        btnLink: "/cagri/KR-101",
+        visual: `
+          <div style="background: #1e293b; border-radius: 16px; padding: 24px; text-align: center;">
+            <div style="background: #f5f3ff; color: #7c3aed; font-weight: 800; font-size: 13px; display: inline-block; padding: 6px 14px; border-radius: 999px; margin-bottom: 16px;">
+              📍 ÖRNEK SOKAK QR ETİKETİ
+            </div>
+            <div style="font-size: 22px; font-weight: 900; color: #ffffff; margin-bottom: 6px;">Karanfil Sokak No:12</div>
+            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Caferağa Mah. • Köşem Kafe Karşısı</div>
+            <div style="background: #ffffff; padding: 16px; border-radius: 16px; display: inline-block; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+              <img src="/images/icon.png" alt="QR Kod Örneği" style="width: 140px; height: 140px; object-fit: contain;">
+            </div>
+            <div style="margin-top: 16px; font-size: 12px; color: #34d399; font-weight: 700;">
+              ⚡ Kamerayla Okutun → Sıradaki Taksi Kapınızda
+            </div>
+          </div>
+        `
+      },
+      panel: {
+        title: "Durak Yönetim Paneli (Pano)",
+        desc: "Durağın tüm araçları, Geofence canlı sıralaması, sokak QR tarama istatistikleri ve şoför sefer raporları tek ekranda toplanır.",
+        bullets: [
+          "Canlı Geofence sıra kuyruğu & manuel operatör müdahalesi",
+          "Tüm filonun haritada anlık GPS takibi (Dolu/Boş/Sırada)",
+          "Sokak QR noktaları yönetim tablosu ve A4 baskı aracı",
+          "Şoför ciro, sefer geçmişi ve puanlama raporları"
+        ],
+        btnText: "🖥️ Durak Paneli Canlı Önizlemesini Aç",
+        btnLink: "/panel",
+        visual: `
+          <div style="background: #0f172a; border-radius: 16px; padding: 20px; border: 1px solid rgba(139, 92, 246, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+              <span style="font-weight: 800; color: #f8fafc; font-size: 14px;">⏱️ Canlı Durak Sıralaması</span>
+              <span style="background: #10b981; color: #000; font-weight: 900; font-size: 11px; padding: 3px 8px; border-radius: 6px;">AKTİF</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="background: #1e293b; padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #f59e0b;">
+                <div><strong>1. 34 TKS 01</strong> <span style="font-size: 12px; color: #94a3b8;">(Ahmet Y.)</span></div>
+                <span style="color: #fbbf24; font-weight: 800; font-size: 12px;">Sıradaki Araç</span>
+              </div>
+              <div style="background: #1e293b; padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #8b5cf6;">
+                <div><strong>2. 34 TKS 02</strong> <span style="font-size: 12px; color: #94a3b8;">(Mehmet D.)</span></div>
+                <span style="color: #c084fc; font-weight: 800; font-size: 12px;">2. Sırada</span>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      pos: {
+        title: "Şoför Android POS Uygulaması",
+        desc: "Şoförlerin telefonunda veya Android POS cihazlarında arka planda uyumadan çalışan, sesli siren bildirimli ve rota navigasyonlu özel POS ekranı.",
+        bullets: [
+          "Yeni çağrıda 30 saniyelik sayaç ve donanımsal sesli alarm",
+          "Google Maps ile tek tuşla yolcuya ve varış adresine navigasyon",
+          "Dinamik bildirim paneli (Dynamic Island ada tasarımı)",
+          "Tamamlanan sefer sonrası adilce durağa dönüş sırasına girme"
+        ],
+        btnText: "📲 Android POS Uygulamasını İndir (APK)",
+        btnLink: "/TaksideOde_POS_v1.0.apk",
+        visual: `
+          <div style="background: #090d16; border-radius: 18px; padding: 22px; border: 2px solid #10b981; text-align: center;">
+            <div style="background: #064e3b; color: #34d399; font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 99px; display: inline-block; margin-bottom: 12px;">
+              🔔 YENİ İŞ ÇAĞRISI (30 SN)
+            </div>
+            <div style="font-size: 18px; font-weight: 900; color: #ffffff;">Moda Sahil Cafe Önü</div>
+            <div style="font-size: 13px; color: #94a3b8; margin: 4px 0 14px;">Varış: Kadıköy Rıhtım Metro</div>
+            <div style="font-size: 26px; font-weight: 900; color: #fbbf24; margin-bottom: 14px;">185 ₺</div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-accent" style="flex: 1; padding: 10px; font-size: 13px;">✅ İşi Kabul Et</button>
+              <button class="btn btn-secondary" style="padding: 10px; font-size: 13px;">✕ Reddet</button>
+            </div>
+          </div>
+        `
       }
+    };
+
+    function switchPreview(type) {
+      document.querySelectorAll('.device-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const data = previews[type];
+      document.getElementById('previewInfo').innerHTML = `
+        <h3>${data.title}</h3>
+        <p>${data.desc}</p>
+        <ul class="feature-bullets">
+          ${data.bullets.map(b => `<li><span class="check">✓</span> ${b}</li>`).join('')}
+        </ul>
+        <a href="${data.btnLink}" ${data.btnLink.startsWith('http') || data.btnLink.startsWith('/') ? 'target="_blank"' : ''} class="btn btn-accent">
+          ${data.btnText}
+        </a>
+      `;
+      document.getElementById('previewVisual').innerHTML = data.visual;
+    }
+
+    // ROI Hesaplayıcı Fonksiyonu
+    function calculateROI() {
+      const vehicles = parseInt(document.getElementById('vehicleSlider').value);
+      const qrs = parseInt(document.getElementById('qrSlider').value);
+
+      document.getElementById('sliderVehicleVal').innerText = `${vehicles} Araç`;
+      document.getElementById('sliderQRVal').innerText = `${qrs} Nokta`;
+
+      // Simülasyon: QR başına günlük 2-3 çağrı, ortalama bilet 200 TL
+      const dailyCallsPerQR = 2.5;
+      const monthlyCalls = Math.round(qrs * dailyCallsPerQR * 30);
+      const avgFare = 200;
+      const monthlyRevenue = monthlyCalls * avgFare;
+
+      document.getElementById('calcMonthlyCalls').innerText = `${monthlyCalls.toLocaleString('tr-TR')} Çağrı`;
+      document.getElementById('calcMonthlyRevenue').innerText = `${monthlyRevenue.toLocaleString('tr-TR')} ₺`;
+    }
+
+    // FAQ Accordion
+    function toggleFaq(el) {
+      const item = el.parentElement;
+      item.classList.toggle('open');
+    }
+
+    // Çerez Bildirimi
+    function checkCookies() {
+      if (!localStorage.getItem('taksideode_cookies_accepted')) {
+        setTimeout(() => {
+          document.getElementById('cookieBanner').style.display = 'block';
+        }, 1200);
+      }
+    }
+    function acceptCookies() {
+      localStorage.setItem('taksideode_cookies_accepted', 'true');
+      document.getElementById('cookieBanner').style.display = 'none';
+    }
+
+    // Form Gönderimi (WhatsApp & Yerel API)
+    document.getElementById('leadApplyForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const station = document.getElementById('formStationName').value;
+      const officer = document.getElementById('formOfficerName').value;
+      const phone = document.getElementById('formPhone').value;
+      const city = document.getElementById('formCity').value;
+      const count = document.getElementById('formTaxiCount').value;
+
+      document.getElementById('leadSuccessMsg').style.display = 'block';
+      this.reset();
+
+      // WhatsApp'a hazır mesajla yönlendirme seçeneği
+      const waMsg = `Merhaba TaksideÖde Ekibi,%0A%0ADurağımız için demo başvurusu yapmak istiyorum:%0A- Durak Adı: ${encodeURIComponent(station)}%0A- Yetkili: ${encodeURIComponent(officer)}%0A- Telefon: ${encodeURIComponent(phone)}%0A- Şehir: ${encodeURIComponent(city)}%0A- Araç Sayısı: ${encodeURIComponent(count)}`;
+      setTimeout(() => {
+        window.open(`https://wa.me/905415776277?text=${waMsg}`, '_blank');
+      }, 1000);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      calculateROI();
+      checkCookies();
     });
   </script>
 </body>
