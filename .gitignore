@@ -26,3 +26,6 @@ android/app/*.iml
 # IDE
 .vscode/
 .idea/
+
+cookies.txt
+
