@@ -509,6 +509,7 @@ async function fetchStationData() {
 
     // 4. HARİTA PINLERİ
     renderMapVehicles(data.shifts);
+    renderMapQRPoints(data.qrPoints);
 
     // 5. ARAÇLAR & ŞOFÖRLER
     renderFleetTables(data.vehicles, data.drivers);
@@ -594,6 +595,7 @@ function renderFullQueue(queue) {
 }
 
 async function moveQueueItem(shiftId, direction) {
+  if (!checkDemoPermission('Sıra Kuyruğunu Manuel Değiştirme')) return;
   await fetch(`/api/stations/${CURRENT_STATION_ID}/queue/move`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -603,6 +605,7 @@ async function moveQueueItem(shiftId, direction) {
 }
 
 async function removeQueueItem(shiftId) {
+  if (!checkDemoPermission('Taksiyi Sıradan Çıkarma')) return;
   if (!confirm('Aracı sıradan çıkarmak istediğinize emin misiniz?')) return;
   await fetch(`/api/stations/${CURRENT_STATION_ID}/queue/remove`, {
     method: 'POST',
@@ -644,6 +647,7 @@ function renderAllCallsTable(calls) {
 
 // 4. HARİTA
 function renderMapVehicles(shifts) {
+  if (!map) return;
   (shifts || []).forEach(shift => {
     if (!shift.lat || !shift.lng) return;
 
@@ -654,14 +658,34 @@ function renderMapVehicles(shifts) {
       const customIcon = L.divIcon({
         className: 'custom-taxi-marker',
         html: `<div class="taxi-marker-icon ${isTrip ? 'taxi-marker-in-trip' : ''}">🚖 ${shift.plate}</div>`,
-        iconSize: [80, 24],
-        iconAnchor: [40, 12]
+        iconSize: [85, 26],
+        iconAnchor: [42, 13]
       });
 
       const marker = L.marker([shift.lat, shift.lng], { icon: customIcon }).addTo(map);
-      marker.bindPopup(`<strong>${shift.plate}</strong><br>Şoför: ${shift.driverName}<br>Durum: ${shift.state}`);
+      marker.bindPopup(`<strong>🚖 ${shift.plate}</strong><br>Şoför: ${shift.driverName}<br>Durum: ${shift.state === 'in_queue' ? 'Durakta (Sırada)' : shift.state === 'in_trip' ? 'Seferde (Yolculukta)' : 'Dışarıda / Boş'}`);
       taxiMarkers[shift.id] = marker;
     }
+  });
+}
+
+let qrMarkers = {};
+function renderMapQRPoints(points) {
+  if (!map) return;
+  (points || []).forEach(q => {
+    if (!q.lat || !q.lng) return;
+    if (qrMarkers[q.id]) return;
+
+    const qrIcon = L.divIcon({
+      className: 'custom-qr-marker',
+      html: `<div style="background: #6d28d9; color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 12px; border: 2px solid #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); white-space: nowrap;">📍 ${q.code}</div>`,
+      iconSize: [64, 24],
+      iconAnchor: [32, 12]
+    });
+
+    const marker = L.marker([q.lat, q.lng], { icon: qrIcon }).addTo(map);
+    marker.bindPopup(`<strong>📍 ${q.code} - ${q.title}</strong><br>${q.neighborhood} (${q.landmark})<br><em>${q.totalScans || 0} Okutma • ${q.successfulCalls || 0} Başarılı Çağrı</em>`);
+    qrMarkers[q.id] = marker;
   });
 }
 
@@ -888,16 +912,35 @@ function openGpsInfoModal() {
 }
 
 // Modallar
-function openPhoneModal() { document.getElementById('phoneModal').classList.add('open'); }
-function openNewQRModal() { document.getElementById('newQRModal').classList.add('open'); }
-function openNewVehicleModal() { document.getElementById('newVehicleModal').classList.add('open'); }
-function openNewDriverModal() { document.getElementById('newDriverModal').classList.add('open'); }
-function openNewCustomerModal() { document.getElementById('newCustomerModal').classList.add('open'); }
-function openNewAnnouncementModal() { document.getElementById('newAnnouncementModal').classList.add('open'); }
+function openPhoneModal() {
+  if (!checkDemoPermission('Telefonla Çağrı / İş Ekleme')) return;
+  document.getElementById('phoneModal').classList.add('open');
+}
+function openNewQRModal() {
+  if (!checkDemoPermission('Yeni QR Kodu Oluşturma')) return;
+  document.getElementById('newQRModal').classList.add('open');
+}
+function openNewVehicleModal() {
+  if (!checkDemoPermission('Yeni Araç Tanımlama')) return;
+  document.getElementById('newVehicleModal').classList.add('open');
+}
+function openNewDriverModal() {
+  if (!checkDemoPermission('Yeni Şoför Tanımlama')) return;
+  document.getElementById('newDriverModal').classList.add('open');
+}
+function openNewCustomerModal() {
+  if (!checkDemoPermission('Müşteri Rehberine Kayıt Ekleme')) return;
+  document.getElementById('newCustomerModal').classList.add('open');
+}
+function openNewAnnouncementModal() {
+  if (!checkDemoPermission('Yeni Duyuru & Anons Yayını')) return;
+  document.getElementById('newAnnouncementModal').classList.add('open');
+}
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 // Anlık Test İşi Gönder (Durak Paneli)
 async function sendInstantTestJob() {
+  if (!checkDemoPermission('Test İşi Gönderme')) return;
   try {
     const res = await fetch('/api/test/create-test-job', {
       method: 'POST',

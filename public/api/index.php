@@ -296,18 +296,57 @@ if (preg_match('#^stations/([^/]+)/overview$#', $endpoint, $m)) {
     }
     if (!$station && !empty($data['stations'])) {
         $station = $data['stations'][0];
+        $stId = $station['id'];
     }
+
+    $vehicles = array_values(array_filter($data['vehicles'] ?? [], fn($v) => ($v['station_id'] ?? '') === $stId));
+    $drivers = array_values(array_filter($data['drivers'] ?? [], fn($d) => ($d['station_id'] ?? '') === $stId));
+    $shifts = array_values(array_filter($data['shifts'] ?? [], fn($s) => ($s['station_id'] ?? '') === $stId));
+    $qrPoints = array_values(array_filter($data['qrPoints'] ?? [], fn($q) => ($q['station_id'] ?? '') === $stId));
+    $customers = array_values(array_filter($data['customers'] ?? [], fn($c) => ($c['station_id'] ?? '') === $stId));
+    $announcements = array_values(array_filter($data['announcements'] ?? [], fn($a) => ($a['station_id'] ?? '') === $stId));
+    $messages = array_values(array_filter($data['messages'] ?? [], fn($m) => ($m['station_id'] ?? '') === $stId));
+    $allCalls = array_values(array_filter($data['calls'] ?? [], fn($c) => ($c['station_id'] ?? '') === $stId));
+    $queue = $data['queue'] ?? [];
+
+    $activeCalls = array_values(array_filter($allCalls, fn($c) => in_array($c['status'] ?? '', ['pending', 'dispatched', 'accepted', 'in_trip'])));
+    $completedCalls = array_values(array_filter($allCalls, fn($c) => ($c['status'] ?? '') === 'completed'));
+
+    $totalRevenue = 0;
+    foreach ($completedCalls as $c) { $totalRevenue += ($c['fare'] ?? 240); }
+    $todayRevenue = $totalRevenue > 0 ? $totalRevenue : 18450;
+    $avgFare = count($completedCalls) > 0 ? round($todayRevenue / count($completedCalls)) : 260;
+
+    $totalQRScans = 0;
+    foreach ($qrPoints as $q) { $totalQRScans += ($q['totalScans'] ?? 0); }
+
     echo json_encode([
         'success' => true,
         'station' => $station,
-        'activeCalls' => array_values(array_filter($data['calls'] ?? [], fn($c) => ($c['station_id'] ?? '') === $stId && in_array($c['status'] ?? '', ['assigned', 'en_route', 'picked_up']))),
-        'inQueueTaxis' => array_values(array_filter($data['vehicles'] ?? [], fn($v) => ($v['station_id'] ?? '') === $stId)),
-        'financials' => [
-            'todayTotalRevenue' => 12450,
-            'todayTotalCalls' => 38,
-            'activeVehiclesCount' => 8,
-            'avgPickupMinutes' => 4.2
-        ]
+        'stats' => [
+            'totalVehicles' => count($vehicles),
+            'totalDrivers' => count($drivers),
+            'activeShifts' => count($shifts),
+            'inQueueCount' => count($queue),
+            'totalQRPoints' => count($qrPoints),
+            'totalQRScans' => $totalQRScans,
+            'activeCallsCount' => count($activeCalls),
+            'completedCallsCount' => count($completedCalls),
+            'totalCustomers' => count($customers),
+            'totalRevenue' => $todayRevenue * 30,
+            'todayRevenue' => $todayRevenue,
+            'avgFare' => $avgFare
+        ],
+        'vehicles' => $vehicles,
+        'drivers' => $drivers,
+        'shifts' => $shifts,
+        'queue' => $queue,
+        'qrPoints' => $qrPoints,
+        'activeCalls' => $activeCalls,
+        'recentCalls' => array_reverse(array_slice($allCalls, -20)),
+        'customers' => $customers,
+        'announcements' => $announcements,
+        'messages' => $messages
     ]);
     exit;
 }
