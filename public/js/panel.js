@@ -1023,6 +1023,46 @@ function closeModal(id) {
   if (el) el.classList.remove('open'); 
 }
 
+// Sokak QR Yazdır Butonu (Hangi sokak olduğunu soran şık seçim penceresi)
+function openPrintSelectModal() {
+  const modal = document.getElementById('printSelectModal');
+  const container = document.getElementById('printSelectListContainer');
+  if (!modal || !container) {
+    openPrintTemplate();
+    return;
+  }
+
+  const points = (cachedQRPoints && cachedQRPoints.length > 0) ? cachedQRPoints : [
+    { id: 'qr_1', code: 'KD-101', title: 'Kordonboyu Sahil Kafe Önü', neighborhood: 'Alsancak Mah.', landmark: 'Gündoğdu Meydanı Yakını' },
+    { id: 'qr_2', code: 'KS-202', title: 'Kıbrıs Şehitleri Caddesi Girişi', neighborhood: 'Alsancak Mah.', landmark: 'Tarihi Sevinç Pastanesi Karşısı' },
+    { id: 'qr_3', code: 'SK-303', title: 'Konak Meydanı Saat Kulesi Yanı', neighborhood: 'Konak Mah.', landmark: 'Vapur İskelesi Yaya Yolu' }
+  ];
+
+  container.innerHTML = points.map(p => `
+    <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;" onmouseover="this.style.borderColor='#a855f7'; this.style.background='#ffffff'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='#f8fafc'">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-weight: 900; background: #ede9fe; color: #6d28d9; padding: 6px 12px; border-radius: 10px; font-size: 13px; font-family: monospace;">
+          📍 ${p.code}
+        </span>
+        <div>
+          <div style="font-size: 14.5px; font-weight: 800; color: #0f172a;">${p.title}</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 2px;">${p.neighborhood || ''} • ${p.landmark || ''}</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-primary btn-sm" onclick="closeModal('printSelectModal'); openQRPreviewModal('${p.id || p.code}')" title="Önizle">
+          🔍 Gör
+        </button>
+        <a href="/api/stations/${CURRENT_STATION_ID}/qr-points/${p.id || p.code}/print" target="_blank" class="btn btn-secondary btn-sm" style="font-weight: 800; background: #ffffff;">
+          🖨️ Yazdır
+        </a>
+      </div>
+    </div>
+  `).join('');
+
+  modal.classList.add('open');
+}
+
 // Sokak QR Baskı Şablonunu Aç
 function openPrintTemplate(qrId) {
   let q = null;
@@ -1032,7 +1072,7 @@ function openPrintTemplate(qrId) {
   if (!q && cachedQRPoints && cachedQRPoints.length > 0) {
     q = cachedQRPoints[0];
   }
-  const idParam = q ? (q.id || q.code) : 'KR-101';
+  const idParam = q ? (q.id || q.code) : 'KD-101';
   window.open(`/api/stations/${CURRENT_STATION_ID}/qr-points/${idParam}/print`, '_blank');
 }
 
@@ -1157,8 +1197,8 @@ function renderQRPointsTable(points) {
           </span>
         </td>
         <td style="font-size: 12px; color: #64748b;">${lastScan}</td>
-        <td>
-          <div style="display: flex; gap: 6px;">
+        <td style="text-align: right;">
+          <div style="display: flex; gap: 6px; justify-content: flex-end;">
             <button class="btn btn-primary btn-sm" onclick="openQRPreviewModal('${q.id}')" title="Örnek QR Görselini ve Detaylarını Gör">
               🔍 Gör
             </button>

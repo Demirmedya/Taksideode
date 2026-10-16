@@ -165,7 +165,7 @@
           <button class="btn btn-secondary" onclick="openQRPreviewModal('KR-101')" style="background: #f5f3ff; color: #7c3aed; border-color: #ddd6fe;">
             🔍 Örnek QR Gör
           </button>
-          <button class="btn btn-secondary" onclick="openPrintTemplate()">
+          <button class="btn btn-secondary" onclick="openPrintSelectModal()">
             🖨️ Sokak QR Yazdır
           </button>
           <button class="btn btn-accent" onclick="openPhoneModal()">
@@ -564,18 +564,18 @@
                 </button>
               </div>
             </div>
-            <div class="table-responsive">
-              <table class="data-table">
+            <div class="table-responsive" style="width: 100%;">
+              <table class="modern-table" style="width: 100%; min-width: 100%;">
                 <thead>
                   <tr>
-                    <th>QR KOD</th>
+                    <th style="width: 110px;">QR KOD</th>
                     <th>NOKTA ADI & SOKAK</th>
                     <th>MAHALLE & DETAY</th>
-                    <th style="text-align: center;">TOPLAM OKUTMA</th>
-                    <th style="text-align: center;">GÖNDERİLEN TAKSİ</th>
-                    <th style="text-align: center;">BAŞARI</th>
-                    <th>SON OKUTMA</th>
-                    <th>İŞLEMLER</th>
+                    <th style="text-align: center; width: 130px;">TOPLAM OKUTMA</th>
+                    <th style="text-align: center; width: 140px;">GÖNDERİLEN TAKSİ</th>
+                    <th style="text-align: center; width: 90px;">BAŞARI</th>
+                    <th style="width: 110px;">SON OKUTMA</th>
+                    <th style="text-align: right; width: 240px;">İŞLEMLER</th>
                   </tr>
                 </thead>
                 <tbody id="qrPointsTableBody">
@@ -1035,6 +1035,33 @@
           </a>
         </div>
         <button type="button" class="btn btn-secondary" onclick="closeModal('qrPreviewModal')">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Sokak QR Baskı Seçim Modalı -->
+  <div class="modal-overlay" id="printSelectModal" style="z-index: 10002;">
+    <div class="modal-window" style="max-width: 580px; padding: 28px 24px; border-radius: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 44px; height: 44px; border-radius: 12px; background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+            🖨️
+          </div>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;">Sokak QR Yazdırma Merkezi</h3>
+            <p style="font-size: 12.5px; color: var(--text-muted); margin: 2px 0 0 0;">Yazdırmak veya indirmek istediğiniz sokak noktasını seçin</p>
+          </div>
+        </div>
+        <button style="background: none; border: none; color: #64748b; font-size: 22px; cursor: pointer;" onclick="closeModal('printSelectModal')">✕</button>
+      </div>
+
+      <div id="printSelectListContainer" style="display: flex; flex-direction: column; gap: 10px; max-height: 380px; overflow-y: auto; margin-bottom: 20px;">
+        <!-- JS ile dinamik doldurulur -->
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 12px; color: #64748b; display: flex; align-items: center; justify-content: space-between;">
+        <span>💡 A4 şablonları doğrudan yazıcıya ve etiket baskısına uygundur.</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('printSelectModal')">Kapat</button>
       </div>
     </div>
   </div>

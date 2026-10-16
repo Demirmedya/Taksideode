@@ -35,7 +35,11 @@ RewriteRule ^durak-panel/?$ panel.html [L,QSA]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^cagri/([a-zA-Z0-9_-]+)/?$ cagri.html [L,QSA]
+RewriteRule ^cagri/([a-zA-Z0-9_-]+)/?$ cagri.html?code=$1 [L,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^cagri/?$ cagri.html [L,QSA]
 
 RewriteRule ^apk/?$ TaksideOde_POS_v1.0.apk [L]
 RewriteRule ^pos/?$ TaksideOde_POS_v1.0.apk [L]

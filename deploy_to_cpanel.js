@@ -133,6 +133,11 @@ async function main() {
     console.log(`  ✓ taksideode.com.tr/${f.file}: ${res.status === 1 ? 'OK' : JSON.stringify(res)}`);
   }
 
+  // Update css/style.css
+  const styleCss = fs.readFileSync(path.join(localPublic, 'css', 'style.css'), 'utf8');
+  await saveFile(session, mainDir + '/css', 'style.css', styleCss);
+  console.log('  ✓ taksideode.com.tr/css/style.css: OK');
+
   // Update js/panel.js & leaflet.js & css/leaflet.css
   const panelJs = fs.readFileSync(path.join(localPublic, 'js', 'panel.js'), 'utf8');
   const panelJsRes = await saveFile(session, mainDir + '/js', 'panel.js', panelJs);
@@ -195,6 +200,14 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^panel/?$ panel.html [L,QSA]
 
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^cagri/([a-zA-Z0-9_-]+)/?$ cagri.html?code=$1 [L,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^cagri/?$ cagri.html [L,QSA]
+
 # Security Headers
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
@@ -208,7 +221,8 @@ RewriteRule ^panel/?$ panel.html [L,QSA]
     { dir: subDir, file: 'panel.html', content: fs.readFileSync(path.join(localPublic, 'panel.html'), 'utf8') },
     { dir: subDir, file: 'index.html', content: fs.readFileSync(path.join(localPublic, 'panel.html'), 'utf8') },
     { dir: subDir, file: 'login.html', content: fs.readFileSync(path.join(localPublic, 'login.html'), 'utf8') },
-    { dir: subDir + '/css', file: 'style.css', content: fs.readFileSync(path.join(localPublic, 'css', 'style.css'), 'utf8') },
+    { dir: subDir, file: 'cagri.html', content: fs.readFileSync(path.join(localPublic, 'cagri.html'), 'utf8') },
+    { dir: subDir + '/css', file: 'style.css', content: styleCss },
     { dir: subDir + '/js', file: 'panel.js', content: panelJs },
     { dir: subDir + '/api', file: 'index.php', content: apiPhp },
     { dir: subDir + '/api', file: 'database.json', content: apiDb },

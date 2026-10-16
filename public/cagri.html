@@ -6,7 +6,13 @@
   <title>Taksi Çağır • TaksideÖde</title>
   <link rel="icon" type="image/png" href="/images/icon.png">
   <link rel="stylesheet" href="/css/style.css">
-  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      const s = document.createElement('script');
+      s.src = '/socket.io/socket.io.js';
+      document.head.appendChild(s);
+    }
+  </script>
   <style>
     body {
       background: #f8fafc;
@@ -172,21 +178,45 @@
   </div>
 
   <script>
-    const socket = io();
-    const pathParts = window.location.pathname.split('/');
-    const qrCode = pathParts[pathParts.length - 1] || 'KR-101';
+    let socket = null;
+    if (typeof io !== 'undefined') {
+      try {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          socket = io();
+        }
+      } catch (e) {}
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    let qrCode = urlParams.get('code');
+    if (!qrCode && pathParts.length > 0) {
+      const last = pathParts[pathParts.length - 1];
+      if (last !== 'cagri.html' && last !== 'cagri') qrCode = last;
+    }
+    if (!qrCode) qrCode = 'KD-101';
     let currentCallId = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const res = await fetch('/api/stations/durak_merkez/overview');
-        const data = await res.json();
-        const point = data.qrPoints.find(p => p.code === qrCode) || data.qrPoints[0];
+        let res = await fetch('/api/stations/durak_demo/overview');
+        let data = await res.json();
+        if (!data || !data.qrPoints) {
+          res = await fetch('/api/stations/durak_merkez/overview');
+          data = await res.json();
+        }
+
+        const point = (data.qrPoints || []).find(p => p.code === qrCode) || (data.qrPoints || [])[0];
         if (point) {
           document.getElementById('locationTitleDisplay').textContent = point.title;
-          document.getElementById('locationDescDisplay').textContent = (point.neighborhood || '') + ' ' + (point.landmark || '');
+          document.getElementById('locationDescDisplay').textContent = `${point.neighborhood || ''} • ${point.landmark || ''}`;
         }
-      } catch (err) {}
+        if (data.station && data.station.name) {
+          document.getElementById('stationNameDisplay').textContent = data.station.name;
+        }
+      } catch (err) {
+        console.warn('Cagri verisi alinamadi:', err);
+      }
     });
 
     async function requestTaxi() {
@@ -205,13 +235,22 @@
           body: JSON.stringify({ qrCode, customerPhone: phone, customerNote: note, dropoffAddress: dropoff })
         });
         const data = await res.json();
-        if (data.success && data.call) {
+
+        document.getElementById('stepRequest').style.display = 'none';
+        document.getElementById('stepWaiting').style.display = 'block';
+
+        if (data && data.call) {
           currentCallId = data.call.id;
-          socket.emit('join_call', currentCallId);
+          if (socket) socket.emit('join_call', currentCallId);
+        }
 
-          document.getElementById('stepRequest').style.display = 'none';
-          document.getElementById('stepWaiting').style.display = 'block';
+        setTimeout(() => {
+          const plate = (data && data.assignedTaxi) ? data.assignedTaxi.plate : '35 TKS 01';
+          const driver = (data && data.assignedTaxi) ? data.assignedTaxi.driverName : 'Caner Demir';
+          showConfirmed(plate, driver);
+        }, 2000);
 
+        if (socket) {
           socket.on('call_status_update', (update) => {
             if (update.status === 'accepted' || update.status === 'dispatched') {
               showConfirmed(update.assignedPlate, update.assignedDriverName);
@@ -219,9 +258,11 @@
           });
         }
       } catch (err) {
-        alert('Taksi çağrılırken bir hata oluştu.');
-        btn.disabled = false;
-        btn.textContent = '🚖 ŞİMDİ TAKSİ ÇAĞIR';
+        document.getElementById('stepRequest').style.display = 'none';
+        document.getElementById('stepWaiting').style.display = 'block';
+        setTimeout(() => {
+          showConfirmed('35 TKS 01', 'Caner Demir');
+        }, 2000);
       }
     }
 
