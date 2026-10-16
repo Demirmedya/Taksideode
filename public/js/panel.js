@@ -42,7 +42,7 @@ function checkDemoPermission(actionName = 'Bu işlem') {
     if (textEl) textEl.textContent = actionName;
     const modal = document.getElementById('demoRestrictedModal');
     if (modal) {
-      modal.style.display = 'flex';
+      modal.classList.add('open');
     } else {
       alert(`🔒 Demo Modu Koruması: ${actionName} yetkisi kısıtlanmıştır.\nTam yetkili panel için Demir Medya ile iletişime geçiniz: 0541 577 62 77`);
     }
@@ -139,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Yeni QR Formu
   document.getElementById('newQRForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!checkDemoPermission('Yeni QR Kodu Oluşturma')) return;
     const body = {
       title: document.getElementById('qrTitle').value,
       neighborhood: document.getElementById('qrNeighborhood').value,
@@ -166,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Yeni Araç Formu
   document.getElementById('newVehicleForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!checkDemoPermission('Yeni Araç Tanımlama')) return;
     const body = {
       plate: document.getElementById('vehPlate').value,
       model: document.getElementById('vehModel').value,
@@ -187,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Yeni Şoför Formu
   document.getElementById('newDriverForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!checkDemoPermission('Yeni Şoför Tanımlama')) return;
     const body = {
       fullName: document.getElementById('drvName').value,
       phone: document.getElementById('drvPhone').value,
@@ -210,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Yeni Müşteri Formu
   document.getElementById('newCustomerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!checkDemoPermission('Müşteri Rehberine Kayıt Ekleme')) return;
     const body = {
       fullName: document.getElementById('custName').value,
       phone: document.getElementById('custPhone').value,
@@ -232,6 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Yeni Duyuru Formu
   document.getElementById('newAnnouncementForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!checkDemoPermission('Yeni Duyuru & Anons Yayını')) return;
     const body = {
       title: document.getElementById('annTitle').value,
       content: document.getElementById('annContent').value,
@@ -272,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ayarlar Formu
   document.getElementById('settingsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!checkDemoPermission('Durak Ayarlarını Güncelleme')) return;
     const themeColor = document.querySelector('input[name="themeColor"]:checked').value;
     const lat = parseFloat(document.getElementById('setStationLat').value) || currentStationLocation.lat;
     const lng = parseFloat(document.getElementById('setStationLng').value) || currentStationLocation.lng;
@@ -311,6 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (editVehForm) {
     editVehForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!checkDemoPermission('Araç Bilgilerini Güncelleme')) return;
       const id = document.getElementById('editVehId').value;
       const body = {
         plate: document.getElementById('editVehPlate').value,
@@ -336,6 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (editDrvForm) {
     editDrvForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!checkDemoPermission('Şoför Bilgilerini Güncelleme')) return;
       const id = document.getElementById('editDrvId').value;
       const body = {
         fullName: document.getElementById('editDrvName').value,
@@ -363,6 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (editCustForm) {
     editCustForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!checkDemoPermission('Müşteri Bilgilerini Güncelleme')) return;
       const id = document.getElementById('editCustId').value;
       const body = {
         fullName: document.getElementById('editCustName').value,
@@ -990,32 +999,42 @@ function openGpsInfoModal() {
   document.getElementById('gpsInfoModal').classList.add('open');
 }
 
-// Modallar
+// Modallar (Formlar doğrudan açılır, gönderme aşamasında yetki kontrolü yapılır)
 function openPhoneModal() {
-  if (!checkDemoPermission('Telefonla Çağrı / İş Ekleme')) return;
   document.getElementById('phoneModal').classList.add('open');
 }
 function openNewQRModal() {
-  if (!checkDemoPermission('Yeni QR Kodu Oluşturma')) return;
   document.getElementById('newQRModal').classList.add('open');
 }
 function openNewVehicleModal() {
-  if (!checkDemoPermission('Yeni Araç Tanımlama')) return;
   document.getElementById('newVehicleModal').classList.add('open');
 }
 function openNewDriverModal() {
-  if (!checkDemoPermission('Yeni Şoför Tanımlama')) return;
   document.getElementById('newDriverModal').classList.add('open');
 }
 function openNewCustomerModal() {
-  if (!checkDemoPermission('Müşteri Rehberine Kayıt Ekleme')) return;
   document.getElementById('newCustomerModal').classList.add('open');
 }
 function openNewAnnouncementModal() {
-  if (!checkDemoPermission('Yeni Duyuru & Anons Yayını')) return;
   document.getElementById('newAnnouncementModal').classList.add('open');
 }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModal(id) { 
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('open'); 
+}
+
+// Sokak QR Baskı Şablonunu Aç
+function openPrintTemplate(qrId) {
+  let q = null;
+  if (qrId) {
+    q = (cachedQRPoints || []).find(x => x.id === qrId || x.code === qrId);
+  }
+  if (!q && cachedQRPoints && cachedQRPoints.length > 0) {
+    q = cachedQRPoints[0];
+  }
+  const idParam = q ? (q.id || q.code) : 'KR-101';
+  window.open(`/api/stations/${CURRENT_STATION_ID}/qr-points/${idParam}/print`, '_blank');
+}
 
 // Anlık Test İşi Gönder (Durak Paneli)
 async function sendInstantTestJob() {
@@ -1164,34 +1183,43 @@ async function openQRPreviewModal(qrId) {
   const modal = document.getElementById('qrPreviewModal');
   if (modal) modal.classList.add('open');
 
+  const code = q ? (q.code || 'KR-101') : (qrId || 'KR-101');
+  const title = q ? (q.title || 'Alsancak İskele Girişi') : 'Alsancak İskele Girişi';
+  const neighborhood = q ? `${q.neighborhood || 'Alsancak'} • ${q.landmark || 'İskele Karşısı'}` : 'Alsancak • İskele Karşısı';
+  const scans = q ? (q.totalScans || 53) : 53;
+  const calls = q ? (q.successfulCalls || 39) : 39;
+  const rate = scans > 0 ? Math.round((calls / scans) * 100) : 74;
+
+  if (document.getElementById('prevModalTitle')) document.getElementById('prevModalTitle').innerText = `📍 QR Noktası: ${title} (${code})`;
+  if (document.getElementById('prevModalBadge')) document.getElementById('prevModalBadge').innerText = code;
+  if (document.getElementById('prevModalStreet')) document.getElementById('prevModalStreet').innerText = title;
+  if (document.getElementById('prevModalNeighborhood')) document.getElementById('prevModalNeighborhood').innerText = neighborhood;
+  if (document.getElementById('prevModalNotes')) document.getElementById('prevModalNotes').innerText = (q && q.notes) ? q.notes : 'Sokak aydınlatma direğine yapıştırıldı';
+  if (document.getElementById('prevModalScans')) document.getElementById('prevModalScans').innerText = `${scans} Defa Okutuldu`;
+  if (document.getElementById('prevModalCalls')) document.getElementById('prevModalCalls').innerText = `${calls} Taksi Gönderildi`;
+  if (document.getElementById('prevModalRate')) document.getElementById('prevModalRate').innerText = `%${rate} Başarı`;
+
+  const targetUrl = `https://taksideode.com.tr/cagri/${code}`;
+  const directQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=${encodeURIComponent(targetUrl)}`;
+  const img = document.getElementById('prevModalQrImg');
+  if (img) img.src = directQrUrl;
+
+  const testBtn = document.getElementById('prevModalTestBtn');
+  if (testBtn) testBtn.href = `/cagri/${code}`;
+
+  const printBtn = document.getElementById('prevModalPrintBtn');
+  if (printBtn) printBtn.href = `/api/stations/${CURRENT_STATION_ID}/qr-points/${q ? (q.id || code) : code}/print`;
+
   try {
     const idParam = q ? (q.id || q.code) : qrId;
     const res = await fetch(`/api/stations/${CURRENT_STATION_ID}/qr-points/${idParam}/preview`);
     const data = await res.json();
-    if (data.success) {
-      const point = data.qrPoint;
-      document.getElementById('prevModalTitle').innerText = `📍 QR Noktası: ${point.title} (${point.code})`;
-      document.getElementById('prevModalBadge').innerText = point.code;
-      document.getElementById('prevModalStreet').innerText = point.title;
-      document.getElementById('prevModalNeighborhood').innerText = `${point.neighborhood || ''} • ${point.landmark || ''}`;
-      document.getElementById('prevModalNotes').innerText = point.notes || 'Sokak panosu veya aydınlatma direği';
-      document.getElementById('prevModalScans').innerText = `${data.stats.totalScans} Defa Okutuldu`;
-      document.getElementById('prevModalCalls').innerText = `${data.stats.successfulCalls} Taksi Seferi Yapıldı`;
-      document.getElementById('prevModalRate').innerText = `%${data.stats.conversionRate} Başarı`;
-      
-      const img = document.getElementById('prevModalQrImg');
-      if (img && data.qrDataUrl) {
-        img.src = data.qrDataUrl;
-      }
-
-      const testBtn = document.getElementById('prevModalTestBtn');
-      if (testBtn) testBtn.href = data.targetUrl || `/cagri/${point.code}`;
-
-      const printBtn = document.getElementById('prevModalPrintBtn');
-      if (printBtn) printBtn.href = `/api/stations/${CURRENT_STATION_ID}/qr-points/${point.id}/print`;
+    if (data.success && data.qrPoint) {
+      if (img && data.qrDataUrl) img.src = data.qrDataUrl;
+      if (printBtn) printBtn.href = `/api/stations/${CURRENT_STATION_ID}/qr-points/${data.qrPoint.id}/print`;
     }
   } catch (err) {
-    console.error('QR preview error:', err);
+    console.warn('QR preview api fetch failed, using fallback:', err);
   }
 }
 

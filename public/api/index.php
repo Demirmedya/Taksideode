@@ -418,5 +418,245 @@ if (preg_match('#^stations/([^/]+)/announcements$#', $endpoint, $m)) {
     exit;
 }
 
+// QR Noktası Önizleme (JSON)
+if (preg_match('#^stations/([^/]+)/qr-points/([^/]+)/preview$#', $endpoint, $m)) {
+    $stId = $m[1];
+    $qrId = $m[2];
+    
+    $station = null;
+    foreach ($data['stations'] ?? [] as $s) {
+        if (($s['id'] ?? '') === $stId) { $station = $s; break; }
+    }
+    if (!$station && !empty($data['stations'])) $station = $data['stations'][0];
+
+    $qrPoint = null;
+    foreach ($data['qrPoints'] ?? [] as $q) {
+        if (($q['id'] ?? '') === $qrId || ($q['code'] ?? '') === $qrId) {
+            $qrPoint = $q;
+            break;
+        }
+    }
+    if (!$qrPoint && !empty($data['qrPoints'])) $qrPoint = $data['qrPoints'][0];
+
+    $code = $qrPoint ? ($qrPoint['code'] ?? 'KR-101') : 'KR-101';
+    $targetUrl = 'https://taksideode.com.tr/cagri/' . $code;
+    $qrDataUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=' . urlencode($targetUrl);
+
+    $scans = $qrPoint['totalScans'] ?? 53;
+    $calls = $qrPoint['successfulCalls'] ?? 39;
+    $rate = $scans > 0 ? round(($calls / $scans) * 100) : 74;
+
+    echo json_encode([
+        'success' => true,
+        'qrPoint' => $qrPoint,
+        'station' => $station,
+        'targetUrl' => $targetUrl,
+        'qrDataUrl' => $qrDataUrl,
+        'stats' => [
+            'totalScans' => $scans,
+            'successfulCalls' => $calls,
+            'conversionRate' => $rate,
+            'totalRevenue' => $calls * 180
+        ]
+    ]);
+    exit;
+}
+
+// QR Noktası A4 / Etiket Baskı Şablonu (HTML)
+if (preg_match('#^stations/([^/]+)/qr-points/([^/]+)/print$#', $endpoint, $m)) {
+    $stId = $m[1];
+    $qrId = $m[2];
+    
+    $station = null;
+    foreach ($data['stations'] ?? [] as $s) {
+        if (($s['id'] ?? '') === $stId) { $station = $s; break; }
+    }
+    if (!$station && !empty($data['stations'])) $station = $data['stations'][0];
+
+    $qrPoint = null;
+    foreach ($data['qrPoints'] ?? [] as $q) {
+        if (($q['id'] ?? '') === $qrId || ($q['code'] ?? '') === $qrId) {
+            $qrPoint = $q;
+            break;
+        }
+    }
+    if (!$qrPoint && !empty($data['qrPoints'])) $qrPoint = $data['qrPoints'][0];
+
+    $code = $qrPoint ? ($qrPoint['code'] ?? 'KR-101') : 'KR-101';
+    $title = $qrPoint ? htmlspecialchars($qrPoint['title'] ?? 'Alsancak İskele Girişi') : 'Alsancak İskele Girişi';
+    $neighborhood = $qrPoint ? htmlspecialchars($qrPoint['neighborhood'] ?? 'Alsancak') : 'Alsancak';
+    $landmark = $qrPoint ? htmlspecialchars($qrPoint['landmark'] ?? 'İskele Karşısı Aydınlatma Direği') : 'İskele Karşısı';
+    $stationName = $station ? htmlspecialchars($station['name'] ?? 'İzmir Kordon Demo Taksi Durağı') : 'İzmir Kordon Demo Taksi Durağı';
+    
+    $targetUrl = 'https://taksideode.com.tr/cagri/' . $code;
+    $qrDataUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=' . urlencode($targetUrl);
+
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaksideÖde • Sokak QR Baskı Şablonu - ' . $code . '</title>
+  <style>
+    @page { size: A4 portrait; margin: 15mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #0f172a;
+      background: #f8fafc;
+    }
+    .print-card {
+      background: #ffffff;
+      border: 4px solid #7c3aed;
+      border-radius: 28px;
+      padding: 36px 30px;
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+      box-shadow: 0 16px 36px rgba(124, 58, 237, 0.12);
+    }
+    .badge {
+      display: inline-block;
+      background: #f5f3ff;
+      color: #7c3aed;
+      border: 1.5px solid #ddd6fe;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 18px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .brand-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0 0 6px 0;
+      letter-spacing: -0.5px;
+    }
+    .station-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #7c3aed;
+      margin: 0 0 20px 0;
+    }
+    .qr-frame {
+      background: #ffffff;
+      border: 2px dashed #cbd5e1;
+      border-radius: 20px;
+      padding: 16px;
+      display: inline-block;
+      margin-bottom: 18px;
+    }
+    .qr-frame img {
+      width: 240px;
+      height: 240px;
+      display: block;
+    }
+    .instruction {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 6px 0;
+    }
+    .sub-instruction {
+      font-size: 14px;
+      color: #64748b;
+      margin: 0 0 16px 0;
+    }
+    .location-box {
+      background: #faf5ff;
+      border: 1.5px solid #ede9fe;
+      border-radius: 14px;
+      padding: 12px 16px;
+      text-align: left;
+    }
+    .location-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #7c3aed;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .location-value {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+    .print-actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .print-actions { display: none !important; }
+      .print-card { box-shadow: none; border: 3px solid #7c3aed; max-width: 100%; }
+    }
+    .btn-print {
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      color: #ffffff;
+      border: none;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 12px 28px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+    }
+    .btn-close {
+      background: #ffffff;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="print-card">
+    <div style="margin-bottom: 12px;">
+      <img src="/images/logo.png" alt="TaksideÖde" style="height: 52px; object-fit: contain;">
+    </div>
+    <div class="badge">🚖 Akıllı Durak QR Çağrı</div>
+    <h1 class="brand-title">TAKSİ ÇAĞIR</h1>
+    <h2 class="station-name">' . $stationName . '</h2>
+    
+    <div class="qr-frame">
+      <img src="' . $qrDataUrl . '" alt="QR Kod" />
+    </div>
+
+    <div class="instruction">Telefon Kamerasıyla Okutun</div>
+    <div class="sub-instruction">Uygulama indirmeden saniyeler içinde taksiniz kapınıza gelsin.</div>
+
+    <div class="location-box">
+      <div class="location-label">📍 ÇAĞRI NOKTASI / SOKAK</div>
+      <div class="location-value">' . $title . ' (' . $neighborhood . ')</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 4px;">' . $landmark . ' • QR Kod: <strong>' . $code . '</strong></div>
+    </div>
+  </div>
+
+  <div class="print-actions">
+    <button class="btn-print" onclick="window.print()">🖨️ Yazıcıdan Çıkar (A4 / Etiket)</button>
+    <button class="btn-close" onclick="window.close()">Kapat</button>
+  </div>
+</body>
+</html>';
+    exit;
+}
+
 // Bilinmeyen Endpoint
 echo json_encode(['success' => true, 'message' => 'TaksideÖde API Aktif']);
