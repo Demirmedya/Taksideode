@@ -126,6 +126,7 @@ async function main() {
     { file: 'panel.html', content: fs.readFileSync(path.join(localPublic, 'panel.html'), 'utf8') },
     { file: 'index.html', content: fs.readFileSync(path.join(localPublic, 'index.html'), 'utf8') },
     { file: 'cagri.html', content: fs.readFileSync(path.join(localPublic, 'cagri.html'), 'utf8') },
+    { file: 'surucu.html', content: fs.readFileSync(path.join(localPublic, 'surucu.html'), 'utf8') },
   ];
 
   for (const f of mainFiles) {
@@ -222,6 +223,7 @@ RewriteRule ^cagri/?$ cagri.html [L,QSA]
     { dir: subDir, file: 'index.html', content: fs.readFileSync(path.join(localPublic, 'panel.html'), 'utf8') },
     { dir: subDir, file: 'login.html', content: fs.readFileSync(path.join(localPublic, 'login.html'), 'utf8') },
     { dir: subDir, file: 'cagri.html', content: fs.readFileSync(path.join(localPublic, 'cagri.html'), 'utf8') },
+    { dir: subDir, file: 'surucu.html', content: fs.readFileSync(path.join(localPublic, 'surucu.html'), 'utf8') },
     { dir: subDir + '/css', file: 'style.css', content: styleCss },
     { dir: subDir + '/js', file: 'panel.js', content: panelJs },
     { dir: subDir + '/api', file: 'index.php', content: apiPhp },

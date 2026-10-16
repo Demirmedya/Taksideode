@@ -28,6 +28,11 @@ function saveDb($file, $data) {
     file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 }
 
+function saveData($data) {
+    global $dbFile;
+    saveDb($dbFile, $data);
+}
+
 // Request path parsing
 $requestUri = $_SERVER['REQUEST_URI'];
 $basePath = '/api';
@@ -655,6 +660,349 @@ if (preg_match('#^stations/([^/]+)/qr-points/([^/]+)/print$#', $endpoint, $m)) {
   </div>
 </body>
 </html>';
+    exit;
+}
+
+// Sürücü Girişi (Durak alt alan adı + Plaka + Şifre ile Doğrulama)
+if (preg_match('#^drivers/login$#', $endpoint)) {
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $rawSub = trim($input['subdomain'] ?? '');
+    $plate = strtoupper(trim(preg_replace('/\s+/', ' ', $input['plate'] ?? '')));
+    $password = trim((string)($input['password'] ?? ''));
+
+    // Alt alan adını temizle (Örn: "demodurak", "demodurak.taksideode.com.tr", "durak_demo")
+    $subdomain = strtolower(str_replace(['https://', 'http://', '.taksideode.com.tr', '/'], '', $rawSub));
+    if (empty($subdomain)) {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        if (strpos($host, 'demodurak') !== false) {
+            $subdomain = 'demodurak';
+        }
+    }
+    if (empty($subdomain)) $subdomain = 'demodurak';
+
+    // Durağı bul (subdomain veya id ile)
+    $station = null;
+    foreach ($data['stations'] ?? [] as $s) {
+        $sSub = strtolower(trim($s['subdomain'] ?? ''));
+        $sId = strtolower(trim($s['id'] ?? ''));
+        if ($sSub === $subdomain || $sId === $subdomain) {
+            $station = $s;
+            break;
+        }
+    }
+
+    if (!$station) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'error' => "Belirtilen durak ('" . htmlspecialchars($subdomain) . "') sistemde bulunamadı. Lütfen durak adınızı kontrol edin."]);
+        exit;
+    }
+
+    // Sadece BU DURAĞA ait şoförler arasından plakayı bul
+    $driver = null;
+    foreach ($data['drivers'] ?? [] as $d) {
+        $dPlate = strtoupper(trim(preg_replace('/\s+/', ' ', $d['plate'] ?? '')));
+        if (($d['station_id'] ?? '') === $station['id'] && $dPlate === $plate) {
+            $driver = $d;
+            break;
+        }
+    }
+
+    if (!$driver) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => "Bu plaka ('" . htmlspecialchars($plate) . "') '" . htmlspecialchars($station['name']) . "' durağına kayıtlı değildir."]);
+        exit;
+    }
+
+    // Şifre kontrolü (varsayılan: 123)
+    $expectedPass = trim((string)($driver['password'] ?? '123'));
+    if ($password !== $expectedPass) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'Girdiğiniz şifre hatalıdır.']);
+        exit;
+    }
+
+    // Aktif vardiya bul veya oluştur
+    $shift = null;
+    foreach ($data['shifts'] ?? [] as &$sh) {
+        if (($sh['driver_id'] ?? '') === $driver['id']) {
+            $shift = &$sh;
+            break;
+        }
+    }
+    if (!$shift) {
+        $newShift = [
+            'id' => 'sh_' . $driver['id'],
+            'station_id' => $station['id'],
+            'vehicle_id' => 'v_' . $driver['id'],
+            'driver_id' => $driver['id'],
+            'plate' => $driver['plate'],
+            'driverName' => $driver['fullName'],
+            'startTime' => date('c'),
+            'status' => 'active',
+            'state' => 'in_queue',
+            'lat' => $station['location']['lat'] ?? 38.4382,
+            'lng' => $station['location']['lng'] ?? 27.1428
+        ];
+        $data['shifts'][] = $newShift;
+        saveData($data);
+        $shift = $newShift;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'driver' => $driver,
+        'station' => $station,
+        'shift' => $shift
+    ]);
+    exit;
+}
+
+// Sürücü Oturum Doğrulama
+if (preg_match('#^drivers/verify-session$#', $endpoint)) {
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $driverId = $input['driverId'] ?? '';
+    $stationId = $input['stationId'] ?? '';
+
+    $station = null;
+    foreach ($data['stations'] ?? [] as $s) {
+        if (($s['id'] ?? '') === $stationId) { $station = $s; break; }
+    }
+    $driver = null;
+    if ($station) {
+        foreach ($data['drivers'] ?? [] as $d) {
+            if (($d['id'] ?? '') === $driverId && ($d['station_id'] ?? '') === $station['id']) {
+                $driver = $d;
+                break;
+            }
+        }
+    }
+
+    if ($driver && $station) {
+        echo json_encode(['valid' => true, 'driver' => $driver, 'station' => $station]);
+    } else {
+        echo json_encode(['valid' => false, 'error' => 'Oturum bu durağa ait değil veya geçersiz.']);
+    }
+    exit;
+}
+
+// Sürücünün Aktif Çağrısı (İş Emri Bildirimi)
+if (preg_match('#^drivers/([^/]+)/active-call$#', $endpoint, $m)) {
+    $shiftId = $m[1];
+    $activeCall = null;
+    foreach ($data['calls'] ?? [] as $c) {
+        if (in_array($c['status'] ?? '', ['dispatched', 'accepted', 'in_trip'])) {
+            if (($c['assignedShiftId'] ?? '') === $shiftId || ($c['assignedTaxi']['shift_id'] ?? '') === $shiftId || ($c['assignedTaxi']['id'] ?? '') === $shiftId) {
+                $activeCall = $c;
+                break;
+            }
+        }
+    }
+    echo json_encode([
+        'success' => true,
+        'hasActiveCall' => ($activeCall !== null),
+        'call' => $activeCall,
+        'activeCall' => $activeCall
+    ]);
+    exit;
+}
+
+// Sürücü Çağrıyı Kabul Etti
+if (preg_match('#^calls/([^/]+)/accept$#', $endpoint, $m)) {
+    $callId = $m[1];
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $shiftId = $input['shiftId'] ?? '';
+
+    foreach ($data['calls'] ?? [] as &$c) {
+        if (($c['id'] ?? '') === $callId) {
+            $c['status'] = 'accepted';
+            $c['acceptedAt'] = date('c');
+            break;
+        }
+    }
+    foreach ($data['shifts'] ?? [] as &$s) {
+        if (($s['id'] ?? '') === $shiftId) {
+            $s['state'] = 'in_trip';
+            break;
+        }
+    }
+    saveData($data);
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+// Sürücü Yolcuyu Aldı
+if (preg_match('#^calls/([^/]+)/pickup$#', $endpoint, $m)) {
+    $callId = $m[1];
+    foreach ($data['calls'] ?? [] as &$c) {
+        if (($c['id'] ?? '') === $callId) {
+            $c['status'] = 'in_trip';
+            $c['pickedUpAt'] = date('c');
+            break;
+        }
+    }
+    saveData($data);
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+// Sürücü Seferi Tamamladı (Ödeme Alındı)
+if (preg_match('#^calls/([^/]+)/complete$#', $endpoint, $m)) {
+    $callId = $m[1];
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $shiftId = $input['shiftId'] ?? '';
+    $fare = intval($input['fare'] ?? 180);
+
+    foreach ($data['calls'] ?? [] as &$c) {
+        if (($c['id'] ?? '') === $callId) {
+            $c['status'] = 'completed';
+            $c['completedAt'] = date('c');
+            $c['fare'] = $fare;
+            break;
+        }
+    }
+    foreach ($data['shifts'] ?? [] as &$s) {
+        if (($s['id'] ?? '') === $shiftId) {
+            $s['state'] = 'in_queue';
+            break;
+        }
+    }
+    saveData($data);
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+// Sürücü Çağrıyı Reddetti
+if (preg_match('#^calls/([^/]+)/reject$#', $endpoint, $m)) {
+    $callId = $m[1];
+    foreach ($data['calls'] ?? [] as &$c) {
+        if (($c['id'] ?? '') === $callId) {
+            $c['status'] = 'pending';
+            break;
+        }
+    }
+    saveData($data);
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+// Durak Kuyruğu
+if (preg_match('#^stations/([^/]+)/queue$#', $endpoint, $m)) {
+    $stId = $m[1];
+    $queue = $data['queue'] ?? [];
+    echo json_encode(['success' => true, 'queue' => $queue]);
+    exit;
+}
+
+// Sürücü GPS Konum Güncellemesi
+if (preg_match('#^drivers/location$#', $endpoint)) {
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $shiftId = $input['shiftId'] ?? '';
+    $lat = floatval($input['lat'] ?? 0);
+    $lng = floatval($input['lng'] ?? 0);
+
+    if ($shiftId && $lat && $lng) {
+        foreach ($data['shifts'] ?? [] as &$s) {
+            if (($s['id'] ?? '') === $shiftId) {
+                $s['lat'] = $lat;
+                $s['lng'] = $lng;
+                break;
+            }
+        }
+        saveData($data);
+    }
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+// Sürücü Performans Bilgisi
+if (preg_match('#^drivers/([^/]+)/performance$#', $endpoint, $m)) {
+    $drvId = $m[1];
+    $drv = null;
+    foreach ($data['drivers'] ?? [] as $d) {
+        if (($d['id'] ?? '') === $drvId) { $drv = $d; break; }
+    }
+    $completed = array_values(array_filter($data['calls'] ?? [], fn($c) => ($c['assignedDriverId'] ?? '') === $drvId && ($c['status'] ?? '') === 'completed'));
+    $totalRev = array_reduce($completed, fn($sum, $c) => $sum + intval($c['fare'] ?? 180), 0);
+
+    echo json_encode([
+        'success' => true,
+        'stats' => [
+            'rating' => $drv['rating'] ?? 5.0,
+            'acceptanceRate' => 100,
+            'totalTrips' => count($completed),
+            'todayRevenue' => $totalRev,
+            'monthlyRevenue' => $drv['monthlyRevenue'] ?? $totalRev
+        ],
+        'recentTrips' => array_slice(array_reverse($completed), 0, 10)
+    ]);
+    exit;
+}
+
+// Sürücü Sefer Geçmişi
+if (preg_match('#^drivers/([^/]+)/history$#', $endpoint, $m)) {
+    $shiftId = $m[1];
+    $completed = array_values(array_filter($data['calls'] ?? [], fn($c) => (($c['assignedShiftId'] ?? '') === $shiftId || ($c['assignedTaxi']['shift_id'] ?? '') === $shiftId) && ($c['status'] ?? '') === 'completed'));
+    echo json_encode(['success' => true, 'history' => array_slice(array_reverse($completed), 0, 10)]);
+    exit;
+}
+
+// Yeni Çağrı (QR ile Yolcu Çağrısı)
+if (preg_match('#^calls/qr$#', $endpoint)) {
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $qrCode = trim($input['qrCode'] ?? 'KD-101');
+    $customerPhone = trim($input['customerPhone'] ?? '');
+    $dropoffAddress = trim($input['dropoffAddress'] ?? '');
+
+    // QR Noktasını bul
+    $qrPoint = null;
+    foreach ($data['qrPoints'] ?? [] as $q) {
+        if (($q['code'] ?? '') === $qrCode) { $qrPoint = $q; break; }
+    }
+    if (!$qrPoint && !empty($data['qrPoints'])) $qrPoint = $data['qrPoints'][0];
+
+    $stationId = $qrPoint['station_id'] ?? 'durak_demo';
+    
+    // Sıradaki ilk müsait aracı bul
+    $assignedShift = null;
+    foreach ($data['shifts'] ?? [] as $sh) {
+        if (($sh['station_id'] ?? '') === $stationId && ($sh['state'] ?? '') === 'in_queue') {
+            $assignedShift = $sh;
+            break;
+        }
+    }
+    if (!$assignedShift) {
+        foreach ($data['shifts'] ?? [] as $sh) {
+            if (($sh['station_id'] ?? '') === $stationId) {
+                $assignedShift = $sh;
+                break;
+            }
+        }
+    }
+
+    $callId = 'call_' . time();
+    $newCall = [
+        'id' => $callId,
+        'station_id' => $stationId,
+        'source' => 'qr',
+        'qr_code' => $qrCode,
+        'pickupAddress' => $qrPoint ? ($qrPoint['title'] . ' (' . ($qrPoint['neighborhood'] ?? '') . ')') : 'Alsancak Kordon',
+        'dropoffAddress' => $dropoffAddress ?: 'Konak Meydan',
+        'customerName' => 'Yolcu (' . substr($customerPhone ?: '5415776277', -4) . ')',
+        'customerPhone' => $customerPhone ?: '0541 577 62 77',
+        'status' => 'dispatched',
+        'assignedPlate' => $assignedShift ? $assignedShift['plate'] : '35 TKS 01',
+        'assignedDriverName' => $assignedShift ? $assignedShift['driverName'] : 'Caner Demir',
+        'assignedDriverId' => $assignedShift ? $assignedShift['driver_id'] : 'd_1',
+        'assignedShiftId' => $assignedShift ? $assignedShift['id'] : 'sh_1',
+        'assignedTaxi' => $assignedShift,
+        'fare' => 180,
+        'createdAt' => date('c')
+    ];
+
+    $data['calls'][] = $newCall;
+    saveData($data);
+
+    echo json_encode(['success' => true, 'call' => $newCall, 'assignedTaxi' => $assignedShift]);
     exit;
 }
 

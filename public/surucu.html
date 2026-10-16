@@ -194,14 +194,24 @@
 
       <form id="driverLoginForm" onsubmit="handleDriverLogin(event)" style="display: flex; flex-direction: column; gap: 16px;">
         <div>
+          <label style="display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px;">DURAK KODU / ALT ALAN ADI</label>
+          <div style="display: flex; align-items: center; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 14px; overflow: hidden;">
+            <input type="text" id="loginSubdomain" class="form-input" placeholder="demodurak" value="demodurak" required
+              style="font-size: 16px; font-weight: 800; padding: 14px 16px; border: none; background: transparent; width: 100%; box-sizing: border-box; text-transform: lowercase;">
+            <span style="padding-right: 14px; font-size: 12px; font-weight: 700; color: #64748b; white-space: nowrap;">.taksideode.com.tr</span>
+          </div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Durak yöneticinizin tanımladığı alt alan adı (Örn: demodurak)</div>
+        </div>
+
+        <div>
           <label style="display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px;">ARAÇ PLAKASI</label>
-          <input type="text" id="loginPlate" class="form-input" placeholder="Örn: 34 TKS 01" required
+          <input type="text" id="loginPlate" class="form-input" placeholder="Örn: 35 TKS 01" value="35 TKS 01" required
             style="font-size: 18px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; padding: 14px 16px; border: 2px solid #cbd5e1; border-radius: 14px; width: 100%; box-sizing: border-box;">
         </div>
 
         <div>
           <label style="display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px;">GİRİŞ ŞİFRESİ / PIN</label>
-          <input type="password" id="loginPassword" class="form-input" placeholder="Şifrenizi girin" required
+          <input type="password" id="loginPassword" class="form-input" placeholder="Şifrenizi girin" value="123" required
             style="font-size: 18px; font-weight: 800; padding: 14px 16px; border: 2px solid #cbd5e1; border-radius: 14px; width: 100%; box-sizing: border-box;">
         </div>
 
@@ -267,8 +277,11 @@
         <div style="display: flex; align-items: center; gap: 10px;">
           <img src="images/logo.png" alt="TaksideÖde" style="height: 36px; object-fit: contain;">
           <div>
-            <div style="font-size: 16px; font-weight: 900; color: var(--purple-main); line-height: 1.1;" id="activePlateDisplay">34 TKS 01</div>
-            <div style="font-size: 11px; font-weight: 800; color: #64748b;" id="activeDriverNameDisplay">Ahmet Yılmaz</div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 16px; font-weight: 900; color: var(--purple-main); line-height: 1.1;" id="activePlateDisplay">35 TKS 01</span>
+              <span id="activeStationBadge" style="font-size: 10px; font-weight: 800; background: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 6px;">İzmir Demo</span>
+            </div>
+            <div style="font-size: 11px; font-weight: 800; color: #64748b; margin-top: 2px;" id="activeDriverNameDisplay">Caner Demir</div>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 6px;">
@@ -465,10 +478,42 @@
   </div>
 
   <script>
-    const BASE_URL = (window.location.protocol === 'file:' || !window.location.origin.includes(':3000')) ? 'http://192.168.1.102:3000' : '';
-    const socket = io(BASE_URL || window.location.origin);
+    let currentSubdomain = localStorage.getItem('taksideode_driver_subdomain') || 'demodurak';
+
+    function getBaseUrl() {
+      const host = window.location.hostname;
+      const sub = (currentSubdomain || 'demodurak').trim().toLowerCase().replace('.taksideode.com.tr', '');
+      if (window.location.protocol === 'file:' || !host || host === 'localhost' || host === '127.0.0.1') {
+        return `https://${sub}.taksideode.com.tr`;
+      }
+      return window.location.origin;
+    }
+
+    let BASE_URL = getBaseUrl();
+
+    // Güvenli Socket.IO Bağlantısı
+    let rawSocket = null;
+    try {
+      if (typeof io !== 'undefined') {
+        rawSocket = io(getBaseUrl(), { reconnectionAttempts: 3, timeout: 4000 });
+      }
+    } catch (e) {}
+
+    const socket = {
+      on: function(event, callback) {
+        if (rawSocket) {
+          try { rawSocket.on(event, callback); } catch (e) {}
+        }
+      },
+      emit: function(event, ...args) {
+        if (rawSocket) {
+          try { rawSocket.emit(event, ...args); } catch (e) {}
+        }
+      }
+    };
+
     let currentShiftId = null;
-    let currentStationId = 'durak_merkez';
+    let currentStationId = 'durak_demo';
     let currentDriverInfo = null;
     let activeCall = null;
     let countdownInterval = null;
@@ -477,6 +522,7 @@
     let wakeLock = null;
     let lastGeofence = null;
     let isTestSimulatedLocation = false;
+    let driverStatusPollTimer = null;
 
     function playAlarmSound() {
       try {
@@ -496,6 +542,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Input ön doldurma
+      const subInput = document.getElementById('loginSubdomain');
+      if (subInput && currentSubdomain) subInput.value = currentSubdomain;
+
       setInterval(() => {
         const timeEl = document.getElementById('posTimeDisplay');
         if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
@@ -510,15 +560,54 @@
       requestWakeLock();
     });
 
-    // Oturum Kontrolü
-    function checkDriverSession() {
+    // Oturum Kontrolü & Eski/Geçersiz Hesapları Otomatik Temizleme
+    async function checkDriverSession() {
       const saved = localStorage.getItem('taksideode_driver_session') || sessionStorage.getItem('taksideode_driver_session');
       if (saved) {
         try {
           const session = JSON.parse(saved);
+          
+          // Ahmet Yılmaz veya eski 34 TKS 01 tespit edilirse derhal sil
+          if (session && session.driver) {
+            const drvName = (session.driver.fullName || '').trim();
+            const drvPlate = (session.driver.plate || '').trim();
+            const stId = session.station ? (session.station.id || '') : '';
+            if (drvName === 'Ahmet Yılmaz' || drvPlate === '34 TKS 01' || stId === 'durak_merkez') {
+              console.warn('Geçersiz/Eski Ahmet Yılmaz oturumu temizlendi.');
+              localStorage.removeItem('taksideode_driver_session');
+              sessionStorage.removeItem('taksideode_driver_session');
+              showLoginView();
+              return;
+            }
+          }
+
           if (session && session.driver && session.shift) {
-            activateDriverSession(session);
-            return;
+            // Sunucu tarafında doğrula
+            try {
+              const res = await fetch(`${getBaseUrl()}/api/drivers/verify-session`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  driverId: session.driver.id,
+                  stationId: session.station ? session.station.id : 'durak_demo'
+                })
+              });
+              const vData = await res.json();
+              if (vData && vData.valid) {
+                activateDriverSession(session);
+                return;
+              } else {
+                console.warn('Oturum bu durağa ait değil veya geçersiz!');
+                localStorage.removeItem('taksideode_driver_session');
+                sessionStorage.removeItem('taksideode_driver_session');
+                showLoginView();
+                return;
+              }
+            } catch (err) {
+              // İnternet kesintisi varsa lokal oturumla aç
+              activateDriverSession(session);
+              return;
+            }
           }
         } catch (e) {}
       }
@@ -535,9 +624,11 @@
       document.getElementById('posMainView').style.display = 'flex';
     }
 
-    // Sürücü Girişi
+    // Sürücü Girişi (Durak alt alan adı + Plaka + Şifre ile Doğrulama)
     async function handleDriverLogin(e) {
       e.preventDefault();
+      let subdomain = document.getElementById('loginSubdomain').value.trim().toLowerCase().replace('.taksideode.com.tr', '');
+      if (!subdomain) subdomain = 'demodurak';
       const plate = document.getElementById('loginPlate').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
       const errorEl = document.getElementById('loginErrorMsg');
@@ -547,15 +638,19 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Giriş Yapılıyor...';
 
+      currentSubdomain = subdomain;
+      localStorage.setItem('taksideode_driver_subdomain', subdomain);
+      BASE_URL = getBaseUrl();
+
       try {
         const res = await fetch(`${BASE_URL}/api/drivers/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plate, password })
+          body: JSON.stringify({ subdomain, plate, password })
         });
         const data = await res.json();
         if (!res.ok || !data.success) {
-          throw new Error(data.error || 'Giriş başarısız oldu');
+          throw new Error(data.error || 'Giriş başarısız oldu. Durak kodu, plaka veya şifrenizi kontrol edin.');
         }
 
         const remember = document.getElementById('rememberMe').checked;
@@ -577,16 +672,58 @@
 
     function activateDriverSession(session) {
       currentDriverInfo = session.driver;
-      currentShiftId = session.shift.id;
-      currentStationId = session.station.id || 'durak_merkez';
+      currentShiftId = session.shift ? session.shift.id : ('sh_' + session.driver.id);
+      currentStationId = session.station ? session.station.id : 'durak_demo';
+
+      if (session.station) {
+        currentSubdomain = session.station.subdomain || session.station.username || currentSubdomain || 'demodurak';
+        localStorage.setItem('taksideode_driver_subdomain', currentSubdomain);
+        BASE_URL = getBaseUrl();
+      }
 
       document.getElementById('activePlateDisplay').textContent = session.driver.plate;
       document.getElementById('activeDriverNameDisplay').textContent = session.driver.fullName;
+      const stBadge = document.getElementById('activeStationBadge');
+      if (stBadge) {
+        stBadge.textContent = session.station ? (session.station.district ? `${session.station.district} / ${session.station.city}` : session.station.name) : 'İzmir Demo';
+      }
 
       showMainView();
       initShift();
       startPhoneGpsTracking();
       startAnnouncementChecker();
+      startPollingDriverStatus();
+    }
+
+    // Periyodik Durum ve Çağrı Yoklayıcı (Socket kopsa bile çağrıları garantiler)
+    function startPollingDriverStatus() {
+      if (driverStatusPollTimer) clearInterval(driverStatusPollTimer);
+      driverStatusPollTimer = setInterval(async () => {
+        if (!currentShiftId) return;
+        try {
+          // 1. Bekleyen / aktif çağrı var mı kontrol et
+          const res = await fetch(`${BASE_URL}/api/drivers/${currentShiftId}/active-call`);
+          if (res.ok) {
+            const data = await res.json();
+            const call = data.call || data.activeCall;
+            if (call) {
+              if (call.status === 'dispatched' && (!activeCall || activeCall.id !== call.id)) {
+                onIncomingCallReceived(call);
+              } else if (call.status === 'accepted' || call.status === 'in_trip') {
+                if (!activeCall || activeCall.status !== call.status) {
+                  checkAndRestoreActiveCall();
+                }
+              }
+            } else if (activeCall && (activeCall.status === 'completed' || activeCall.status === 'rejected')) {
+              activeCall = null;
+              saveActiveCallLocally(null);
+              fetchQueueStatus();
+            }
+          }
+          // 2. Sıra durumunu güncelle
+          fetchQueueStatus();
+        } catch (e) {}
+      }, 4000);
     }
 
     function handleDriverLogout() {
@@ -764,8 +901,9 @@
       if (!currentShiftId) return;
       try {
         const res = await fetch(`${BASE_URL}/api/stations/${currentStationId}/queue`);
-        const queue = await res.json();
-        const myItem = queue.find(q => q.shift_id === currentShiftId);
+        const resData = await res.json();
+        const queue = Array.isArray(resData) ? resData : (resData.queue || []);
+        const myItem = queue.find(q => q.shift_id === currentShiftId || q.id === currentShiftId || (currentDriverInfo && q.driver_id === currentDriverInfo.id));
         
         const rankDisplay = document.getElementById('driverRankDisplay');
         const statusText = document.getElementById('rankStatusText');
