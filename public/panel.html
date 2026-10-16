@@ -6,9 +6,9 @@
   <title>TaksideÖde • Durak Yönetim & Operasyon Merkezi</title>
   <link rel="icon" type="image/png" href="/images/icon.png">
   <link rel="stylesheet" href="/css/style.css">
-  <!-- Leaflet Harita Kütüphanesi -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Harita Kütüphanesi (Yerel & CDN Yedekli) -->
+  <link rel="stylesheet" href="/css/leaflet.css" />
+  <script src="/js/leaflet.js"></script>
   <!-- Socket.io -->
   <script src="/socket.io/socket.io.js"></script>
   <style>
@@ -305,12 +305,12 @@
         </section>
 
         <!-- 4. CANLI HARİTA -->
-        <section id="tab-harita" class="page-view" style="padding: 0; height: calc(100vh - 68px); position: relative;">
+        <section id="tab-harita" class="page-view" style="padding: 0; min-height: 650px; height: calc(100vh - 80px); position: relative; width: 100%;">
           <div style="position: absolute; top: 14px; right: 14px; z-index: 500; background: #ffffff; padding: 10px 14px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px;">
             <button class="btn btn-secondary btn-sm" onclick="openGpsInfoModal()">📡 Araçlar Nasıl Takip Edilir?</button>
             <button class="btn btn-primary btn-sm" onclick="locateStationOnMap()">📍 Durağa Odaklan</button>
           </div>
-          <div id="map" style="width: 100%; height: 100%;"></div>
+          <div id="map" style="width: 100%; min-height: 650px; height: 100%;"></div>
         </section>
 
         <!-- 5. ARAÇLAR & ŞOFÖRLER -->

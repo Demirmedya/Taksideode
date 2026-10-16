@@ -105,33 +105,39 @@ module.exports = function(queueEngine, io) {
 
   // Yeni Durak Ekle
   router.post('/admin/stations', (req, res) => {
-    const { name, username, password, officerName, phone, city, district, address, lat, lng, geofenceRadiusMeters, status } = req.body;
+    const { name, subdomain, username, password, officerName, phone, officerEmail, city, district, address, vehicleCount, driverCount, startDate, lat, lng, geofenceRadiusMeters, status } = req.body;
     if (!name || !username || !password) {
       return res.status(400).json({ success: false, error: 'Durak adı, kullanıcı adı ve şifre zorunludur.' });
     }
 
+    const cleanSubdomain = (subdomain || username || 'durak').toLowerCase().replace(/[^a-z0-9]/g, '');
     const newId = 'durak_' + Date.now();
     const newStation = {
       id: newId,
       name,
+      subdomain: cleanSubdomain,
       username: username.toLowerCase().trim(),
       password,
       officerName: officerName || '',
       phone: phone || '',
-      city: city || 'İstanbul',
+      officerEmail: officerEmail || '',
+      city: city || 'İzmir',
       district: district || '',
       address: address || '',
       status: status || 'active',
+      vehicleCount: vehicleCount ? parseInt(vehicleCount) : 0,
+      driverCount: driverCount ? parseInt(driverCount) : 0,
+      startDate: startDate || new Date().toISOString().split('T')[0],
       location: {
-        lat: lat ? parseFloat(lat) : 40.9876,
-        lng: lng ? parseFloat(lng) : 29.0267
+        lat: lat ? parseFloat(lat) : 38.4382,
+        lng: lng ? parseFloat(lng) : 27.1428
       },
-      geofenceRadiusMeters: geofenceRadiusMeters ? parseInt(geofenceRadiusMeters) : 100,
+      geofenceRadiusMeters: geofenceRadiusMeters ? parseInt(geofenceRadiusMeters) : 150,
       settings: {
         driverTimeoutSeconds: 30,
         autoQueueOnEnter: true,
         allowOperatorManualReorder: true,
-        themeColor: 'amber'
+        themeColor: 'purple'
       },
       createdAt: new Date().toISOString()
     };
@@ -148,20 +154,25 @@ module.exports = function(queueEngine, io) {
   // Durak Düzenle
   router.put('/admin/stations/:id', (req, res) => {
     const { id } = req.params;
-    const { name, username, password, officerName, phone, city, district, address, status, lat, lng } = req.body;
+    const { name, subdomain, username, password, officerName, phone, officerEmail, city, district, address, vehicleCount, driverCount, startDate, status, lat, lng } = req.body;
     let updated = null;
 
     db.update(d => {
       const st = (d.stations || []).find(s => s.id === id);
       if (st) {
         if (name) st.name = name;
+        if (subdomain) st.subdomain = subdomain.toLowerCase().replace(/[^a-z0-9]/g, '');
         if (username) st.username = username.toLowerCase().trim();
         if (password) st.password = password;
         if (officerName !== undefined) st.officerName = officerName;
         if (phone !== undefined) st.phone = phone;
+        if (officerEmail !== undefined) st.officerEmail = officerEmail;
         if (city !== undefined) st.city = city;
         if (district !== undefined) st.district = district;
         if (address !== undefined) st.address = address;
+        if (vehicleCount !== undefined) st.vehicleCount = parseInt(vehicleCount);
+        if (driverCount !== undefined) st.driverCount = parseInt(driverCount);
+        if (startDate !== undefined) st.startDate = startDate;
         if (status !== undefined) st.status = status;
         if (lat) st.location.lat = parseFloat(lat);
         if (lng) st.location.lng = parseFloat(lng);
@@ -211,19 +222,28 @@ module.exports = function(queueEngine, io) {
     const stationId = req.params.id;
     const data = db.get();
 
-    const station = (data.stations || []).find(s => s.id === stationId);
+    let station = (data.stations || []).find(s => 
+      s.id === stationId || 
+      (s.aliasIds && s.aliasIds.includes(stationId)) || 
+      s.subdomain === stationId || 
+      s.username === stationId
+    );
+    if (!station && (data.stations || []).length > 0) {
+      station = data.stations[0];
+    }
     if (!station) return res.status(404).json({ error: 'Durak bulunamadı' });
+    const targetId = station.id;
 
-    const vehicles = (data.vehicles || []).filter(v => v.station_id === stationId);
-    const drivers = (data.drivers || []).filter(d => d.station_id === stationId);
-    const shifts = (data.shifts || []).filter(s => s.station_id === stationId);
-    const queue = queueEngine.getQueue(stationId);
-    const qrPoints = (data.qrPoints || []).filter(q => q.station_id === stationId);
-    const customers = (data.customers || []).filter(c => c.station_id === stationId);
-    const announcements = (data.announcements || []).filter(a => a.station_id === stationId);
-    const messages = (data.messages || []).filter(m => m.station_id === stationId);
+    const vehicles = (data.vehicles || []).filter(v => v.station_id === targetId || v.station_id === stationId);
+    const drivers = (data.drivers || []).filter(d => d.station_id === targetId || d.station_id === stationId);
+    const shifts = (data.shifts || []).filter(s => s.station_id === targetId || s.station_id === stationId);
+    const queue = data.queue || queueEngine.getQueue(targetId);
+    const qrPoints = (data.qrPoints || []).filter(q => q.station_id === targetId || q.station_id === stationId);
+    const customers = (data.customers || []).filter(c => c.station_id === targetId || c.station_id === stationId);
+    const announcements = (data.announcements || []).filter(a => a.station_id === targetId || a.station_id === stationId);
+    const messages = (data.messages || []).filter(m => m.station_id === targetId || m.station_id === stationId);
 
-    const allCalls = (data.calls || []).filter(c => c.station_id === stationId);
+    const allCalls = (data.calls || []).filter(c => c.station_id === targetId || c.station_id === stationId);
     const activeCalls = allCalls.filter(c => ['pending', 'dispatched', 'accepted', 'in_trip'].includes(c.status));
     const completedCalls = allCalls.filter(c => c.status === 'completed');
 

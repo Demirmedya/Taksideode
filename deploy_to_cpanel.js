@@ -133,10 +133,21 @@ async function main() {
     console.log(`  ✓ taksideode.com.tr/${f.file}: ${res.status === 1 ? 'OK' : JSON.stringify(res)}`);
   }
 
-  // Update js/panel.js
+  // Update js/panel.js & leaflet.js & css/leaflet.css
   const panelJs = fs.readFileSync(path.join(localPublic, 'js', 'panel.js'), 'utf8');
   const panelJsRes = await saveFile(session, mainDir + '/js', 'panel.js', panelJs);
   console.log(`  ✓ taksideode.com.tr/js/panel.js: ${panelJsRes.status === 1 ? 'OK' : JSON.stringify(panelJsRes)}`);
+
+  if (fs.existsSync(path.join(localPublic, 'js', 'leaflet.js'))) {
+    const leafletJs = fs.readFileSync(path.join(localPublic, 'js', 'leaflet.js'), 'utf8');
+    await saveFile(session, mainDir + '/js', 'leaflet.js', leafletJs);
+    console.log(`  ✓ taksideode.com.tr/js/leaflet.js: OK`);
+  }
+  if (fs.existsSync(path.join(localPublic, 'css', 'leaflet.css'))) {
+    const leafletCss = fs.readFileSync(path.join(localPublic, 'css', 'leaflet.css'), 'utf8');
+    await saveFile(session, mainDir + '/css', 'leaflet.css', leafletCss);
+    console.log(`  ✓ taksideode.com.tr/css/leaflet.css: OK`);
+  }
 
   // Update api/index.php & api/database.json
   const apiPhp = fs.readFileSync(path.join(localPublic, 'api', 'index.php'), 'utf8');
@@ -202,6 +213,13 @@ RewriteRule ^panel/?$ panel.html [L,QSA]
     { dir: subDir + '/api', file: 'index.php', content: apiPhp },
     { dir: subDir + '/api', file: 'database.json', content: apiDb },
   ];
+
+  if (fs.existsSync(path.join(localPublic, 'js', 'leaflet.js'))) {
+    subFiles.push({ dir: subDir + '/js', file: 'leaflet.js', content: fs.readFileSync(path.join(localPublic, 'js', 'leaflet.js'), 'utf8') });
+  }
+  if (fs.existsSync(path.join(localPublic, 'css', 'leaflet.css'))) {
+    subFiles.push({ dir: subDir + '/css', file: 'leaflet.css', content: fs.readFileSync(path.join(localPublic, 'css', 'leaflet.css'), 'utf8') });
+  }
 
   for (const f of subFiles) {
     const res = await saveFile(session, f.dir, f.file, f.content);

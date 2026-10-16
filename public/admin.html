@@ -10,15 +10,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-dark: #0b0f19;
-      --bg-card: #131a2b;
-      --bg-card-hover: #182238;
-      --border-color: rgba(255, 255, 255, 0.08);
+      --bg-dark: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --border-color: #e2e8f0;
       --accent-gold: #f59e0b;
       --accent-gold-hover: #d97706;
-      --accent-purple: #8b5cf6;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --accent-purple: #7c3aed;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
       --badge-active: #10b981;
       --badge-trial: #f59e0b;
       --badge-passive: #ef4444;
@@ -41,7 +41,7 @@
 
     /* ÜST NAVBAR */
     .admin-navbar {
-      background: rgba(19, 26, 43, 0.95);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-color);
       height: 72px;
@@ -52,53 +52,33 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
 
     .nav-left {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 18px;
     }
 
     .brand-logo {
       display: flex;
       align-items: center;
-      gap: 12px;
       text-decoration: none;
     }
 
-    .brand-logo-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
-    }
-
-    .brand-logo-text {
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-      color: #f59e0b;
-      text-transform: uppercase;
-    }
-
-    .brand-logo-text span {
-      color: #ffffff;
-      font-weight: 800;
+    .brand-logo img {
+      height: 44px;
+      object-fit: contain;
     }
 
     .nav-badge-super {
-      background: rgba(139, 92, 246, 0.15);
-      border: 1px solid rgba(139, 92, 246, 0.35);
-      color: #c4b5fd;
+      background: #f5f3ff;
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      color: #7c3aed;
       font-size: 11.5px;
-      font-weight: 700;
-      padding: 4px 10px;
+      font-weight: 800;
+      padding: 5px 12px;
       border-radius: 20px;
       letter-spacing: 0.3px;
     }
@@ -106,14 +86,14 @@
     .nav-right {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
     }
 
     .user-pill {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(255, 255, 255, 0.04);
+      background: #f8fafc;
       border: 1px solid var(--border-color);
       padding: 6px 14px;
       border-radius: 24px;
@@ -123,7 +103,8 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      background: linear-gradient(135deg, #7c3aed, #6366f1);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -139,7 +120,7 @@
     .user-name {
       font-size: 13px;
       font-weight: 700;
-      color: #ffffff;
+      color: #0f172a;
     }
 
     .user-role {
@@ -148,9 +129,9 @@
     }
 
     .btn-logout {
-      background: rgba(239, 68, 68, 0.12);
-      border: 1px solid rgba(239, 68, 68, 0.25);
-      color: #fca5a5;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
       padding: 8px 16px;
       border-radius: 10px;
       font-size: 13px;
@@ -163,7 +144,7 @@
     }
 
     .btn-logout:hover {
-      background: #ef4444;
+      background: #dc2626;
       color: #ffffff;
     }
 
@@ -193,6 +174,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      color: #0f172a;
     }
 
     .page-title-group p {
@@ -208,7 +190,7 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
       color: #ffffff;
       font-size: 14px;
       font-weight: 700;
@@ -219,19 +201,19 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
       transition: all 0.2s;
     }
 
     .btn-primary:hover {
       transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(217, 119, 6, 0.4);
+      box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.06);
+      background: #ffffff;
       border: 1px solid var(--border-color);
-      color: #ffffff;
+      color: #334155;
       font-size: 14px;
       font-weight: 600;
       padding: 10px 18px;
@@ -242,10 +224,12 @@
       gap: 8px;
       transition: all 0.2s;
       text-decoration: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: #f1f5f9;
+      color: #0f172a;
     }
 
     /* İSTATİSTİK KARTLARI */
@@ -266,12 +250,13 @@
       gap: 16px;
       position: relative;
       overflow: hidden;
-      transition: transform 0.2s, border-color 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
     }
 
     .kpi-card:hover {
       transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.16);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
     }
 
     .kpi-icon {
@@ -292,7 +277,7 @@
     .kpi-value {
       font-size: 24px;
       font-weight: 800;
-      color: #ffffff;
+      color: #0f172a;
       letter-spacing: -0.5px;
     }
 
@@ -309,6 +294,7 @@
       border: 1px solid var(--border-color);
       border-radius: 16px;
       overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
     }
 
     .table-toolbar {
@@ -319,12 +305,13 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 16px;
+      background: #fafbfd;
     }
 
     .search-box {
       display: flex;
       align-items: center;
-      background: rgba(0, 0, 0, 0.25);
+      background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: 10px;
       padding: 0 14px;
@@ -335,14 +322,14 @@
       background: transparent;
       border: none;
       outline: none;
-      color: #ffffff;
+      color: #0f172a;
       font-size: 13.5px;
       height: 38px;
       width: 100%;
     }
 
     .search-box input::placeholder {
-      color: #64748b;
+      color: #94a3b8;
     }
 
     .filter-tabs {
@@ -351,7 +338,7 @@
     }
 
     .filter-tab {
-      background: rgba(255, 255, 255, 0.04);
+      background: #ffffff;
       border: 1px solid var(--border-color);
       color: var(--text-muted);
       font-size: 12.5px;
@@ -363,9 +350,9 @@
     }
 
     .filter-tab.active, .filter-tab:hover {
-      background: rgba(245, 158, 11, 0.15);
-      border-color: rgba(245, 158, 11, 0.4);
-      color: #f59e0b;
+      background: #f5f3ff;
+      border-color: rgba(124, 58, 237, 0.35);
+      color: #7c3aed;
     }
 
     .stations-table {
@@ -375,7 +362,7 @@
     }
 
     .stations-table th {
-      background: rgba(0, 0, 0, 0.2);
+      background: #f8fafc;
       color: var(--text-muted);
       font-size: 11.5px;
       font-weight: 700;
@@ -390,6 +377,7 @@
       border-bottom: 1px solid var(--border-color);
       font-size: 13.5px;
       vertical-align: middle;
+      color: #334155;
     }
 
     .stations-table tr:last-child td {
@@ -397,7 +385,7 @@
     }
 
     .stations-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
+      background: #f8fafc;
     }
 
     .station-main-info {
@@ -410,9 +398,9 @@
       width: 42px;
       height: 42px;
       border-radius: 12px;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      color: #f59e0b;
+      background: #f5f3ff;
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      color: #7c3aed;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -421,8 +409,8 @@
     }
 
     .station-name {
-      font-weight: 700;
-      color: #ffffff;
+      font-weight: 800;
+      color: #0f172a;
       font-size: 14px;
     }
 
@@ -432,14 +420,26 @@
       margin-top: 2px;
     }
 
+    .station-subdomain {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 11.5px;
+      color: #7c3aed;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .station-subdomain:hover {
+      text-decoration: underline;
+    }
+
     .officer-info {
       display: flex;
       flex-direction: column;
     }
 
     .officer-name {
-      font-weight: 600;
-      color: #f1f5f9;
+      font-weight: 700;
+      color: #0f172a;
     }
 
     .officer-phone {
@@ -447,18 +447,22 @@
       color: var(--text-muted);
       margin-top: 2px;
     }
+    .officer-email {
+      font-size: 11.5px;
+      color: #64748b;
+    }
 
     .credentials-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       padding: 4px 10px;
       border-radius: 8px;
       font-family: monospace;
       font-size: 12.5px;
-      color: #cbd5e1;
+      color: #1e293b;
     }
 
     .badge-status {
@@ -472,21 +476,21 @@
     }
 
     .badge-status.active {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
     }
 
     .badge-status.trial {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.3);
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fde68a;
     }
 
     .badge-status.passive {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
     }
 
     .badge-status-dot {
@@ -504,9 +508,9 @@
     }
 
     .btn-action {
-      background: rgba(255, 255, 255, 0.05);
+      background: #ffffff;
       border: 1px solid var(--border-color);
-      color: #e2e8f0;
+      color: #334155;
       padding: 6px 12px;
       border-radius: 8px;
       font-size: 12.5px;
@@ -519,29 +523,30 @@
     }
 
     .btn-action:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #ffffff;
+      background: #f1f5f9;
+      color: #0f172a;
     }
 
     .btn-action.btn-view {
-      background: rgba(139, 92, 246, 0.15);
-      border-color: rgba(139, 92, 246, 0.3);
-      color: #c4b5fd;
+      background: #f5f3ff;
+      border-color: rgba(124, 58, 237, 0.3);
+      color: #7c3aed;
+      font-weight: 700;
     }
 
     .btn-action.btn-view:hover {
-      background: #8b5cf6;
+      background: #7c3aed;
       color: #ffffff;
     }
 
     .btn-action.btn-danger {
-      color: #fca5a5;
+      color: #dc2626;
+      background: #fff;
     }
 
     .btn-action.btn-danger:hover {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: #ef4444;
-      color: #ef4444;
+      background: #fef2f2;
+      border-color: #fca5a5;
     }
 
     /* MODAL */
@@ -552,7 +557,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(8px);
       z-index: 1000;
       align-items: center;
@@ -561,18 +566,18 @@
     }
 
     .modal-box {
-      background: #182238;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #ffffff;
+      border: 1px solid var(--border-color);
       border-radius: 20px;
       width: 100%;
-      max-width: 580px;
+      max-width: 680px;
       overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
       animation: modalFade 0.2s ease;
     }
 
     @keyframes modalFade {
-      from { transform: scale(0.95); opacity: 0; }
+      from { transform: scale(0.96); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
 
@@ -582,12 +587,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: #fafbfd;
     }
 
     .modal-header h3 {
       font-size: 18px;
       font-weight: 800;
-      color: #ffffff;
+      color: #0f172a;
     }
 
     .modal-close {
@@ -622,24 +628,50 @@
     .modal-form-group label {
       display: block;
       font-size: 13px;
-      font-weight: 600;
-      color: #cbd5e1;
+      font-weight: 700;
+      color: #334155;
       margin-bottom: 6px;
     }
 
     .modal-form-group input, .modal-form-group select, .modal-form-group textarea {
       width: 100%;
       padding: 10px 14px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid var(--border-color);
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
       border-radius: 10px;
-      color: #ffffff;
+      color: #0f172a;
       font-size: 13.5px;
       outline: none;
     }
 
     .modal-form-group input:focus, .modal-form-group select:focus, .modal-form-group textarea:focus {
-      border-color: var(--accent-gold);
+      background: #ffffff;
+      border-color: #7c3aed;
+    }
+
+    .subdomain-input-wrap {
+      display: flex;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .subdomain-input-wrap input {
+      border: none;
+      background: transparent;
+      padding: 10px 12px;
+      outline: none;
+      flex: 1;
+    }
+    .subdomain-suffix {
+      background: #e2e8f0;
+      color: #475569;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 10px 12px;
+      border-left: 1px solid #cbd5e1;
+      user-select: none;
     }
 
     .modal-footer {
@@ -648,7 +680,7 @@
       display: flex;
       justify-content: flex-end;
       gap: 12px;
-      background: rgba(0, 0, 0, 0.15);
+      background: #fafbfd;
     }
 
     /* MOBİL VE DUYARLILIK */
@@ -673,11 +705,10 @@
   <!-- ÜST NAVBAR -->
   <header class="admin-navbar">
     <div class="nav-left">
-      <a href="/" class="brand-logo">
-        <div class="brand-logo-icon">🚕</div>
-        <div class="brand-logo-text">TAKSİDE<span>ÖDE</span></div>
+      <a href="/" class="brand-logo" title="TaksideÖde Ana Sayfa">
+        <img src="/images/logo.png" alt="TaksideÖde">
       </a>
-      <div class="nav-badge-super">👑 SÜPER ADMİN PANELİ</div>
+      <div class="nav-badge-super">👑 SÜPER ADMİN YÖNETİM PANELİ</div>
     </div>
 
     <div class="nav-right">
@@ -701,11 +732,11 @@
     <div class="page-header">
       <div class="page-title-group">
         <h1>🚕 Durak Takip & Master Yönetim Merkezi</h1>
-        <p>Sisteme kayıtlı tüm durakları, araç filolarını, şoför sayılarını ve ciro performanslarını tek noktadan yönetin.</p>
+        <p>Sisteme kayıtlı durakları, özel alt alan adlarını (subdomain), araç ve şoför sayılarını tek noktadan yönetin.</p>
       </div>
       <div class="header-actions">
         <a href="https://demodurak.taksideode.com.tr" target="_blank" class="btn-secondary">
-          <span>🖥️ Demo Durak Paneli</span>
+          <span>🖥️ Canlı Demo Durak Paneli</span>
         </a>
         <button class="btn-primary" onclick="openAddModal()">
           <span>+ Yeni Durak Ekle</span>
@@ -716,7 +747,7 @@
     <!-- 6 KPI İSTATİSTİK KARTLARI -->
     <div class="kpi-grid">
       <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">🏢</div>
+        <div class="kpi-icon" style="background: #f5f3ff; color: #7c3aed;">🏢</div>
         <div class="kpi-info">
           <div class="kpi-value" id="kpiTotalStations">0</div>
           <div class="kpi-label">Toplam Durak</div>
@@ -724,7 +755,7 @@
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">🟢</div>
+        <div class="kpi-icon" style="background: #ecfdf5; color: #059669;">🟢</div>
         <div class="kpi-info">
           <div class="kpi-value" id="kpiActiveStations">0</div>
           <div class="kpi-label">Aktif Duraklar</div>
@@ -732,7 +763,7 @@
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">🚖</div>
+        <div class="kpi-icon" style="background: #eff6ff; color: #2563eb;">🚖</div>
         <div class="kpi-info">
           <div class="kpi-value" id="kpiTotalVehicles">0</div>
           <div class="kpi-label">Kayıtlı Araç</div>
@@ -740,7 +771,7 @@
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">👥</div>
+        <div class="kpi-icon" style="background: #fefce8; color: #d97706;">👥</div>
         <div class="kpi-info">
           <div class="kpi-value" id="kpiTotalDrivers">0</div>
           <div class="kpi-label">Kayıtlı Şoför</div>
@@ -748,7 +779,7 @@
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;">📞</div>
+        <div class="kpi-icon" style="background: #fdf2f8; color: #db2777;">📞</div>
         <div class="kpi-info">
           <div class="kpi-value" id="kpiTotalCalls">0</div>
           <div class="kpi-label">Toplam Çağrı</div>
@@ -756,7 +787,7 @@
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.15); color: #22c55e;">₺</div>
+        <div class="kpi-icon" style="background: #f0fdf4; color: #16a34a;">₺</div>
         <div class="kpi-info">
           <div class="kpi-value" id="kpiTotalRevenue">₺0</div>
           <div class="kpi-label">Ekosistem Cirosu</div>
@@ -772,7 +803,7 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="searchInput" placeholder="Durak adı, şehir veya telefon ara..." oninput="filterTable()">
+          <input type="text" id="searchInput" placeholder="Durak adı, subdomain, şehir ara..." oninput="filterTable()">
         </div>
 
         <div class="filter-tabs">
@@ -787,11 +818,11 @@
         <table class="stations-table">
           <thead>
             <tr>
-              <th>Durak & Lokasyon</th>
+              <th>Durak & Özel Subdomain</th>
               <th>Yetkili & İletişim</th>
               <th>Giriş Bilgileri</th>
               <th>Filo & Kadro</th>
-              <th>Birliktelik Süresi</th>
+              <th>Başlama Tarihi</th>
               <th>Çağrı & Ciro</th>
               <th>Durum</th>
               <th style="text-align: right;">Eylemler</th>
@@ -821,9 +852,17 @@
         <input type="hidden" id="formStationId">
         <div class="modal-body">
           <div class="modal-form-grid">
-            <div class="modal-form-group full-width">
+            <div class="modal-form-group">
               <label for="formName">Durak Adı *</label>
-              <input type="text" id="formName" placeholder="Örn: Alsancak Kordon Taksi" required>
+              <input type="text" id="formName" placeholder="Örn: İzmir Kordon Taksi Durağı" required>
+            </div>
+
+            <div class="modal-form-group">
+              <label for="formSubdomain">Özel Alt Alan Adı (Subdomain) *</label>
+              <div class="subdomain-input-wrap">
+                <input type="text" id="formSubdomain" placeholder="demodurak" pattern="[a-zA-Z0-9-]+" title="Sadece harf, rakam veya tire" required>
+                <span class="subdomain-suffix">.taksideode.com.tr</span>
+              </div>
             </div>
 
             <div class="modal-form-group">
@@ -838,31 +877,51 @@
 
             <div class="modal-form-group full-width">
               <label for="formAddress">Açık Adres</label>
-              <input type="text" id="formAddress" placeholder="Örn: Kordonboyu Cad. No:12">
+              <input type="text" id="formAddress" placeholder="Örn: Alsancak Kordonboyu Cad. No:14 Konak/İzmir">
             </div>
 
             <div class="modal-form-group">
-              <label for="formOfficerName">Yetkili / Başkan Adı</label>
-              <input type="text" id="formOfficerName" placeholder="Örn: Ahmet Yılmaz">
+              <label for="formOfficerName">Yetkili Adı Soyadı *</label>
+              <input type="text" id="formOfficerName" placeholder="Örn: Caner Demir" required>
             </div>
 
             <div class="modal-form-group">
-              <label for="formPhone">Yetkili Telefon</label>
-              <input type="tel" id="formPhone" placeholder="Örn: 0532 111 22 33">
+              <label for="formPhone">Yetkili Telefon *</label>
+              <input type="tel" id="formPhone" placeholder="Örn: 0541 577 62 77" required>
+            </div>
+
+            <div class="modal-form-group full-width">
+              <label for="formOfficerEmail">Yetkili E-Posta</label>
+              <input type="email" id="formOfficerEmail" placeholder="Örn: durak@taksideode.com.tr">
             </div>
 
             <div class="modal-form-group">
               <label for="formUsername">Panel Kullanıcı Adı *</label>
-              <input type="text" id="formUsername" placeholder="Örn: alsancak" required>
+              <input type="text" id="formUsername" placeholder="Örn: demir_kordon" required>
             </div>
 
             <div class="modal-form-group">
               <label for="formPassword">Panel Şifresi *</label>
-              <input type="text" id="formPassword" placeholder="Örn: 123" required>
+              <input type="text" id="formPassword" placeholder="Örn: 123456" required>
             </div>
 
-            <div class="modal-form-group full-width">
-              <label for="formStatus">Durak Başlangıç Durumu</label>
+            <div class="modal-form-group">
+              <label for="formVehicleCount">Anlaşılan Araç Sayısı</label>
+              <input type="number" id="formVehicleCount" placeholder="3" min="1" value="3">
+            </div>
+
+            <div class="modal-form-group">
+              <label for="formDriverCount">Şoför Sayısı</label>
+              <input type="number" id="formDriverCount" placeholder="3" min="1" value="3">
+            </div>
+
+            <div class="modal-form-group">
+              <label for="formStartDate">Çalışmaya Başlama Tarihi</label>
+              <input type="date" id="formStartDate">
+            </div>
+
+            <div class="modal-form-group">
+              <label for="formStatus">Durak Durumu</label>
               <select id="formStatus">
                 <option value="active">🟢 Aktif (Tam Lisanslı)</option>
                 <option value="trial">🟡 Deneme Sürümü (14 Gün)</option>
@@ -873,7 +932,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn-secondary" onclick="closeModal()">İptal</button>
-          <button type="submit" class="btn-primary" id="btnSaveStation">Kaydet</button>
+          <button type="submit" class="btn-primary" id="btnSaveStation">Durak Kaydet</button>
         </div>
       </form>
     </div>
@@ -920,7 +979,7 @@
         console.error('Yükleme hatası:', err);
         document.getElementById('stationsTableBody').innerHTML = `
           <tr>
-            <td colspan="8" style="text-align: center; padding: 40px; color: #ef4444;">
+            <td colspan="8" style="text-align: center; padding: 40px; color: #dc2626;">
               Veri yüklenirken hata oluştu: ${err.message}
             </td>
           </tr>
@@ -956,11 +1015,12 @@
         // Arama filtresi
         if (searchQuery) {
           const matchName = (s.name || '').toLowerCase().includes(searchQuery);
+          const matchSub = (s.subdomain || '').toLowerCase().includes(searchQuery);
           const matchCity = (s.city || '').toLowerCase().includes(searchQuery);
           const matchDistrict = (s.district || '').toLowerCase().includes(searchQuery);
           const matchPhone = (s.phone || '').toLowerCase().includes(searchQuery);
           const matchOfficer = (s.officerName || '').toLowerCase().includes(searchQuery);
-          if (!matchName && !matchCity && !matchDistrict && !matchPhone && !matchOfficer) return false;
+          if (!matchName && !matchSub && !matchCity && !matchDistrict && !matchPhone && !matchOfficer) return false;
         }
         return true;
       });
@@ -983,6 +1043,8 @@
           ? `<span class="badge-status trial"><span class="badge-status-dot"></span> Deneme</span>`
           : `<span class="badge-status passive"><span class="badge-status-dot"></span> Pasif</span>`;
 
+        const subUrl = `https://${st.subdomain || 'demodurak'}.taksideode.com.tr`;
+
         return `
           <tr>
             <td>
@@ -991,6 +1053,7 @@
                 <div>
                   <div class="station-name">${escapeHtml(st.name)}</div>
                   <div class="station-location">📍 ${escapeHtml(st.city || '')} / ${escapeHtml(st.district || '')}</div>
+                  <a href="${subUrl}" target="_blank" class="station-subdomain">🔗 ${st.subdomain || 'demodurak'}.taksideode.com.tr</a>
                 </div>
               </div>
             </td>
@@ -998,6 +1061,7 @@
               <div class="officer-info">
                 <span class="officer-name">${escapeHtml(st.officerName || 'Belirtilmedi')}</span>
                 <span class="officer-phone">📞 ${escapeHtml(st.phone || '-')}</span>
+                ${st.officerEmail ? `<span class="officer-email">✉️ ${escapeHtml(st.officerEmail)}</span>` : ''}
               </div>
             </td>
             <td>
@@ -1008,14 +1072,15 @@
               </div>
             </td>
             <td>
-              <div style="font-weight: 700; color: #ffffff;">🚖 ${st.vehicleCount || 0} Araç</div>
+              <div style="font-weight: 700; color: #0f172a;">🚖 ${st.vehicleCount || 0} Araç</div>
               <div style="font-size: 12px; color: var(--text-muted);">👥 ${st.driverCount || 0} Şoför</div>
             </td>
             <td>
-              <div style="font-weight: 600; color: #fbbf24;">⏱️ ${st.durationText || 'Yeni Kayıt'}</div>
+              <div style="font-weight: 700; color: #7c3aed;">📅 ${st.startDate || '16.10.2026'}</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);">${st.durationText || 'Yeni Başladı'}</div>
             </td>
             <td>
-              <div style="font-weight: 700; color: #34d399;">₺${(st.totalRevenue || 0).toLocaleString('tr-TR')}</div>
+              <div style="font-weight: 700; color: #059669;">₺${(st.totalRevenue || 0).toLocaleString('tr-TR')}</div>
               <div style="font-size: 12px; color: var(--text-muted);">${st.totalCallsCount || 0} Çağrı</div>
             </td>
             <td>
@@ -1047,24 +1112,12 @@
       const station = allStations.find(s => s.id === stationId);
       if (!station) return;
 
-      // Durak oturumunu hazırla
-      const stationAuth = {
-        role: 'station',
-        station: {
-          id: station.id,
-          name: station.name,
-          city: station.city,
-          district: station.district,
-          username: station.username
-        },
-        timestamp: Date.now()
-      };
-
-      // Hedef URL belirle:
       const host = window.location.hostname;
-      if (host.includes('taksideode.com.tr') && !host.includes('demodurak')) {
-        // Canlı sunucuda sub-domaine yönlendir
-        window.open(`https://demodurak.taksideode.com.tr?stationId=${stationId}`, '_blank');
+      const sub = station.subdomain || 'demodurak';
+
+      if (host.includes('taksideode.com.tr')) {
+        // Canlı sunucuda durağa özel alt alan adına yönlendir
+        window.open(`https://${sub}.taksideode.com.tr?stationId=${stationId}`, '_blank');
       } else {
         // Localhost ortamında durak paneline git
         window.open(`/durak-panel?stationId=${stationId}`, '_blank');
@@ -1110,6 +1163,8 @@
       document.getElementById('modalTitle').textContent = '+ Yeni Durak Ekle';
       document.getElementById('formStationId').value = '';
       document.getElementById('stationForm').reset();
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('formStartDate').value = today;
       document.getElementById('stationModal').style.display = 'flex';
     }
 
@@ -1120,13 +1175,18 @@
       document.getElementById('modalTitle').textContent = '✏️ Durak Bilgilerini Düzenle';
       document.getElementById('formStationId').value = st.id;
       document.getElementById('formName').value = st.name || '';
+      document.getElementById('formSubdomain').value = st.subdomain || '';
       document.getElementById('formCity').value = st.city || '';
       document.getElementById('formDistrict').value = st.district || '';
       document.getElementById('formAddress').value = st.address || '';
       document.getElementById('formOfficerName').value = st.officerName || '';
       document.getElementById('formPhone').value = st.phone || '';
+      document.getElementById('formOfficerEmail').value = st.officerEmail || '';
       document.getElementById('formUsername').value = st.username || '';
       document.getElementById('formPassword').value = st.password || '';
+      document.getElementById('formVehicleCount').value = st.vehicleCount || 3;
+      document.getElementById('formDriverCount').value = st.driverCount || 3;
+      document.getElementById('formStartDate').value = st.startDate || '';
       document.getElementById('formStatus').value = st.status || 'active';
 
       document.getElementById('stationModal').style.display = 'flex';
@@ -1143,13 +1203,18 @@
 
       const payload = {
         name: document.getElementById('formName').value.trim(),
+        subdomain: document.getElementById('formSubdomain').value.trim().toLowerCase(),
         city: document.getElementById('formCity').value.trim(),
         district: document.getElementById('formDistrict').value.trim(),
         address: document.getElementById('formAddress').value.trim(),
         officerName: document.getElementById('formOfficerName').value.trim(),
         phone: document.getElementById('formPhone').value.trim(),
+        officerEmail: document.getElementById('formOfficerEmail').value.trim(),
         username: document.getElementById('formUsername').value.trim(),
         password: document.getElementById('formPassword').value.trim(),
+        vehicleCount: parseInt(document.getElementById('formVehicleCount').value) || 0,
+        driverCount: parseInt(document.getElementById('formDriverCount').value) || 0,
+        startDate: document.getElementById('formStartDate').value,
         status: document.getElementById('formStatus').value
       };
 

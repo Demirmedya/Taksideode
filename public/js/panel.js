@@ -377,36 +377,54 @@ function navigateTab(tabId) {
     document.getElementById('pageSubtitleText').textContent = tabMeta[tabId].desc;
   }
 
-  if (tabId === 'tab-harita' && map) {
+  if (tabId === 'tab-harita') {
+    if (!map) {
+      initMap();
+    }
     setTimeout(() => {
-      map.invalidateSize();
-      if (currentStationLocation) {
-        map.setView([currentStationLocation.lat, currentStationLocation.lng], 15);
+      if (map) {
+        map.invalidateSize();
+        if (currentStationLocation) {
+          map.setView([currentStationLocation.lat, currentStationLocation.lng], 15);
+        }
       }
-    }, 200);
+    }, 100);
+    setTimeout(() => {
+      if (map) map.invalidateSize();
+    }, 400);
   }
 }
 
-let currentStationLocation = { lat: 40.9876, lng: 29.0267 };
+let currentStationLocation = { lat: 38.4382, lng: 27.1428 };
 
 // Haritayı Başlat (Ücretsiz, API Key istemeyen açık harita sağlayıcısı)
 function initMap() {
-  const center = [currentStationLocation.lat, currentStationLocation.lng];
-  map = L.map('map').setView(center, 15);
+  const mapEl = document.getElementById('map');
+  if (!mapEl) return;
+  if (map) return;
 
-  // Standart açık OSM haritası - Asla API KEY REQUIRED uyarısı vermez
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap Katkıcıları'
-  }).addTo(map);
+  try {
+    const center = [currentStationLocation.lat, currentStationLocation.lng];
+    map = L.map('map', {
+      zoomControl: true,
+      scrollWheelZoom: true
+    }).setView(center, 15);
 
-  stationCircle = L.circle(center, {
-    color: '#7c3aed',
-    fillColor: '#fbbf24',
-    fillOpacity: 0.25,
-    weight: 3,
-    radius: 100
-  }).addTo(map).bindPopup('<strong>Merkez Taksi Durağı</strong><br>Durak Sıralama Alanı (Geofence)');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap Katkıcıları'
+    }).addTo(map);
+
+    stationCircle = L.circle(center, {
+      color: '#7c3aed',
+      fillColor: '#fbbf24',
+      fillOpacity: 0.25,
+      weight: 3,
+      radius: 150
+    }).addTo(map).bindPopup('<strong>İzmir Kordon Demo Taksi Durağı</strong><br>Durak Sıralama Alanı (Geofence)');
+  } catch (err) {
+    console.error('Harita başlatılamadı:', err);
+  }
 }
 
 // Durağa Odaklan Butonu

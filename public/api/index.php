@@ -177,6 +177,7 @@ if ($endpoint === 'admin/stations' && $method === 'POST') {
     $name = trim($input['name'] ?? '');
     $username = strtolower(trim($input['username'] ?? ''));
     $password = trim($input['password'] ?? '');
+    $subdomain = strtolower(preg_replace('/[^a-z0-9]/', '', $input['subdomain'] ?? $username));
 
     if (!$name || !$username || !$password) {
         http_response_code(400);
@@ -188,24 +189,29 @@ if ($endpoint === 'admin/stations' && $method === 'POST') {
     $newStation = [
         'id' => $newId,
         'name' => $name,
+        'subdomain' => $subdomain,
         'username' => $username,
         'password' => $password,
         'officerName' => $input['officerName'] ?? '',
         'phone' => $input['phone'] ?? '',
-        'city' => $input['city'] ?? 'İstanbul',
+        'officerEmail' => $input['officerEmail'] ?? '',
+        'city' => $input['city'] ?? 'İzmir',
         'district' => $input['district'] ?? '',
         'address' => $input['address'] ?? '',
+        'vehicleCount' => intval($input['vehicleCount'] ?? 0),
+        'driverCount' => intval($input['driverCount'] ?? 0),
+        'startDate' => $input['startDate'] ?? date('Y-m-d'),
         'status' => $input['status'] ?? 'active',
         'location' => [
-            'lat' => floatval($input['lat'] ?? 40.9876),
-            'lng' => floatval($input['lng'] ?? 29.0267)
+            'lat' => floatval($input['lat'] ?? 38.4382),
+            'lng' => floatval($input['lng'] ?? 27.1428)
         ],
-        'geofenceRadiusMeters' => intval($input['geofenceRadiusMeters'] ?? 100),
+        'geofenceRadiusMeters' => intval($input['geofenceRadiusMeters'] ?? 150),
         'settings' => [
             'driverTimeoutSeconds' => 30,
             'autoQueueOnEnter' => true,
             'allowOperatorManualReorder' => true,
-            'themeColor' => 'amber'
+            'themeColor' => 'purple'
         ],
         'createdAt' => date('c')
     ];
@@ -250,13 +256,18 @@ if (preg_match('#^admin/stations/([^/]+)$#', $endpoint, $m) && ($method === 'PUT
     foreach ($data['stations'] as &$st) {
         if ($st['id'] === $targetId) {
             if (!empty($input['name'])) $st['name'] = $input['name'];
+            if (!empty($input['subdomain'])) $st['subdomain'] = strtolower(preg_replace('/[^a-z0-9]/', '', $input['subdomain']));
             if (!empty($input['username'])) $st['username'] = strtolower(trim($input['username']));
             if (!empty($input['password'])) $st['password'] = $input['password'];
             if (isset($input['officerName'])) $st['officerName'] = $input['officerName'];
             if (isset($input['phone'])) $st['phone'] = $input['phone'];
+            if (isset($input['officerEmail'])) $st['officerEmail'] = $input['officerEmail'];
             if (isset($input['city'])) $st['city'] = $input['city'];
             if (isset($input['district'])) $st['district'] = $input['district'];
             if (isset($input['address'])) $st['address'] = $input['address'];
+            if (isset($input['vehicleCount'])) $st['vehicleCount'] = intval($input['vehicleCount']);
+            if (isset($input['driverCount'])) $st['driverCount'] = intval($input['driverCount']);
+            if (isset($input['startDate'])) $st['startDate'] = $input['startDate'];
             if (isset($input['status'])) $st['status'] = $input['status'];
             $found = $st;
             break;
@@ -292,21 +303,24 @@ if (preg_match('#^stations/([^/]+)/overview$#', $endpoint, $m)) {
     $stId = $m[1];
     $station = null;
     foreach ($data['stations'] ?? [] as $s) {
-        if ($s['id'] === $stId) { $station = $s; break; }
+        if ($s['id'] === $stId || in_array($stId, $s['aliasIds'] ?? []) || ($s['subdomain'] ?? '') === $stId || ($s['username'] ?? '') === $stId) {
+            $station = $s;
+            break;
+        }
     }
     if (!$station && !empty($data['stations'])) {
         $station = $data['stations'][0];
-        $stId = $station['id'];
     }
+    $targetId = $station ? $station['id'] : $stId;
 
-    $vehicles = array_values(array_filter($data['vehicles'] ?? [], fn($v) => ($v['station_id'] ?? '') === $stId));
-    $drivers = array_values(array_filter($data['drivers'] ?? [], fn($d) => ($d['station_id'] ?? '') === $stId));
-    $shifts = array_values(array_filter($data['shifts'] ?? [], fn($s) => ($s['station_id'] ?? '') === $stId));
-    $qrPoints = array_values(array_filter($data['qrPoints'] ?? [], fn($q) => ($q['station_id'] ?? '') === $stId));
-    $customers = array_values(array_filter($data['customers'] ?? [], fn($c) => ($c['station_id'] ?? '') === $stId));
-    $announcements = array_values(array_filter($data['announcements'] ?? [], fn($a) => ($a['station_id'] ?? '') === $stId));
-    $messages = array_values(array_filter($data['messages'] ?? [], fn($m) => ($m['station_id'] ?? '') === $stId));
-    $allCalls = array_values(array_filter($data['calls'] ?? [], fn($c) => ($c['station_id'] ?? '') === $stId));
+    $vehicles = array_values(array_filter($data['vehicles'] ?? [], fn($v) => ($v['station_id'] ?? '') === $targetId || ($v['station_id'] ?? '') === $stId));
+    $drivers = array_values(array_filter($data['drivers'] ?? [], fn($d) => ($d['station_id'] ?? '') === $targetId || ($d['station_id'] ?? '') === $stId));
+    $shifts = array_values(array_filter($data['shifts'] ?? [], fn($s) => ($s['station_id'] ?? '') === $targetId || ($s['station_id'] ?? '') === $stId));
+    $qrPoints = array_values(array_filter($data['qrPoints'] ?? [], fn($q) => ($q['station_id'] ?? '') === $targetId || ($q['station_id'] ?? '') === $stId));
+    $customers = array_values(array_filter($data['customers'] ?? [], fn($c) => ($c['station_id'] ?? '') === $targetId || ($c['station_id'] ?? '') === $stId));
+    $announcements = array_values(array_filter($data['announcements'] ?? [], fn($a) => ($a['station_id'] ?? '') === $targetId || ($a['station_id'] ?? '') === $stId));
+    $messages = array_values(array_filter($data['messages'] ?? [], fn($m) => ($m['station_id'] ?? '') === $targetId || ($m['station_id'] ?? '') === $stId));
+    $allCalls = array_values(array_filter($data['calls'] ?? [], fn($c) => ($c['station_id'] ?? '') === $targetId || ($c['station_id'] ?? '') === $stId));
     $queue = $data['queue'] ?? [];
 
     $activeCalls = array_values(array_filter($allCalls, fn($c) => in_array($c['status'] ?? '', ['pending', 'dispatched', 'accepted', 'in_trip'])));
