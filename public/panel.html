@@ -9,8 +9,14 @@
   <!-- Leaflet Harita Kütüphanesi (Yerel & CDN Yedekli) -->
   <link rel="stylesheet" href="/css/leaflet.css" />
   <script src="/js/leaflet.js"></script>
-  <!-- Socket.io -->
-  <script src="/socket.io/socket.io.js"></script>
+  <!-- Socket.io (Sadece Yerel Geliştirme Ortamında Yüklenir) -->
+  <script>
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      const s = document.createElement('script');
+      s.src = '/socket.io/socket.io.js';
+      document.head.appendChild(s);
+    }
+  </script>
   <style>
     .taxi-marker-icon {
       background: #7c3aed;
@@ -33,6 +39,9 @@
     // Durak Oturum Kontrolü (Giriş yapılmamışsa login ekranına yönlendir)
     (function() {
       try {
+        const isDemodurak = window.location.hostname.includes('demodurak');
+        if (isDemodurak) return; // demodurak.taksideode.com.tr her zaman açık demo olarak açılır
+
         const auth = JSON.parse(localStorage.getItem('taksideode_auth'));
         const urlParams = new URLSearchParams(window.location.search);
         // Doğrudan demo veya stationId parametresi verilmişse veya geçerli bir auth varsa geç

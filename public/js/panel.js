@@ -1,7 +1,8 @@
 // URL parametresinden veya oturumdan aktif durak kimliğini dinamik al
+let urlParams = null;
 let rawParam = '';
 try {
-  const urlParams = new URLSearchParams(window.location.search);
+  urlParams = new URLSearchParams(window.location.search);
   rawParam = urlParams.get('stationId') || '';
 } catch(e) {}
 
@@ -30,7 +31,10 @@ try {
   }
 } catch(e) {}
 
-const isDemoMode = (urlParams.get('demo') === '1' || (authData && (authData.role === 'demo' || authData.isDemo)));
+const isDemoMode = (urlParams && urlParams.get('demo') === '1') || 
+  (authData && (authData.role === 'demo' || authData.isDemo)) || 
+  CURRENT_STATION_ID === 'durak_demo' || 
+  (typeof window !== 'undefined' && window.location && window.location.hostname && window.location.hostname.includes('demodurak'));
 
 function checkDemoPermission(actionName = 'Bu işlem') {
   if (isDemoMode) {
@@ -52,7 +56,16 @@ function handleStationLogout() {
   window.location.href = '/login?logout=1';
 }
 
-const socket = io();
+let socket = null;
+if (typeof io !== 'undefined') {
+  try {
+    if (typeof window !== 'undefined' && window.location && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      socket = io();
+    }
+  } catch(e) {
+    console.warn('Socket bağlantısı atlandı:', e);
+  }
+}
 
 let map = null;
 let taxiMarkers = {};
@@ -86,6 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initMap();
   initSocket();
   fetchStationData();
+
+  // Socket.io olmayan sunucu ortamlarında (cPanel / PHP) anlık güncelleme için periyodik yoklama (8 sn)
+  setInterval(() => {
+    fetchStationData(true);
+  }, 8000);
 
   // Telefon İşi Formu
   document.getElementById('phoneCallForm').addEventListener('submit', async (e) => {
@@ -491,13 +509,18 @@ async function geocodeStationAddress() {
 
 // Socket Bağlantısı
 function initSocket() {
-  socket.emit('join_station', CURRENT_STATION_ID);
+  if (!socket) return;
+  try {
+    socket.emit('join_station', CURRENT_STATION_ID);
 
-  socket.on('queue_updated', () => fetchStationData());
-  socket.on('call_dispatched', () => fetchStationData());
-  socket.on('call_completed', () => fetchStationData());
-  socket.on('new_chat_message', (msg) => appendChatMessage(msg));
-  socket.on('driver_location_update', (data) => updateMapTaxi(data));
+    socket.on('queue_updated', () => fetchStationData());
+    socket.on('call_dispatched', () => fetchStationData());
+    socket.on('call_completed', () => fetchStationData());
+    socket.on('new_chat_message', (msg) => appendChatMessage(msg));
+    socket.on('driver_location_update', (data) => updateMapTaxi(data));
+  } catch(e) {
+    console.warn('Socket dinleyici hatası:', e);
+  }
 }
 
 // Tüm Verileri Getir ve Arayüzü Besle
