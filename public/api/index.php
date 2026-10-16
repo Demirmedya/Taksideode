@@ -42,6 +42,10 @@ if (isset($_GET['endpoint'])) {
         $endpoint = trim(substr($parsed, $pos + strlen($basePath)), '/');
     }
 }
+if (strpos($endpoint, '?') !== false) {
+    $endpoint = explode('?', $endpoint)[0];
+}
+$endpoint = trim($endpoint, '/');
 
 $method = $_SERVER['REQUEST_METHOD'];
 $rawInput = file_get_contents('php://input');
@@ -299,8 +303,9 @@ if (preg_match('#^admin/stations/([^/]+)$#', $endpoint, $m) && $method === 'DELE
 // ==========================================
 // 7. DURAK PANELİ ENDPOİNTLERİ
 // ==========================================
-if (preg_match('#^stations/([^/]+)/overview$#', $endpoint, $m)) {
-    $stId = $m[1];
+if (preg_match('#^stations/(.*?)/overview$#', $endpoint, $m) || $endpoint === 'stations/overview') {
+    $rawStId = isset($m[1]) ? trim(explode('?', $m[1])[0]) : 'durak_demo';
+    $stId = (!$rawStId || $rawStId === 'durak_merkez') ? 'durak_demo' : $rawStId;
     $station = null;
     foreach ($data['stations'] ?? [] as $s) {
         if ($s['id'] === $stId || in_array($stId, $s['aliasIds'] ?? []) || ($s['subdomain'] ?? '') === $stId || ($s['username'] ?? '') === $stId) {
@@ -311,7 +316,7 @@ if (preg_match('#^stations/([^/]+)/overview$#', $endpoint, $m)) {
     if (!$station && !empty($data['stations'])) {
         $station = $data['stations'][0];
     }
-    $targetId = $station ? $station['id'] : $stId;
+    $targetId = $station ? $station['id'] : 'durak_demo';
 
     $vehicles = array_values(array_filter($data['vehicles'] ?? [], fn($v) => ($v['station_id'] ?? '') === $targetId || ($v['station_id'] ?? '') === $stId));
     $drivers = array_values(array_filter($data['drivers'] ?? [], fn($d) => ($d['station_id'] ?? '') === $targetId || ($d['station_id'] ?? '') === $stId));

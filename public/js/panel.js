@@ -1,12 +1,34 @@
 // URL parametresinden veya oturumdan aktif durak kimliğini dinamik al
-const urlParams = new URLSearchParams(window.location.search);
+let rawParam = '';
+try {
+  const urlParams = new URLSearchParams(window.location.search);
+  rawParam = urlParams.get('stationId') || '';
+} catch(e) {}
+
+// URL'de ?stationId=durak_demo?stationId=durak_demo gibi bozukluk varsa temizle
+if (rawParam.includes('?')) rawParam = rawParam.split('?')[0];
+if (rawParam.includes('&')) rawParam = rawParam.split('&')[0];
+rawParam = rawParam.replace(/[^a-zA-Z0-9_-]/g, '').trim();
+
 let authData = null;
 try {
   authData = JSON.parse(localStorage.getItem('taksideode_auth'));
 } catch(e) {}
 
-const CURRENT_STATION_ID = urlParams.get('stationId') || 
-  (authData && authData.station ? authData.station.id : 'durak_merkez');
+// Varsayılan durak: durak_demo (İzmir Kordon Demo Taksi Durağı)
+const CURRENT_STATION_ID = (rawParam && rawParam !== 'durak_merkez') 
+  ? rawParam 
+  : ((authData && authData.station && authData.station.id !== 'durak_merkez') ? authData.station.id : 'durak_demo');
+
+// Tarayıcı URL'sinde çift veya bozuk query parametresi varsa temizle
+try {
+  if (window.history && window.history.replaceState) {
+    const curSearch = window.location.search;
+    if (curSearch && curSearch.indexOf('?') !== curSearch.lastIndexOf('?')) {
+      window.history.replaceState(null, '', window.location.pathname + '?stationId=' + CURRENT_STATION_ID);
+    }
+  }
+} catch(e) {}
 
 const isDemoMode = (urlParams.get('demo') === '1' || (authData && (authData.role === 'demo' || authData.isDemo)));
 
@@ -481,8 +503,19 @@ function initSocket() {
 // Tüm Verileri Getir ve Arayüzü Besle
 async function fetchStationData() {
   try {
-    const res = await fetch(`/api/stations/${CURRENT_STATION_ID}/overview`);
-    const data = await res.json();
+    let res = await fetch(`/api/stations/${CURRENT_STATION_ID}/overview`);
+    let data = await res.json();
+
+    if (!data || !data.station) {
+      console.warn('Station data not found for', CURRENT_STATION_ID, 'falling back to durak_demo');
+      const fallbackRes = await fetch('/api/stations/durak_demo/overview');
+      data = await fallbackRes.json();
+    }
+
+    if (!data || !data.station) {
+      console.error('No station data available');
+      return;
+    }
 
     cachedVehicles = data.vehicles || [];
     cachedDrivers = data.drivers || [];
@@ -491,11 +524,16 @@ async function fetchStationData() {
     cachedCalls = data.recentCalls || [];
 
     // Üst & Yan Başlıklar
-    document.getElementById('sideStationName').textContent = data.station.name;
-    document.getElementById('sideStationCity').textContent = `${data.station.district}, ${data.station.city}`;
-    document.getElementById('sideInQueueBadge').textContent = data.stats.inQueueCount;
-    document.getElementById('sideActiveCallsBadge').textContent = data.stats.activeCallsCount;
-    if (document.getElementById('sideQRBadge')) document.getElementById('sideQRBadge').textContent = data.stats.totalQRPoints || (data.qrPoints || []).length;
+    const sideName = document.getElementById('sideStationName');
+    if (sideName) sideName.textContent = data.station.name || 'İzmir Kordon Demo Taksi Durağı';
+    const sideCity = document.getElementById('sideStationCity');
+    if (sideCity) sideCity.textContent = `${data.station.district || 'Konak'}, ${data.station.city || 'İzmir'}`;
+    const sideQueue = document.getElementById('sideInQueueBadge');
+    if (sideQueue) sideQueue.textContent = data.stats.inQueueCount || 0;
+    const sideActive = document.getElementById('sideActiveCallsBadge');
+    if (sideActive) sideActive.textContent = data.stats.activeCallsCount || 0;
+    const sideQR = document.getElementById('sideQRBadge');
+    if (sideQR) sideQR.textContent = data.stats.totalQRPoints || (data.qrPoints || []).length;
 
     // 1. PANO İSTATİSTİKLERİ
     document.getElementById('dashTodayRevenue').textContent = `${data.stats.todayRevenue.toLocaleString()} ₺`;

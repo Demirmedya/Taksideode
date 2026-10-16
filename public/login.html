@@ -628,13 +628,17 @@
           if (data.role === 'admin') {
             // Demir Medya Sistem Yöneticisi -> Master Durak Paneline (/panel)
             window.location.href = '/panel';
-          } else {
             // Durak Yöneticisi -> Durak Paneline
             const host = window.location.hostname;
+            const targetId = (data.station && data.station.id) ? data.station.id : 'durak_demo';
             if (host.includes('taksideode.com.tr') && !host.includes('demodurak')) {
-              window.location.href = 'https://demodurak.taksideode.com.tr?stationId=' + (data.station ? data.station.id : 'durak_merkez');
+              window.location.href = 'https://demodurak.taksideode.com.tr?stationId=' + targetId;
             } else {
-              window.location.href = (data.redirectUrl || '/durak-panel') + (data.station ? `?stationId=${data.station.id}` : '');
+              let dest = data.redirectUrl || '/durak-panel';
+              if (!dest.includes('stationId=')) {
+                dest += (dest.includes('?') ? '&' : '?') + 'stationId=' + targetId;
+              }
+              window.location.href = dest;
             }
           }
         }, 500);
