@@ -16,6 +16,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("taksideode-release.jks")
+            storePassword = "TaksideOde2026!"
+            keyAlias = "taksideode"
+            keyPassword = "TaksideOde2026!"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled = false
@@ -23,7 +32,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
