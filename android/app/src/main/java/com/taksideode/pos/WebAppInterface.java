@@ -29,17 +29,7 @@ public class WebAppInterface {
 
     @JavascriptInterface
     public void startBackgroundService(String shiftId) {
-        try {
-            Intent intent = new Intent(context, PosForegroundService.class);
-            intent.putExtra("shiftId", shiftId);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent);
-            } else {
-                context.startService(intent);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Foreground service is not required for taxi terminal operation
     }
 
     @JavascriptInterface
