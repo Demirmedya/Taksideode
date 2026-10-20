@@ -127,6 +127,7 @@ async function main() {
     { file: 'index.html', content: fs.readFileSync(path.join(localPublic, 'index.html'), 'utf8') },
     { file: 'cagri.html', content: fs.readFileSync(path.join(localPublic, 'cagri.html'), 'utf8') },
     { file: 'surucu.html', content: fs.readFileSync(path.join(localPublic, 'surucu.html'), 'utf8') },
+    { file: 'gizlilik.html', content: fs.readFileSync(path.join(localPublic, 'gizlilik.html'), 'utf8') },
   ];
 
   for (const f of mainFiles) {

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gizlilik Politikası | TaksideÖde POS</title>
+  <link rel="icon" href="images/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4338ca;
+      --primary-dark: #1e1b4b;
+      --accent: #f59e0b;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --bg-page: #f8fafc;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding: 32px 16px;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .logo {
+      height: 48px;
+      object-fit: contain;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+    .date-badge {
+      display: inline-block;
+      font-size: 12px;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-top: 28px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    p {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      margin-bottom: 14px;
+    }
+    ul {
+      margin-left: 20px;
+      margin-bottom: 14px;
+      color: var(--text-muted);
+      font-size: 14.5px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .highlight-box {
+      background: #eff6ff;
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 0 12px 12px 0;
+      margin: 18px 0;
+    }
+    .highlight-box strong {
+      color: var(--primary-dark);
+    }
+    .contact-box {
+      background: #f8fafc;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 32px;
+      text-align: center;
+    }
+    .contact-box a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <img src="images/logo.png" alt="TaksideÖde" class="logo">
+      <h1>Gizlilik Politikası</h1>
+      <span class="date-badge">Son Güncelleme: 20 Ekim 2026</span>
+    </div>
+
+    <p>
+      Bu Gizlilik Politikası, <strong>Demir Medya</strong> ("Şirketimiz") tarafından sunulan <strong>TaksideÖde POS</strong> mobil uygulaması ("Uygulama") ve ilgili durak otomasyon servislerinin kullanımında kullanıcılarımızın ("Sürücü", "Durak Yöneticisi") kişisel ve cihaz verilerinin nasıl toplandığını, kullanıldığını, saklandığını ve korunduğunu açıklamaktadır.
+    </p>
+
+    <h2>📍 1. Konum Verilerinin Toplanması ve Kullanımı (Location Data)</h2>
+    <div class="highlight-box">
+      <strong>Önemli Bilgilendirme:</strong> TaksideÖde POS uygulaması, temel çalışma prensibi olan taksi çağırma ve durak sıra otomasyonunu gerçekleştirebilmek amacıyla hassas konum verilerini (GPS) toplar.
+    </div>
+    <p>Uygulamamız aşağıdaki amaçlar doğrultusunda ön planda ve uygulama kapalı veya arka planda çalışırken konum verilerinizi toplar ve işler:</p>
+    <ul>
+      <li><strong>Durak İçi Algılama (Geofence):</strong> Taksinizin durağa giriş yapıp yapmadığını tespit ederek durak sırasına (1. sıra, 2. sıra) otomatik olarak alınmanızı sağlamak.</li>
+      <li><strong>Çağrı Dağıtımı:</strong> QR kod veya durak çağrısı üzerinden gelen en yakın yolcu taleplerini duraktaki sıradaki sürücüye yönlendirmek.</li>
+      <li><strong>Navigasyon Entegrasyonu:</strong> Yolcu alış adresine ve varış hedefine Google Haritalar üzerinden rota oluşturmak.</li>
+      <li><strong>Yolcu Güvenliği ve Takip:</strong> Yolculuk boyunca yolcunun taksinin gelişini canlı olarak takip edebilmesini temin etmek.</li>
+    </ul>
+
+    <h2>👤 2. Toplanan Diğer Kişisel Veriler</h2>
+    <p>Hizmetlerimizin yürütülmesi için aşağıdaki veriler toplanabilir:</p>
+    <ul>
+      <li><strong>Araç ve Sürücü Bilgileri:</strong> Araç plakası, sürücü adı-soyadı, durak kodu, telefon numarası ve durak yetkilisince atanan giriş şifresi.</li>
+      <li><strong>Sefer ve İşlem Verileri:</strong> Sefer başlangıç ve bitiş zamanı, alınan mesafe, tahsilat tutarı ve müşteri değerlendirme puanı.</li>
+      <li><strong>Cihaz Bilgileri:</strong> Bildirimlerin iletilmesi için cihaz kimliği, işletim sistemi versiyonu ve ağ durumu.</li>
+    </ul>
+
+    <h2>🔒 3. Verilerin Güvenliği ve Saklanması</h2>
+    <p>
+      Toplanan tüm veriler, endüstri standardı güvenlik protokolleri (SSL/TLS şifrelemesi) ile korunmakta ve yetkisiz erişimlere karşı güvenli sunucularda barındırılmaktadır. Verileriniz yalnızca durak otomasyon hizmetlerinin sürdürülmesi amacıyla kullanılmakta, hiçbir şekilde reklam veya pazarlama amacıyla üçüncü şahıslara satılmamaktadır.
+    </p>
+
+    <h2>🤝 4. Verilerin Paylaşılması</h2>
+    <p>Verileriniz yalnızca aşağıdaki durum ve taraflarla paylaşılır:</p>
+    <ul>
+      <li><strong>Yolcularla:</strong> Bir iş çağrısı kabul edildiğinde, yolcunun güvenliği ve taksiyi bulabilmesi amacıyla plaka, sürücü adı ve anlık taksi konumu yolcu çağırma ekranında gösterilir.</li>
+      <li><strong>Bağlı Bulunulan Taksi Durağıyla:</strong> Durak yöneticisi, filo takip panelinden durağa bağlı araçların sıra durumunu ve konumlarını görüntüleyebilir.</li>
+      <li><strong>Yasal Yükümlülükler:</strong> Yasal bir zorunluluk veya adli makamların usulüne uygun talepleri doğrultusunda yetkili kamu kurumlarıyla paylaşılabilir.</li>
+    </ul>
+
+    <h2>🗑️ 5. Veri Silme ve Kullanıcı Hakları</h2>
+    <p>
+      Sürücüler ve durak yetkilileri, sistemde kayıtlı kişisel verilerini öğrenme, düzeltme veya silinmesini talep etme hakkına sahiptir. Oturumunuzun ve verilerinizin silinmesini talep etmek için bağlı olduğunuz durak yöneticisiyle veya doğrudan aşağıdaki iletişim kanallarımız üzerinden bizimle iletişime geçebilirsiniz. Talepleriniz en geç 30 gün içinde sonuçlandırılır.
+    </p>
+
+    <h2>🔄 6. Politika Değişiklikleri</h2>
+    <p>
+      Bu Gizlilik Politikası zaman zaman güncellenebilir. Politikada yapılan her türlü değişiklik bu sayfada yayınlandığı andan itibaren geçerli olur.
+    </p>
+
+    <div class="contact-box">
+      <h3 style="font-size: 16px; font-weight: 800; color: #1e1b4b; margin-bottom: 6px;">İletişim ve Destek</h3>
+      <p style="font-size: 13.5px; margin-bottom: 4px;">Demir Medya Dijital Hizmetleri</p>
+      <p style="font-size: 13.5px; margin-bottom: 4px;">E-Posta: <a href="mailto:info@taksideode.com.tr">info@taksideode.com.tr</a> / <a href="mailto:destek@taksideode.com.tr">destek@taksideode.com.tr</a></p>
+      <p style="font-size: 13.5px; margin-bottom: 0;">Web: <a href="https://taksideode.com.tr" target="_blank">https://taksideode.com.tr</a></p>
+    </div>
+
+    <footer>
+      © 2026 TaksideÖde - Demir Medya. Tüm hakları saklıdır.
+    </footer>
+  </div>
+
+</body>
+</html>

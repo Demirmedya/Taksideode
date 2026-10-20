@@ -41,6 +41,14 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^cagri/?$ cagri.html [L,QSA]
 
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^gizlilik/?$ gizlilik.html [L,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^privacy/?$ gizlilik.html [L,QSA]
+
 RewriteRule ^apk/?$ TaksideOde_POS_v1.0.apk [L]
 RewriteRule ^pos/?$ TaksideOde_POS_v1.0.apk [L]
 
