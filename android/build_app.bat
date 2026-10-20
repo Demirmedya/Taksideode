@@ -38,7 +38,7 @@ copy /Y "app\build\outputs\bundle\release\app-release.aab" "C:\Users\dogud\Downl
 echo [4/4] Bagli telefona APK yukleniyor ve aciliyor...
 adb reverse tcp:3000 tcp:3000
 adb install -r "C:\Users\dogud\Downloads\Taksi\android_outputs\TaksideOde_POS_v1.0.apk"
-adb shell am start -n com.taksideode.pos/.MainActivity
+adb shell am start -n taksideode.com/com.taksideode.pos.MainActivity
 
 echo ====================================================
 echo   TEBRIKLER! Google Play Imzali AAB ve APK Basariyla Uretildi!
